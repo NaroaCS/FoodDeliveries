@@ -1,4 +1,0 @@
-Cycle,Time,Num Bikes,Wandering Speed,Max Wait,Evaporation,Exploitation,Low pheromone,Switch probability,Read update,Agent,Station,Start Time,End Time,Duration (min),Start Battery %,End Battery %,Battery Gain %
-14802,08:13:24,100,bike88,chargingStation[0],08:11:54,08:13:24,1.5,20.477212095409712,100.0,79.5227879045903
-18535,10:17:50,100,bike90,chargingStation[0],10:16:24,10:17:50,1.4333333333333333,22.969387021256342,100.0,77.03061297874365
-18598,10:19:56,100,bike85,chargingStation[0],10:18:24,10:19:56,1.5333333333333334,17.49210835840456,100.0,82.50789164159545
