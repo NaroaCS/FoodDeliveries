@@ -1,0 +1,135 @@
+Cycle,Time,Num Bike,Agent,Event,Message,Start Time,End Time,Duration (min),Distance Traveled,Start Battery %,End Battery %,Battery Gain %
+0,00:00:00,100,bike0,START: wandering,nil
+0,00:00:00,100,bike1,START: wandering,nil
+0,00:00:00,100,bike2,START: wandering,nil
+0,00:00:00,100,bike3,START: wandering,nil
+0,00:00:00,100,bike4,START: wandering,nil
+0,00:00:00,100,bike5,START: wandering,nil
+0,00:00:00,100,bike6,START: wandering,nil
+0,00:00:00,100,bike7,START: wandering,nil
+0,00:00:00,100,bike8,START: wandering,nil
+0,00:00:00,100,bike9,START: wandering,nil
+0,00:00:00,100,bike10,START: wandering,nil
+0,00:00:00,100,bike11,START: wandering,nil
+0,00:00:00,100,bike12,START: wandering,nil
+0,00:00:00,100,bike13,START: wandering,nil
+0,00:00:00,100,bike14,START: wandering,nil
+0,00:00:00,100,bike15,START: wandering,nil
+0,00:00:00,100,bike16,START: wandering,nil
+0,00:00:00,100,bike17,START: wandering,nil
+0,00:00:00,100,bike18,START: wandering,nil
+0,00:00:00,100,bike19,START: wandering,nil
+0,00:00:00,100,bike20,START: wandering,nil
+0,00:00:00,100,bike21,START: wandering,nil
+0,00:00:00,100,bike22,START: wandering,nil
+0,00:00:00,100,bike23,START: wandering,nil
+0,00:00:00,100,bike24,START: wandering,nil
+0,00:00:00,100,bike25,START: wandering,nil
+0,00:00:00,100,bike26,START: wandering,nil
+0,00:00:00,100,bike27,START: wandering,nil
+0,00:00:00,100,bike28,START: wandering,nil
+0,00:00:00,100,bike29,START: wandering,nil
+0,00:00:00,100,bike30,START: wandering,nil
+0,00:00:00,100,bike31,START: wandering,nil
+0,00:00:00,100,bike32,START: wandering,nil
+0,00:00:00,100,bike33,START: wandering,nil
+0,00:00:00,100,bike34,START: wandering,nil
+0,00:00:00,100,bike35,START: wandering,nil
+0,00:00:00,100,bike36,START: wandering,nil
+0,00:00:00,100,bike37,START: wandering,nil
+0,00:00:00,100,bike38,START: wandering,nil
+0,00:00:00,100,bike39,START: wandering,nil
+0,00:00:00,100,bike40,START: wandering,nil
+0,00:00:00,100,bike41,START: wandering,nil
+0,00:00:00,100,bike42,START: wandering,nil
+0,00:00:00,100,bike43,START: wandering,nil
+0,00:00:00,100,bike44,START: wandering,nil
+0,00:00:00,100,bike45,START: wandering,nil
+0,00:00:00,100,bike46,START: wandering,nil
+0,00:00:00,100,bike47,START: wandering,nil
+0,00:00:00,100,bike48,START: wandering,nil
+0,00:00:00,100,bike49,START: wandering,nil
+0,00:00:00,100,bike50,START: wandering,nil
+0,00:00:00,100,bike51,START: wandering,nil
+0,00:00:00,100,bike52,START: wandering,nil
+0,00:00:00,100,bike53,START: wandering,nil
+0,00:00:00,100,bike54,START: wandering,nil
+0,00:00:00,100,bike55,START: wandering,nil
+0,00:00:00,100,bike56,START: wandering,nil
+0,00:00:00,100,bike57,START: wandering,nil
+0,00:00:00,100,bike58,START: wandering,nil
+0,00:00:00,100,bike59,START: wandering,nil
+0,00:00:00,100,bike60,START: wandering,nil
+0,00:00:00,100,bike61,START: wandering,nil
+0,00:00:00,100,bike62,START: wandering,nil
+0,00:00:00,100,bike63,START: wandering,nil
+0,00:00:00,100,bike64,START: wandering,nil
+0,00:00:00,100,bike65,START: wandering,nil
+0,00:00:00,100,bike66,START: wandering,nil
+0,00:00:00,100,bike67,START: wandering,nil
+0,00:00:00,100,bike68,START: wandering,nil
+0,00:00:00,100,bike69,START: wandering,nil
+0,00:00:00,100,bike70,START: wandering,nil
+0,00:00:00,100,bike71,START: wandering,nil
+0,00:00:00,100,bike72,START: wandering,nil
+0,00:00:00,100,bike73,START: wandering,nil
+0,00:00:00,100,bike74,START: wandering,nil
+0,00:00:00,100,bike75,START: wandering,nil
+0,00:00:00,100,bike76,START: wandering,nil
+0,00:00:00,100,bike77,START: wandering,nil
+0,00:00:00,100,bike78,START: wandering,nil
+0,00:00:00,100,bike79,START: wandering,nil
+0,00:00:00,100,bike80,START: wandering,nil
+0,00:00:00,100,bike81,START: wandering,nil
+0,00:00:00,100,bike82,START: wandering,nil
+0,00:00:00,100,bike83,START: wandering,nil
+0,00:00:00,100,bike84,START: wandering,nil
+0,00:00:00,100,bike85,START: wandering,nil
+0,00:00:00,100,bike86,START: wandering,nil
+0,00:00:00,100,bike87,START: wandering,nil
+0,00:00:00,100,bike88,START: wandering,nil
+0,00:00:00,100,bike89,START: wandering,nil
+0,00:00:00,100,bike90,START: wandering,nil
+0,00:00:00,100,bike91,START: wandering,nil
+0,00:00:00,100,bike92,START: wandering,nil
+0,00:00:00,100,bike93,START: wandering,nil
+0,00:00:00,100,bike94,START: wandering,nil
+0,00:00:00,100,bike95,START: wandering,nil
+0,00:00:00,100,bike96,START: wandering,nil
+0,00:00:00,100,bike97,START: wandering,nil
+0,00:00:00,100,bike98,START: wandering,nil
+0,00:00:00,100,bike99,START: wandering,nil
+10292,05:43:04,100,bike98,END: wandering,nil,00:00:00,05:43:04,343.06666666666666,0.0,68.95016402592084,68.95016402592084,0.0
+10293,05:43:06,100,bike98,START: picking_up,Picking up people[0]
+10324,05:44:08,100,bike98,END: picking_up,Picked up people[0],05:43:06,05:44:08,1.0333333333333334,0.0,68.95016402592084,68.4948492545272,-0.4553147713936414
+10325,05:44:10,100,bike98,START: in_use,In Use people[0]
+10532,05:51:04,100,bike30,END: wandering,nil,00:00:00,05:51:04,351.06666666666666,0.0,67.70997912950081,67.70997912950081,0.0
+10533,05:51:06,100,bike30,START: picking_up,Picking up people[1]
+10565,05:52:10,100,bike30,END: picking_up,Picked up people[1],05:51:06,05:52:10,1.0666666666666667,0.0,67.70997912950081,67.24963196868214,-0.4603471608186738
+10566,05:52:12,100,bike30,START: in_use,In Use people[1]
+10798,05:59:56,100,bike98,END: in_use,Usedpeople[0],05:44:10,05:59:56,15.766666666666667,0.0,68.4948492545272,59.5947197577676,-8.900129496759607
+10799,05:59:58,100,bike98,START: wandering,nil
+10903,06:03:26,100,bike30,END: in_use,Usedpeople[1],05:52:12,06:03:26,11.233333333333333,0.0,67.24963196868214,60.91348082910296,-6.336151139579173
+10904,06:03:28,100,bike30,START: wandering,nil
+11492,06:23:04,100,bike28,END: wandering,nil,00:00:00,06:23:04,383.06666666666666,0.0,77.0513477416796,77.0513477416796,0.0
+11493,06:23:06,100,bike28,START: picking_up,Picking up people[2]
+11526,06:24:12,100,bike28,END: picking_up,Picked up people[2],06:23:06,06:24:12,1.1,0.0,77.0513477416796,76.57709020734896,-0.47425753433064527
+11527,06:24:14,100,bike28,START: in_use,In Use people[2]
+11610,06:27:00,100,bike28,END: in_use,Usedpeople[2],06:24:14,06:27:00,2.7666666666666666,0.0,76.57709020734896,75.01635617306587,-1.5607340342830989
+11611,06:27:02,100,bike28,START: wandering,nil
+11852,06:35:04,100,bike28,END: wandering,nil,06:27:02,06:35:04,8.033333333333333,0.0,75.01635617306587,75.01635617306587,0.0
+11853,06:35:06,100,bike28,START: picking_up,Picking up people[3]
+11940,06:38:00,100,bike28,END: picking_up,Picked up people[3],06:35:06,06:38:00,2.9,0.0,75.01635617306587,73.86613023515464,-1.1502259379112245
+11941,06:38:02,100,bike28,START: in_use,In Use people[3]
+11942,06:38:04,100,bike48,END: wandering,nil,00:00:00,06:38:04,398.06666666666666,0.0,56.161715731209064,56.161715731209064,0.0
+11943,06:38:06,100,bike48,START: picking_up,Picking up people[4]
+11955,06:38:30,100,bike48,END: picking_up,Picked up people[4],06:38:06,06:38:30,0.4,0.0,56.161715731209064,55.9852067988145,-0.17650893239456006
+11956,06:38:32,100,bike48,START: in_use,In Use people[4]
+12032,06:41:04,100,bike71,END: wandering,nil,00:00:00,06:41:04,401.06666666666666,0.0,56.639084594104816,56.639084594104816,0.0
+12033,06:41:06,100,bike71,START: picking_up,Picking up people[5]
+12109,06:43:38,100,bike71,END: picking_up,Picked up people[5],06:41:06,06:43:38,2.533333333333333,0.0,56.639084594104816,56.54125502154843,-0.09782957255637786
+12110,06:43:40,100,bike71,START: in_use,In Use people[5]
+12139,06:44:38,100,bike28,END: in_use,Usedpeople[3],06:38:02,06:44:38,6.6,0.0,73.86613023515464,70.14559820694677,-3.7205320282078778
+12140,06:44:40,100,bike28,START: wandering,nil
+12206,06:46:52,100,bike48,END: in_use,Usedpeople[4],06:38:32,06:46:52,8.333333333333334,0.0,55.9852067988145,51.29267892926127,-4.692527869553233
+12207,06:46:54,100,bike48,START: wandering,nil
