@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; //TODO: Adjust this as desired (bigger step -> higher speed -> lower resolution)
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2021-10-12 06:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -30,10 +30,12 @@ global {
 	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
+	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
+	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
+	
 	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
-
 	
 	//----------------------Bike Parameters------------------------
 	int numBikes <- 100 				min: 0 max: 500 parameter: "Num Bikes:" category: "Initial";
@@ -54,33 +56,27 @@ global {
 	float maxDistance <- maxWaitTime*PickUpSpeed #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
     
+    //--------------------Package--------------------
+    int numpackage <- 100;
+    int lunchmin <- 11;
+    int lunchmax <- 14;
+    int dinnermin <- 17;
+    int dinnermax <- 21;
+    
     //Demand 
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
-    //csv_file f <- csv_file("file.csv", ";",int,true, {5, 100});//TODO: Set a limit equivalent to numPeople¿
-    
-    //For many demand files:
-    
-    //csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_"+ demand_i +".csv",true);
-    //int demand_i <- 0 min: 0 max: 5 parameter: "Demand File:" category "Pepole";
-    
-     
-     
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/prueba.csv",true);
+       
     //----------------------Map Parameters------------------------
 	
 	//Case 1 - Urban Swarms Map
-	string cityScopeCity <- "UrbanSwarm";
+	string cityScopeCity <- "Kendall";
 	string residence <- "R";
 	string office <- "O";
 	string usage <- "Usage";
 	
-	//Case 2 - Cambridge Map
-	/*string cityScopeCity <- "Cambridge";
-	string residence <- "Residential";
-	string office <- "Office";
-	string usage <- "Category";*/
-
-    map<string, rgb> color_map <- [residence::#white, office::#gray, "Other"::#black];
+	map<string, rgb> color_map <- [residence::#white, office::#gray, "Other"::#black];
     
 	//GIS FILES To Upload
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
@@ -90,10 +86,8 @@ global {
 	
 	
 	file chargingStations_csv <- file("./../includes/City/Cambridge/current_bluebikes_stations.csv");
-	//Case Cambridge Map
-	//file chargingStations <- file(cityGISFolder + "/chargingStations.shp");
-	//file chargingStations <- file("./../includes/City/clustering" + "/chargingStations.shp");
-	
+		
+	csv_file supermarket_csv <- csv_file (cityGISFolder+ "/FoodPlaces.csv",true);
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');

@@ -12,11 +12,9 @@ global {
 	geometry shape <- envelope(bound_shapefile);
 	graph roadNetwork;
 	list<int> chargingStationLocation;
-
-	
 	
     // ---------------------------------------Agent Creation----------------------------------------------
-init{
+	init{
     	// ---------------------------------------Buildings-----------------------------i----------------
 		do logSetUp;
 	    create building from: buildings_shapefile with: [type:string(read (usage))] {
@@ -30,26 +28,18 @@ init{
 		create road from: roads_shapefile;
 		
 		roadNetwork <- as_edge_graph(road) ;
-		   
-		// TODO: This was some pre-computing but it's not being used now
-		//Next move to the shortest path between each point in the graph
-		//matrix allPairs <- all_pairs_shortest_path (roadNetwork);    
 		
-	    
+		create supermarket from: supermarket_csv with:
+			[lat::float(get("lat")),
+			lon::float(get("lon"))
+			]
+			{
+				sup <- to_GAMA_CRS({lon,lat},"EPSG:4326").location; 
+				location <- sup;
+			}
+			   
 		// -------------------------------------Location of the charging stations----------------------------------------   
 		
-		//***NOTE:*** This section just creates the number of stations defined by the user by clustering road intersections
-		// TODO: I tried to put the stations in current Bluebikes stations' location but I was doing someting wrong - Will review
-		
-				/*create chargingStation from: chargingStations_csv with:[
-						lat::float(get("y")),
-						lon::float(get("x"))
-				]{
-					point_station  <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
-					location <- (intersection closest_to point_station).location;
-				}*/
-				 
-	    //from charging locations to closest intersection
 	    list<int> tmpDist;
 	    		
 		loop vertex over: roadNetwork.vertices {
@@ -103,26 +93,33 @@ init{
 									
 			location <- point(one_of(roadNetwork.vertices));
 			batteryLife <- rnd(minSafeBattery,maxBatteryLife); 	//Battery life random bewteen max and min
-			
-			//write "cycle: " + cycle + ", " + string(self) + " created with batteryLife " + self.batteryLife;
 		}
 	    
 		// -------------------------------------------The People -----------------------------------------
 	    
+	   create package number:numpackage
+		/*[//start_hour::date(get("starttime"))			
+		]*/{
+			building dest <- one_of(building);
+			target_point <- dest.location;
+			supermarket sup <- one_of(supermarket);
+			start_point <- sup.location;
+			location <- start_point;
+			
+			//string start_h_str <- string(start_hour,'kk');
+			start_h <- lunchmin + rnd(lunchmax-1-lunchmin);
+			///string start_min_str <- string(start_hour,'mm');
+			start_min <- rnd(0,59);
+		}
+	   
 	    create people from: demand_csv with:
 		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'
 				start_lat::float(get("start_lat")),
 				start_lon::float(get("start_lon")),
 				target_lat::float(get("target_lat")),
 				target_lon::float(get("target_lon"))
-				/*start_lat::float(42.369732),
-				start_lon::float(-71.090101),
-				target_lat::float(42.368263),
-				target_lon::float(-71.080622)*/
-				
 			]{
 
-				
 	        speed <- peopleSpeed;
 	        start_point  <- to_GAMA_CRS({start_lon,start_lat},"EPSG:4326").location; // (lon, lat) var0 equals a geometry corresponding to the agent geometry transformed into the GAMA CRS
 			target_point <- to_GAMA_CRS({target_lon,target_lat},"EPSG:4326").location;
@@ -132,8 +129,6 @@ init{
 			start_h <- int(start_h_str);
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
-			
-			//write "cycle: " + cycle + ", time "+ self.start_h + ":" + self.start_min + ", "+ string(self) + " will travel from " + self.start_point + " to "+ self.target_point;
 			
 			}
 						
@@ -159,6 +154,8 @@ experiment main_with_gui type: gui {
 			species road aspect: base ;
 			species people aspect: base ;
 			species chargingStation aspect: base ;
+			species supermarket aspect:base;
+			species package aspect:base;
 			species bike aspect: realistic trace: 10 ; 
 			graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
@@ -173,7 +170,3 @@ experiment main_with_gui type: gui {
 experiment main_headless {
 	parameter var: numBikes init: numBikes;
 }
-
-
-
-
