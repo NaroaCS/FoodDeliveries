@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; //TODO: Adjust this as desired (bigger step -> higher speed -> lower resolution)
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 06:00:00"); 
+	date starting_date <- date("2021-10-12 11:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -30,7 +30,7 @@ global {
 	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
-	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
+	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 	
 	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";

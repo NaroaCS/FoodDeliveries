@@ -46,27 +46,31 @@ global {
 		if person != nil{
 			bike b <- available closest_to(person);
 		
-			if !bikeClose(person,b) and delivery != nil{
-				bike b <- available closest_to(delivery);
-				ask b {
-					do pickUpPackage(delivery);
-				}
-				ask delivery {
-					do deliver(b);
-				}
-				return true;
-			} else if !bikeClose(person,b) and delivery = nil{
+			if !bikeClose(person,b){
 				return false;
-			} else if bikeClose(person,b) {
-				ask b {
-					do pickUp(person);
-				}
-				ask person {
-					do ride(b);
-				}
-				return true;
 			}
+			ask b {
+				do pickUp(person);
+			}
+			ask person {
+				do ride(b);
+			}
+		} else if delivery != nil{		
+			
+			bike b <- available closest_to(delivery);
+		
+			b.delivery <- delivery;
+	
+			/*ask b {
+				do pickUpPackage(delivery);
+			}*/
+			ask delivery {
+				do deliver(b);
+			}
+		} else {
+			return false;
 		}
+		return true;
 	}
 
 	bool bikeClose(people person, bike b){
@@ -133,9 +137,11 @@ species package control: fsm skills: [moving] {
 	
     map<string, rgb> color_map <- [
     	
+    	"firstmile":: #blue,
 		"requesting_bike_p":: #springgreen,
 		"awaiting_bike_p":: #springgreen,
 		"delivering":: #gamagreen,
+		"lastmile":: #lightblue,
 		"end":: #magenta
 
 	];
@@ -187,9 +193,22 @@ species package control: fsm skills: [moving] {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
 			closestIntersection <- (intersection closest_to(self)).location; 
 		}
-		transition to: awaiting_bike_p when: host.requestBike(person, self, final_destination) {
+		transition to: firstmile when: host.requestBike(nil, self, final_destination) {
 			target <- closestIntersection;
 		}
+		exit {
+			if packageEventLog {ask logger{do logExitState("Requested Bike "+myself.bikeToDeliver);}}
+		}
+	}
+	state firstmile {
+		enter{
+			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
+		}
+		transition to:awaiting_bike_p when: location=target{}
+		exit {
+			if packageEventLog {ask logger{do logExitState;}}
+		}
+		do goto target: target on: roadNetwork;
 	}
 	state awaiting_bike_p {
 		//Sit at the intersection and wait for your bike
@@ -207,7 +226,7 @@ species package control: fsm skills: [moving] {
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState( "riding " + string(myself.bikeToDeliver) ); }}
 		}
-		transition to: end when: bikeToDeliver.state != "in_use" {
+		transition to: lastmile when: bikeToDeliver.state != "in_use_packages" {
 			target <- final_destination;
 		}
 		exit {
@@ -216,6 +235,16 @@ species package control: fsm skills: [moving] {
 		}
 
 		location <- bikeToDeliver.location; //Always be at the same place as the bike
+	}
+	state lastmile {
+		enter{
+			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
+		}
+		transition to:end when: location=target{}
+		exit {
+			if packageEventLog {ask logger{do logExitState;}}
+		}
+		do goto target: target on: roadNetwork;
 	}
 	/*reflex timeToTravel when:current_date.hour = start_h and current_date.minute >= start_min{
 		start_point <- any_location_in(start);
@@ -303,7 +332,7 @@ species people control: fsm skills: [moving] {
 			if peopleEventLog or peopleTripLog {ask logger { do logEnterState; }}
 			closestIntersection <- (intersection closest_to(self)).location; 
 		}
-		transition to: walking when: host.requestBike(self, delivery, final_destination) {
+		transition to: walking when: host.requestBike(self, nil, final_destination) {
 			target <- closestIntersection;
 		}
 		transition to: wandering {
@@ -391,7 +420,7 @@ species bike control: fsm skills: [moving] {
 	bool lowPass <- false;
 
 	bool availableForRide {
-		return (state in rideStates) and !setLowBattery() and rider = nil  and package=nil;
+		return (state in rideStates) and !setLowBattery() and rider = nil  and delivery=nil;
 	}
 	
 	action pickUp(people person) { 
@@ -418,7 +447,7 @@ species bike control: fsm skills: [moving] {
 		return distance;
 	}
 	action reduceBattery(float distance) {
-		batteryLife <- batteryLife - energyCost(distance); // TODO: Review this, it wasn't active
+		batteryLife <- batteryLife - energyCost(distance); 
 	}
 	//----------------MOVEMENT-----------------
 	point target;
@@ -433,7 +462,7 @@ species bike control: fsm skills: [moving] {
 	}
 		
 	path moveTowardTarget {
-		if (state="in_use"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeed);}
+		if (state="in_use" or state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeed);}
 		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeed);
 	}
 	
@@ -455,7 +484,7 @@ species bike control: fsm skills: [moving] {
 			target <- nil;
 		}
 		transition to: picking_up when: rider != nil {}
-		/*transition to: picking_up_packages when: delivery != nil{}*/
+		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_battery when: setLowBattery() {}
 		exit {
 			ask eventLogger { do logExitState; }
