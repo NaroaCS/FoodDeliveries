@@ -27,6 +27,8 @@ global {
 	
 	bool bikeEventLog <-true parameter: "Bike Event/Trip Log" category: "Logs";
 	
+	bool conventionalBikesEventLog <-true parameter: "Conventional Bike Event/Trip Log" category: "Logs";
+	
 	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
@@ -50,12 +52,19 @@ global {
 	
 	//---------------------Scooter Parameters--------------------------------------------
 	bool scootersInUse <- true parameter: "Scooters are in use: " category: "Scooter";
-	int numScooters <- 100 				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
+	int numScooters <- 3				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
 	float maxBatteryLifeS <- 96560.0 #m	min: 16100#m max: 96560#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; //battery capacity in m
 	float PickUpSpeedS <-  18/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
 	float RidingSpeedS <-  24/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
 	float minSafeBatteryS <- 0.25*maxBatteryLifeS #m; 
 	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	
+	//---------------------Conventional Bike Parameters--------------------------------------------
+	bool conventionalBikesInUse <- true parameter: "Conventional Bikes are in use: " category: "Conventional Bike";
+	int numConventionalBikes <- 100 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
+	float PickUpSpeedConventionalBikes <-  10/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
+	float RidingSpeedConventionalBikes <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
+	float conventionalBikeCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 		
 	//----------------------numChargingStationsion Parameters------------------------
 	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";

@@ -58,6 +58,11 @@ global {
 		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedS*3.6),
 		"Minimum Battery Scooters [%]: "+string(minSafeBatteryS/maxBatteryLifeS*100),
 		
+		"------------------------------CONVENTIONAL BIKE PARAMETERS------------------------------",
+		"Number of Conventional Bikes: "+string(numConventionalBikes),
+		"Pick-up speed Conventional Bikes [km/h]: "+string(PickUpSpeedConventionalBikes*3.6),
+		"Riding speed Conventional Bikes [km/h]: " + string(RidingSpeedConventionalBikes*3.6),
+		
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time [min]: "+string(maxWaitTime/60),
 		"Walking Speed [km/h]: "+string(peopleSpeed*3.6),
@@ -81,6 +86,7 @@ global {
 		"Print Enabled: "+string(printsEnabled),
 		"Bike Event/Trip Log: " +string(bikeEventLog),
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
+		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
 		"People Trip Log: " + string(peopleTripLog),
 		"Package Trip Log: "+ string(packageTripLog),
 		"People Event Log: " + string(peopleEventLog),
@@ -489,6 +495,34 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 	}
 }
 
+species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: conventionalBike {
+	
+	string filename <- 'conventiona_bike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Distance Traveled",
+		"Num Intersections"
+	];
+	bool logPredicate { return roadsTraveledLog; }
+	conventionalBike conventionalbiketarget;
+	
+	float totalDistance <- 0.0;
+	int totalIntersections <- 0;
+	
+	init {
+		conventionalbiketarget <- conventionalBike(target);
+		conventionalbiketarget.travelLogger <- self;
+		loggingAgent <- conventionalbiketarget;
+	}
+	
+	action logRoads(float distanceTraveled, int numIntersections) {
+		totalDistance <- totalDistance + distanceTraveled;
+		totalIntersections <- totalIntersections + numIntersections;
+		
+		do log( [distanceTraveled, numIntersections]);
+	}
+}
+
+
 species bikeLogger_event parent: Logger mirrors: bike {
 	
 	string filename <- 'bike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
@@ -652,5 +686,61 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 				);
 			}
 		}
+	}
+}
+
+species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
+	
+	string filename <- 'conventional_bike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Event",
+		"Message",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Distance Traveled"
+	];
+	
+	bool logPredicate { return conventionalBikesEventLog; }
+	conventionalBike conventionalbiketarget;
+	init {
+		conventionalbiketarget <- conventionalBike(target);
+		conventionalbiketarget.eventLogger <- self;
+		loggingAgent <- conventionalbiketarget;
+	}
+	
+	int cycleStartActivity;
+	date timeStartActivity;
+	point locationStartActivity;
+	float distanceStartActivity;
+	string currentState;
+	
+	action logEnterState(string logmessage) {
+		cycleStartActivity <- cycle;
+		timeStartActivity <- current_date;
+		locationStartActivity <- conventionalbiketarget.location;
+		
+		distanceStartActivity <- conventionalbiketarget.travelLogger.totalDistance;
+		
+		currentState <- conventionalbiketarget.state;
+		do log( ['START: ' + conventionalbiketarget.state] + [logmessage]);
+	}
+	//action logExitState { do logExitState(""); }
+	action logExitState(string logmessage) {
+		float d <- conventionalbiketarget.travelLogger.totalDistance - distanceStartActivity;
+		string timeStartstr;
+		string currentstr;
+		
+		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+				
+		do log( [
+			'END: ' + currentState,
+			logmessage,
+			timeStartstr,
+			currentstr,
+			(cycle*step - cycleStartActivity*step)/(60),
+			d
+		]);
 	}
 }

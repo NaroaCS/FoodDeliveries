@@ -87,7 +87,6 @@ global {
 			}
 		}
 		
-		
 		// -------------------------------------------The Bikes -----------------------------------------
 		create bike number:numBikes{
 									
@@ -100,6 +99,12 @@ global {
 									
 			location <- point(one_of(roadNetwork.vertices));
 			batteryLife <- rnd(minSafeBatteryS,maxBatteryLifeS); 	//Battery life random bewteen max and min
+		}
+		
+		//------------------------------------------The Conventional Bikes------------------------
+	    create conventionalBike number:numConventionalBikes{
+									
+			location <- point(one_of(roadNetwork.vertices));
 		}
 	    
 		// -------------------------------------------The People -----------------------------------------
@@ -166,9 +171,9 @@ reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step
 
 }
 
-experiment batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+/*experiment batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numBikes among: [25, 50, 75, 100, 125];
-}
+}*/
 
 
 experiment main_with_gui type: gui {
@@ -183,6 +188,7 @@ experiment main_with_gui type: gui {
 			species package aspect:base;
 			species bike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
+			species conventionalBike aspect: realistic trace:10; 
 			graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
 				{world.shape.width * 0.8, world.shape.height * 0.975};
@@ -191,8 +197,9 @@ experiment main_with_gui type: gui {
 		}
 		/*display histogram_display{
 			chart name: 'Size distribution' type: histogram background: rgb('lightGray') {
-				data name: "18h" value: float scooteremissions (each.current_date.hour < 19);
+				string name: "18h" value: float scooteremissions (each.current_date.hour < 19);
 				data name: "19h" value: float scooteremissions ((each.current_date.hour < 20) and (each.current_date.hour < 20));
+			}
 		}*/
     }
 }
