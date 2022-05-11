@@ -95,22 +95,47 @@ global {
 			batteryLife <- rnd(minSafeBattery,maxBatteryLife); 	//Battery life random bewteen max and min
 		}
 	    
+	    //------------------------------------------The Scooters------------------------
+	    create scooter number:numScooters{
+									
+			location <- point(one_of(roadNetwork.vertices));
+			batteryLife <- rnd(minSafeBatteryS,maxBatteryLifeS); 	//Battery life random bewteen max and min
+		}
+	    
 		// -------------------------------------------The People -----------------------------------------
 	    
-	   create package number:numpackage
-		/*[//start_hour::date(get("starttime"))			
-		]*/{
+	   create package number:numpackage {
+	   		list<building> deliv <- building where (each.type=residence or each.type=office);
+			building dest <- one_of(deliv);
+			target_point <- dest.location;
+			supermarket sup <- one_of(supermarket);
+			start_point <- sup.location;
+			location <- start_point;
+			
+			int decision <- rnd(0,1);
+			if decision = 0 {
+				start_h <- lunchmin + rnd(lunchmax-1-lunchmin);
+				start_min <- rnd(0,59);
+			} else if decision = 1 {
+				start_h <- dinnermin + rnd(dinnermax-1-dinnermin);
+				start_min <- rnd(0,59);
+			}
+		}
+		
+		/*create package from: pdemand_csv with:
+		[start_hour::date(get("starttime"))			
+		]{
 			building dest <- one_of(building);
 			target_point <- dest.location;
 			supermarket sup <- one_of(supermarket);
 			start_point <- sup.location;
 			location <- start_point;
 			
-			//string start_h_str <- string(start_hour,'kk');
-			start_h <- lunchmin + rnd(lunchmax-1-lunchmin);
-			///string start_min_str <- string(start_hour,'mm');
-			start_min <- rnd(0,59);
-		}
+			string start_h_str <- string(start_hour,'kk');
+			start_h <-  int(start_h_str);
+			string start_min_str <- string(start_hour,'mm');
+			start_min <- int(start_min_str);
+		}*/
 	   
 	    create people from: demand_csv with:
 		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'
@@ -156,17 +181,22 @@ experiment main_with_gui type: gui {
 			species chargingStation aspect: base ;
 			species supermarket aspect:base;
 			species package aspect:base;
-			species bike aspect: realistic trace: 10 ; 
+			species bike aspect: realistic trace: 10 ;
+			species scooter aspect: realistic trace:10; 
 			graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
 				{world.shape.width * 0.8, world.shape.height * 0.975};
 				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
 			}
 		}
-	
+		/*display histogram_display{
+			chart name: 'Size distribution' type: histogram background: rgb('lightGray') {
+				data name: "18h" value: float scooteremissions (each.current_date.hour < 19);
+				data name: "19h" value: float scooteremissions ((each.current_date.hour < 20) and (each.current_date.hour < 20));
+		}*/
     }
 }
 
-experiment main_headless {
+/*experiment main_headless {
 	parameter var: numBikes init: numBikes;
-}
+}*/

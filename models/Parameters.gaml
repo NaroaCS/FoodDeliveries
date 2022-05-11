@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; //TODO: Adjust this as desired (bigger step -> higher speed -> lower resolution)
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 11:00:00"); 
+	date starting_date <- date("2021-10-12 18:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -33,17 +33,30 @@ global {
 	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 	
+	bool scooterEventLog <-false parameter: "Scooter Event/Trip Log" category: "Logs";
+	
 	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------Bike Parameters------------------------
-	int numBikes <- 100 				min: 0 max: 500 parameter: "Num Bikes:" category: "Initial";
+	bool bikesInUse <- false parameter: "Bike are in use: " category: "Bike";
+	int numBikes <- 10 				min: 0 max: 500 parameter: "Num Bikes:" category: "Bike";
 	float maxBatteryLife <- 30000.0 #m	min: 10000#m max: 300000#m parameter: "Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeed <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeed <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed (m/s):" category:  "Bike";
 	float minSafeBattery <- 0.25*maxBatteryLife #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
+	float bikeCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
+	//---------------------Scooter Parameters--------------------------------------------
+	bool scootersInUse <- true parameter: "Scooters are in use: " category: "Scooter";
+	int numScooters <- 100 				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
+	float maxBatteryLifeS <- 96560.0 #m	min: 16100#m max: 96560#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; //battery capacity in m
+	float PickUpSpeedS <-  18/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
+	float RidingSpeedS <-  24/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
+	float minSafeBatteryS <- 0.25*maxBatteryLifeS #m; 
+	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+		
 	//----------------------numChargingStationsion Parameters------------------------
 	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
 	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
@@ -57,7 +70,7 @@ global {
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
     
     //--------------------Package--------------------
-    int numpackage <- 100;
+    int numpackage <- 500;
     int lunchmin <- 11;
     int lunchmax <- 14;
     int dinnermin <- 17;
@@ -66,7 +79,7 @@ global {
     //Demand 
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/prueba.csv",true);
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/package_delivery.csv",true);
        
     //----------------------Map Parameters------------------------
 	

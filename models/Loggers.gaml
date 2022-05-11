@@ -16,11 +16,13 @@ global {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
 			save ["Cycle", "Time","Num Bikes","Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time","Num Scooters","Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
 			save [cycle, string(current_date, "HH:mm:ss"),numBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"),numScooters] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss")] + data;
@@ -35,6 +37,7 @@ global {
 	action logSetUp { 
 		list<string> parameters <- [
 		"Nbikes: "+string(numBikes),
+		"Nscooters: "+string(numScooters),
 		"MaxWait: "+string(maxWaitTime/60),
 
 		"------------------------------SIMULATION PARAMETERS------------------------------",
@@ -48,6 +51,12 @@ global {
 		"Max Battery Life of Bikes [km]: "+string(maxBatteryLife/1000 with_precision 2),
 		"Pick-up speed [km/h]: "+string(PickUpSpeed*3.6),
 		"Minimum Battery [%]: "+string(minSafeBattery/maxBatteryLife*100),
+		
+		"------------------------------SCOOTER PARAMETERS------------------------------",
+		"Number of Scooters: "+string(numScooters),
+		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeS/1000 with_precision 2),
+		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedS*3.6),
+		"Minimum Battery Scooters [%]: "+string(minSafeBatteryS/maxBatteryLifeS*100),
 		
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time [min]: "+string(maxWaitTime/60),
@@ -71,10 +80,11 @@ global {
 		"------------------------------LOGGING PARAMETERS------------------------------",
 		"Print Enabled: "+string(printsEnabled),
 		"Bike Event/Trip Log: " +string(bikeEventLog),
+		"Scooter Event/Trip Log: " + string(scooterEventLog),
 		"People Trip Log: " + string(peopleTripLog),
+		"Package Trip Log: "+ string(packageTripLog),
 		"People Event Log: " + string(peopleEventLog),
 		"Package Event Log:" + string(packageEventLog),
-		"Package Trip Log: "+ string(packageTripLog),
 		"Station Charge Log: "+ string(stationChargeLogs),
 		"Roads Traveled Log: " + string(roadsTraveledLog)
 		];
@@ -153,10 +163,10 @@ species packageLogger_trip parent: Logger mirrors: package {
 	];
 
 	bool logPredicate { return packageTripLog; }
-	people packagetarget;
+	package packagetarget;
 	
 	init {
-		packagetarget <- people(target);
+		packagetarget <- package(target);
 		loggingAgent <- packagetarget;
 	}
 	
@@ -394,6 +404,37 @@ species bikeLogger_chargeEvents parent: Logger mirrors: bike { //Station Chargin
 	}
 }
 
+species scooterLogger_chargeEvents parent: Logger mirrors: scooter { //Station Charging
+	string filename <- 'scooter_station_charge'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Station",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Start Battery %",
+		"End Battery %",
+		"Battery Gain %"
+	];
+	bool logPredicate { return stationChargeLogs; }
+	scooter scootertarget;
+	string startstr;
+	string endstr;
+	
+	init {
+		scootertarget <- scooter(target);
+		scootertarget.chargeLogger <- self;
+		loggingAgent <- scootertarget;
+	}
+	
+	action logCharge(chargingStation station, date startTime, date endTime, float chargeDuration, float startBattery, float endBattery, float batteryGain) {
+				
+		if startTime= nil {startstr <- nil;}else{startstr <- string(startTime,"HH:mm:ss");}
+		if endTime = nil {endstr <- nil;} else {endstr <- string(endTime,"HH:mm:ss");}
+		
+		do log([station, startstr, endstr, chargeDuration, startBattery, endBattery, batteryGain]);
+	}
+}
+
 species bikeLogger_roadsTraveled parent: Logger mirrors: bike {
 	
 	string filename <- 'bike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
@@ -411,6 +452,33 @@ species bikeLogger_roadsTraveled parent: Logger mirrors: bike {
 		biketarget <- bike(target);
 		biketarget.travelLogger <- self;
 		loggingAgent <- biketarget;
+	}
+	
+	action logRoads(float distanceTraveled, int numIntersections) {
+		totalDistance <- totalDistance + distanceTraveled;
+		totalIntersections <- totalIntersections + numIntersections;
+		
+		do log( [distanceTraveled, numIntersections]);
+	}
+}
+
+species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
+	
+	string filename <- 'scooter_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Distance Traveled",
+		"Num Intersections"
+	];
+	bool logPredicate { return roadsTraveledLog; }
+	scooter scootertarget;
+	
+	float totalDistance <- 0.0;
+	int totalIntersections <- 0;
+	
+	init {
+		scootertarget <- scooter(target);
+		scootertarget.travelLogger <- self;
+		loggingAgent <- scootertarget;
 	}
 	
 	action logRoads(float distanceTraveled, int numIntersections) {
@@ -504,3 +572,85 @@ species bikeLogger_event parent: Logger mirrors: bike {
 	}
 }
 
+species scooterLogger_event parent: Logger mirrors: scooter {
+	
+	string filename <- 'scooter_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Event",
+		"Message",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Distance Traveled",
+		"Start Battery %",
+		"End Battery %",
+		"Battery Gain %"
+	];
+	
+	bool logPredicate { return scooterEventLog; }
+	scooter scootertarget;
+	init {
+		scootertarget <- scooter(target);
+		scootertarget.eventLogger <- self;
+		loggingAgent <- scootertarget;
+	}
+	
+	chargingStation stationCharging; //Station where being charged [id]
+	float chargingStartTime; //Charge start time [s]
+	float batteryLifeBeginningCharge; //Battery when beginning charge [%]
+	
+	int cycleStartActivity;
+	date timeStartActivity;
+	point locationStartActivity;
+	float distanceStartActivity;
+	float batteryStartActivity;
+	string currentState;
+	
+	action logEnterState(string logmessage) {
+		cycleStartActivity <- cycle;
+		timeStartActivity <- current_date;
+		batteryStartActivity <- scootertarget.batteryLife;
+		locationStartActivity <- scootertarget.location;
+		
+		distanceStartActivity <- scootertarget.travelLogger.totalDistance;
+		
+		currentState <- scootertarget.state;
+		do log( ['START: ' + scootertarget.state] + [logmessage]);
+	}
+	//action logExitState { do logExitState(""); }
+	action logExitState(string logmessage) {
+		float d <- scootertarget.travelLogger.totalDistance - distanceStartActivity;
+		string timeStartstr;
+		string currentstr;
+		
+		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+				
+		do log( [
+			'END: ' + currentState,
+			logmessage,
+			timeStartstr,
+			currentstr,
+			(cycle*step - cycleStartActivity*step)/(60),
+			d,
+			batteryStartActivity/maxBatteryLife*100,
+			scootertarget.batteryLife/maxBatteryLife*100,
+			(scootertarget.batteryLife-batteryStartActivity)/maxBatteryLife*100
+		]);
+				
+		if currentState = "getting_charge" {
+			//just finished a charge
+			ask scootertarget.chargeLogger {
+				do logCharge(
+					chargingStation closest_to scootertarget,
+					myself.timeStartActivity,
+					current_date,
+					(cycle*step - myself.cycleStartActivity*step)/(60),
+					myself.batteryStartActivity/maxBatteryLife*100,
+					scootertarget.batteryLife/maxBatteryLife*100,
+					(scootertarget.batteryLife-myself.batteryStartActivity)/maxBatteryLife*100
+				);
+			}
+		}
+	}
+}
