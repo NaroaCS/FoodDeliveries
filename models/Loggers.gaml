@@ -16,13 +16,12 @@ global {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
 			save ["Cycle", "Time","Num Bikes","Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
-			save ["Cycle", "Time","Num Scooters","Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			// Parámetro a variar (que luego se quiera ver en los batch)
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"),numBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
-			save [cycle, string(current_date, "HH:mm:ss"),numScooters] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"),numAutonomousBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss")] + data;
@@ -34,9 +33,10 @@ global {
 			save (param) to: './../data/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;}
 	}
 	
+	//Los parámetros que no se varían pero se quieren guardar para acordarse de su inicialización
 	action logSetUp { 
 		list<string> parameters <- [
-		"Nbikes: "+string(numBikes),
+		"NAutonomousBikes: "+string(numAutonomousBikes),
 		"Nscooters: "+string(numScooters),
 		"MaxWait: "+string(maxWaitTime/60),
 
@@ -47,16 +47,16 @@ global {
 		"Number ot Hours of Simulation (if less than one day): "+string(numberOfHours),
 
 		"------------------------------BIKE PARAMETERS------------------------------",
-		"Number of Bikes: "+string(numBikes),
-		"Max Battery Life of Bikes [km]: "+string(maxBatteryLife/1000 with_precision 2),
-		"Pick-up speed [km/h]: "+string(PickUpSpeed*3.6),
-		"Minimum Battery [%]: "+string(minSafeBattery/maxBatteryLife*100),
+		"Number of Bikes: "+string(numAutonomousBikes),
+		"Max Battery Life of Bikes [km]: "+string(maxBatteryLifeAutonomousBike/1000 with_precision 2),
+		"Pick-up speed [km/h]: "+string(PickUpSpeedAutonomousBike*3.6),
+		"Minimum Battery [%]: "+string(minSafeBatteryAutonomousBike/maxBatteryLifeAutonomousBike*100),
 		
 		"------------------------------SCOOTER PARAMETERS------------------------------",
 		"Number of Scooters: "+string(numScooters),
-		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeS/1000 with_precision 2),
-		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedS*3.6),
-		"Minimum Battery Scooters [%]: "+string(minSafeBatteryS/maxBatteryLifeS*100),
+		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeScooter/1000 with_precision 2),
+		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedScooter*3.6),
+		"Minimum Battery Scooters [%]: "+string(minSafeBatteryScooter/maxBatteryLifeScooter*100),
 		
 		"------------------------------CONVENTIONAL BIKE PARAMETERS------------------------------",
 		"Number of Conventional Bikes: "+string(numConventionalBikes),
@@ -66,14 +66,13 @@ global {
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time [min]: "+string(maxWaitTime/60),
 		"Walking Speed [km/h]: "+string(peopleSpeed*3.6),
-		"Riding speed [km/h]: "+string(RidingSpeed*3.6),
+		"Riding Speed [km/h]: "+string(RidingSpeedAutonomousBike*3.6),
 
 		
 		"------------------------------STATION PARAMETERS------------------------------",
 		"Number of Charging Stations: "+string(numChargingStations),
 		"V2I Charging Rate: "+string(V2IChargingRate  with_precision 2),
 		"Charging Station Capacity: "+string(chargingStationCapacity),
-
 
 		"------------------------------MAP PARAMETERS------------------------------",
 		"City Map Name: "+string(cityScopeCity),
@@ -84,7 +83,7 @@ global {
 		
 		"------------------------------LOGGING PARAMETERS------------------------------",
 		"Print Enabled: "+string(printsEnabled),
-		"Bike Event/Trip Log: " +string(bikeEventLog),
+		"Bike Event/Trip Log: " +string(autonomousBikeEventLog),
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
 		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
 		"People Trip Log: " + string(peopleTripLog),
@@ -98,6 +97,7 @@ global {
 		}
 }
 
+// Genérico
 species Logger {
 	
 	action logPredicate virtual: true type: bool;
@@ -110,6 +110,7 @@ species Logger {
 	action log(list data) {
 		if logPredicate() {
 			ask host {
+				//llamar a función para guardar
 				do log(myself.filename, [string(myself.loggingAgent.name)] + data, myself.columns);
 			} 
 		}
@@ -142,7 +143,7 @@ species peopleLogger_trip parent: Logger mirrors: people {
 	}
 	
 	action logTrip( bool served, float waitTime, date departure, date arrival, float tripduration, point origin, point destination, float distance) {
-		//numBikes, WanderingSpeed, maxWaitTime, evaporation, exploitationRate, chargingPheromoneThreshold, pLowPheromoneCharge, readUpdateRate
+		//numAutonomousBikes, WanderingSpeed, maxWaitTime, evaporation, exploitationRate, chargingPheromoneThreshold, pLowPheromoneCharge, readUpdateRate
 		point origin_WGS84 <- CRS_transform(origin, "EPSG:4326").location; //project the point to WGS84 CRS
 		point destination_WGS84 <- CRS_transform(destination, "EPSG:4326").location; //project the point to WGS84 CRS
 		string dep;
@@ -177,7 +178,7 @@ species packageLogger_trip parent: Logger mirrors: package {
 	}
 	
 	action logTrip( bool served, float waitTime, date departure, date arrival, float tripduration, point origin, point destination, float distance) {
-		//numBikes, WanderingSpeed, maxWaitTime, evaporation, exploitationRate, chargingPheromoneThreshold, pLowPheromoneCharge, readUpdateRate
+		//numAutonomousBikes, WanderingSpeed, maxWaitTime, evaporation, exploitationRate, chargingPheromoneThreshold, pLowPheromoneCharge, readUpdateRate
 		point origin_WGS84 <- CRS_transform(origin, "EPSG:4326").location; //project the point to WGS84 CRS
 		point destination_WGS84 <- CRS_transform(destination, "EPSG:4326").location; //project the point to WGS84 CRS
 		string dep;
@@ -190,6 +191,9 @@ species packageLogger_trip parent: Logger mirrors: package {
 		do log([served, waitTime,dep ,des, tripduration, origin_WGS84.x, origin_WGS84.y, destination_WGS84.x, destination_WGS84.y, distance]);
 	} 
 }
+
+// Identificar cosas raras que puedan pasar. Por ejmplo, que una bici nunca llegue al destinatario etc.
+// Cargar solo cuando se quiere saber por qué ocurren ciertos problemas
 
 species peopleLogger parent: Logger mirrors: people {
 	string filename <- "people_event"+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
@@ -379,7 +383,7 @@ species packageLogger parent: Logger mirrors: package {
 	}
 }
 
-species bikeLogger_chargeEvents parent: Logger mirrors: bike { //Station Charging
+species autonomousBikeLogger_chargeEvents parent: Logger mirrors: autonomousBike { //Station Charging
 	string filename <- 'bike_station_charge'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Station",
@@ -391,12 +395,12 @@ species bikeLogger_chargeEvents parent: Logger mirrors: bike { //Station Chargin
 		"Battery Gain %"
 	];
 	bool logPredicate { return stationChargeLogs; }
-	bike biketarget;
+	autonomousBike biketarget;
 	string startstr;
 	string endstr;
 	
 	init {
-		biketarget <- bike(target);
+		biketarget <- autonomousBike(target);
 		biketarget.chargeLogger <- self;
 		loggingAgent <- biketarget;
 	}
@@ -441,7 +445,7 @@ species scooterLogger_chargeEvents parent: Logger mirrors: scooter { //Station C
 	}
 }
 
-species bikeLogger_roadsTraveled parent: Logger mirrors: bike {
+species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBike {
 	
 	string filename <- 'bike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
@@ -449,13 +453,13 @@ species bikeLogger_roadsTraveled parent: Logger mirrors: bike {
 		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
-	bike biketarget;
+	autonomousBike biketarget;
 	
 	float totalDistance <- 0.0;
 	int totalIntersections <- 0;
 	
 	init {
-		biketarget <- bike(target);
+		biketarget <- autonomousBike(target);
 		biketarget.travelLogger <- self;
 		loggingAgent <- biketarget;
 	}
@@ -523,9 +527,9 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 }
 
 
-species bikeLogger_event parent: Logger mirrors: bike {
+species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	
-	string filename <- 'bike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	string filename <- 'autonomousBike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Event",
 		"Message",
@@ -538,10 +542,10 @@ species bikeLogger_event parent: Logger mirrors: bike {
 		"Battery Gain %"
 	];
 	
-	bool logPredicate { return bikeEventLog; }
-	bike biketarget;
+	bool logPredicate { return autonomousBikeEventLog; }
+	autonomousBike biketarget;
 	init {
-		biketarget <- bike(target);
+		biketarget <- autonomousBike(target);
 		biketarget.eventLogger <- self;
 		loggingAgent <- biketarget;
 	}
@@ -584,9 +588,9 @@ species bikeLogger_event parent: Logger mirrors: bike {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			batteryStartActivity/maxBatteryLife*100,
-			biketarget.batteryLife/maxBatteryLife*100,
-			(biketarget.batteryLife-batteryStartActivity)/maxBatteryLife*100
+			batteryStartActivity/maxBatteryLifeAutonomousBike*100,
+			biketarget.batteryLife/maxBatteryLifeAutonomousBike*100,
+			(biketarget.batteryLife-batteryStartActivity)/maxBatteryLifeAutonomousBike*100
 		]);
 				
 		if currentState = "getting_charge" {
@@ -597,9 +601,9 @@ species bikeLogger_event parent: Logger mirrors: bike {
 					myself.timeStartActivity,
 					current_date,
 					(cycle*step - myself.cycleStartActivity*step)/(60),
-					myself.batteryStartActivity/maxBatteryLife*100,
-					biketarget.batteryLife/maxBatteryLife*100,
-					(biketarget.batteryLife-myself.batteryStartActivity)/maxBatteryLife*100
+					myself.batteryStartActivity/maxBatteryLifeAutonomousBike*100,
+					biketarget.batteryLife/maxBatteryLifeAutonomousBike*100,
+					(biketarget.batteryLife-myself.batteryStartActivity)/maxBatteryLifeAutonomousBike*100
 				);
 			}
 		}
@@ -667,9 +671,9 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			batteryStartActivity/maxBatteryLife*100,
-			scootertarget.batteryLife/maxBatteryLife*100,
-			(scootertarget.batteryLife-batteryStartActivity)/maxBatteryLife*100
+			batteryStartActivity/maxBatteryLifeScooter*100,
+			scootertarget.batteryLife/maxBatteryLifeScooter*100,
+			(scootertarget.batteryLife-batteryStartActivity)/maxBatteryLifeScooter*100
 		]);
 				
 		if currentState = "getting_charge" {
@@ -680,9 +684,9 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 					myself.timeStartActivity,
 					current_date,
 					(cycle*step - myself.cycleStartActivity*step)/(60),
-					myself.batteryStartActivity/maxBatteryLife*100,
-					scootertarget.batteryLife/maxBatteryLife*100,
-					(scootertarget.batteryLife-myself.batteryStartActivity)/maxBatteryLife*100
+					myself.batteryStartActivity/maxBatteryLifeScooter*100,
+					scootertarget.batteryLife/maxBatteryLifeScooter*100,
+					(scootertarget.batteryLife-myself.batteryStartActivity)/maxBatteryLifeScooter*100
 				);
 			}
 		}

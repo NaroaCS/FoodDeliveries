@@ -88,17 +88,17 @@ global {
 		}
 		
 		// -------------------------------------------The Bikes -----------------------------------------
-		create bike number:numBikes{
+		create autonomousBike number:numAutonomousBikes{
 									
 			location <- point(one_of(roadNetwork.vertices));
-			batteryLife <- rnd(minSafeBattery,maxBatteryLife); 	//Battery life random bewteen max and min
+			batteryLife <- rnd(minSafeBatteryAutonomousBike,maxBatteryLifeAutonomousBike); 	//Battery life random bewteen max and min
 		}
 	    
 	    //------------------------------------------The Scooters------------------------
 	    create scooter number:numScooters{
 									
 			location <- point(one_of(roadNetwork.vertices));
-			batteryLife <- rnd(minSafeBatteryS,maxBatteryLifeS); 	//Battery life random bewteen max and min
+			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The Conventional Bikes------------------------
@@ -164,20 +164,19 @@ global {
 						
 			write "FINISH INITIALIZATION";
     }
-
-reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step {
-	do pause ;
-}
-
+    
+	reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step {
+		do pause ;
+	}
 }
 
 /*experiment batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numBikes among: [25, 50, 75, 100, 125];
+	parameter var: numAutonomousBikes among: [25, 50, 75, 100, 125];
 }*/
 
 
 experiment main_with_gui type: gui {
-	parameter var: numBikes init: numBikes;
+	parameter var: numAutonomousBikes init: numAutonomousBikes;
     output {
 		display city_display type:opengl background: #black draw_env: false{	 
 			species building aspect: type ;
@@ -186,7 +185,7 @@ experiment main_with_gui type: gui {
 			species chargingStation aspect: base ;
 			species supermarket aspect:base;
 			species package aspect:base;
-			species bike aspect: realistic trace: 10 ;
+			species autonomousBike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
 			species conventionalBike aspect: realistic trace:10; 
 			graphics "text" {
@@ -195,18 +194,12 @@ experiment main_with_gui type: gui {
 				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
 			}
 		}
-		/*display histogram_display{
-			chart name: 'Size distribution' type: histogram background: rgb('lightGray') {
-				string name: "18h" value: float scooteremissions (each.current_date.hour < 19);
-				data name: "19h" value: float scooteremissions ((each.current_date.hour < 20) and (each.current_date.hour < 20));
-			}
-		}*/
-		display chart refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline {
+		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
 		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
 		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
         	}
-        	chart "Trips per MoCho" type: pie {
+        	chart "Trips per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
 		        data "Scooter" value: scooter_trips_count_PUP color: #green;
 		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
         	}
@@ -214,6 +207,69 @@ experiment main_with_gui type: gui {
     }
 }
 
+experiment traditionalScenario type:gui {
+	bool traditionalScenario<-true;
+	bool autonomousBikesInUse <- false;
+	bool scootersInUse <- true;
+	bool conventionalBikesInUse <- true;
+    output {
+		display traditionalScenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species chargingStation aspect: base ;
+			species supermarket aspect:base;
+			species package aspect:base;
+			species scooter aspect: realistic trace:10; 
+			species conventionalBike aspect: realistic trace:10; 
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
+	    	}
+	    	chart "Trips per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
+	    	}
+	    }
+	}
+}
+
+experiment autonomousScenario type:gui {
+	bool traditionalScenario<-false;
+	bool autonomousBikesInUse <- true;
+	bool scootersInUse <- false;
+	bool conventionalBikesInUse <- false;
+    output {
+		display traditionalScenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species chargingStation aspect: base ;
+			species supermarket aspect:base;
+			species package aspect:base;
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        
+	    	}
+	    	chart "Trips per Load Type" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		       
+	    	}
+	    }
+	}
+}
 /*experiment main_headless {
-	parameter var: numBikes init: numBikes;
+	parameter var: numAutonomousBikes init: numAutonomousBikes;
 }*/
