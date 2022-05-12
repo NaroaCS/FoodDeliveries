@@ -201,6 +201,16 @@ experiment main_with_gui type: gui {
 				data name: "19h" value: float scooteremissions ((each.current_date.hour < 20) and (each.current_date.hour < 20));
 			}
 		}*/
+		display chart refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline {
+		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
+        	}
+        	chart "Trips per MoCho" type: pie {
+		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
+        	}
+        }
     }
 }
 

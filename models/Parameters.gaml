@@ -27,7 +27,7 @@ global {
 	
 	bool bikeEventLog <-true parameter: "Bike Event/Trip Log" category: "Logs";
 	
-	bool conventionalBikesEventLog <-true parameter: "Conventional Bike Event/Trip Log" category: "Logs";
+	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-true parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
@@ -35,7 +35,7 @@ global {
 	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 	
-	bool scooterEventLog <-false parameter: "Scooter Event/Trip Log" category: "Logs";
+	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	
 	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
 	
@@ -64,7 +64,7 @@ global {
 	int numConventionalBikes <- 100 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
 	float PickUpSpeedConventionalBikes <-  10/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
 	float RidingSpeedConventionalBikes <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
-	float conventionalBikeCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 		
 	//----------------------numChargingStationsion Parameters------------------------
 	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
