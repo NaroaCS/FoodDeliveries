@@ -52,6 +52,9 @@ global {
 		"Pick-up speed [km/h]: "+string(PickUpSpeedAutonomousBike*3.6),
 		"Minimum Battery [%]: "+string(minSafeBatteryAutonomousBike/maxBatteryLifeAutonomousBike*100),
 		
+		"--------------------------DOCKLESS BIKE PARAMETERS------------------------------",
+		"Number of Dockless Bikes: "+string(numDocklessBikes),
+		
 		"------------------------------SCOOTER PARAMETERS------------------------------",
 		"Number of Scooters: "+string(numScooters),
 		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeScooter/1000 with_precision 2),
@@ -84,6 +87,7 @@ global {
 		"------------------------------LOGGING PARAMETERS------------------------------",
 		"Print Enabled: "+string(printsEnabled),
 		"Bike Event/Trip Log: " +string(autonomousBikeEventLog),
+		"Dockless Bike Event/Trip Log: " +string(docklessBikeEventLog),
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
 		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
 		"People Trip Log: " + string(peopleTripLog),
@@ -472,6 +476,33 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 	}
 }
 
+species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
+	
+	string filename <- 'dockless_bike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Distance Traveled",
+		"Num Intersections"
+	];
+	bool logPredicate { return roadsTraveledLog; }
+	docklessBike docklessbiketarget;
+	
+	float totalDistance <- 0.0;
+	int totalIntersections <- 0;
+	
+	init {
+		docklessbiketarget <- docklessBike(target);
+		docklessbiketarget.travelLogger <- self;
+		loggingAgent <- docklessbiketarget;
+	}
+	
+	action logRoads(float distanceTraveled, int numIntersections) {
+		totalDistance <- totalDistance + distanceTraveled;
+		totalIntersections <- totalIntersections + numIntersections;
+		
+		do log( [distanceTraveled, numIntersections]);
+	}
+}
+
 species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 	
 	string filename <- 'scooter_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
@@ -525,7 +556,6 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 		do log( [distanceTraveled, numIntersections]);
 	}
 }
-
 
 species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	
@@ -607,6 +637,62 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 				);
 			}
 		}
+	}
+}
+
+species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
+	
+	string filename <- 'docklessBike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Event",
+		"Message",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Distance Traveled"
+	];
+	
+	bool logPredicate { return docklessBikeEventLog; }
+	docklessBike docklessbiketarget;
+	init {
+		docklessbiketarget <- docklessBike(target);
+		docklessbiketarget.eventLogger <- self;
+		loggingAgent <- docklessbiketarget;
+	}
+	
+	int cycleStartActivity;
+	date timeStartActivity;
+	point locationStartActivity;
+	float distanceStartActivity;
+	string currentState;
+	
+	action logEnterState(string logmessage) {
+		cycleStartActivity <- cycle;
+		timeStartActivity <- current_date;
+		locationStartActivity <- docklessbiketarget.location;
+		
+		distanceStartActivity <- docklessbiketarget.travelLogger.totalDistance;
+		
+		currentState <- docklessbiketarget.state;
+		do log( ['START: ' + docklessbiketarget.state] + [logmessage]);
+	}
+	//action logExitState { do logExitState(""); }
+	action logExitState(string logmessage) {
+		float d <- docklessbiketarget.travelLogger.totalDistance - distanceStartActivity;
+		string timeStartstr;
+		string currentstr;
+		
+		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+				
+		do log( [
+			'END: ' + currentState,
+			logmessage,
+			timeStartstr,
+			currentstr,
+			(cycle*step - cycleStartActivity*step)/(60),
+			d
+		]);
 	}
 }
 

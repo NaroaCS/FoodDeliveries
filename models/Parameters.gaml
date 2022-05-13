@@ -25,8 +25,8 @@ global {
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
-	bool autonomousBikeEventLog <-false parameter: "Bike Event/Trip Log" category: "Logs";
-	
+	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
+	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
@@ -44,7 +44,7 @@ global {
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
 	
-	//----------------------Bike Parameters------------------------
+	//----------------------Autonomous Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
 	int numAutonomousBikes <- 75 				min: 0 max: 500 parameter: "Num Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 30000.0 #m	min: 10000#m max: 300000#m parameter: "Battery Capacity (m):" category: "Bike"; //battery capacity in m
@@ -52,6 +52,12 @@ global {
 	float RidingSpeedAutonomousBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
 	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	
+	//----------------------Dockless Bike Parameters------------------------
+	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
+	int numDocklessBikes <- 75 				min: 0 max: 500 parameter: "Num Dockless Bikes:" category: "Dockless Bike";
+	float RidingSpeedDocklessBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed Dockless Bike (m/s):" category:  "Dockless Bike";
+	float docklessBikeCO2Emissions <- 0.035 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Scooter Parameters--------------------------------------------
 	//bool scootersInUse <- true parameter: "Scooters are in use: " category: "Scooter";
