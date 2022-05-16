@@ -180,7 +180,7 @@ global {
 	parameter var: numAutonomousBikes among: [25, 50, 75, 100, 125];
 }*/
 
-experiment main_with_gui type: gui {
+/*experiment main_with_gui type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
     output {
 		display city_display type:opengl background: #black draw_env: false{	 
@@ -202,12 +202,81 @@ experiment main_with_gui type: gui {
 		}
 		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
 	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
 		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
 		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
         	}
-        	chart "Trips per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
 		        data "Scooter" value: scooter_trips_count_PUP color: #green;
 		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
+        	}
+        }
+    }
+}*/
+
+experiment traditionalScenario {
+	parameter var: numScooters init: numScooters;
+	parameter var: numConventionalBikes init: numConventionalBikes;
+	parameter var: numDocklessBikes init: numDocklessBikes;
+	output {
+		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species supermarket aspect:base;
+			species package aspect:base;
+			species docklessBike aspect: realistic trace: 10 ;
+			species scooter aspect: realistic trace:10; 
+			species conventionalBike aspect: realistic trace:10; 
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
+		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
+        	}
+        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
+        	}
+        }    
+	}
+}
+
+experiment autonomousScenario type: gui {
+	parameter var: numAutonomousBikes init: numAutonomousBikes;
+    output {
+		display autonomousScenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species chargingStation aspect: base ;
+			species supermarket aspect:base;
+			species package aspect:base;
+			species autonomousBike aspect: realistic trace: 10 ;
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Autonomous Bike Emissions in People Delivery" value: autonomousBike_total_emissions_people color: #purple marker: false;
+		        data "Autonomous Bike Emissions in Package Delivery" value: autonomousBike_total_emissions_package color: #green marker: false;
+		        data "Autonomous Bike Emissions Going to Charge" value: autonomousBike_total_emissions_C color: #red marker: false;
+        	}
+        	chart "Autonomous Bike Usage per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		        data "People" value: autonomousBike_trips_count_people color: #green;
+		        data "package" value: autonomousBike_trips_count_package color: #red;
+        	}
+        	chart "CO2 Emissions Total" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0.5}{
+		        data "Autonomous Bike Emissions Total" value: autonomousBike_total_emissions color: #black marker: false;
         	}
         }
     }

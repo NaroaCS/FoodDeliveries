@@ -37,6 +37,7 @@ global {
 	action logSetUp { 
 		list<string> parameters <- [
 		"NAutonomousBikes: "+string(numAutonomousBikes),
+		"NDocklessBikes: "+string(numDocklessBikes),
 		"Nscooters: "+string(numScooters),
 		"MaxWait: "+string(maxWaitTime/60),
 
@@ -54,6 +55,7 @@ global {
 		
 		"--------------------------DOCKLESS BIKE PARAMETERS------------------------------",
 		"Number of Dockless Bikes: "+string(numDocklessBikes),
+		"Riding speed Dockless Bikes [km/h]: " + string(RidingSpeedDocklessBike*3.6),
 		
 		"------------------------------SCOOTER PARAMETERS------------------------------",
 		"Number of Scooters: "+string(numScooters),
@@ -69,8 +71,8 @@ global {
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time [min]: "+string(maxWaitTime/60),
 		"Walking Speed [km/h]: "+string(peopleSpeed*3.6),
-		"Riding Speed [km/h]: "+string(RidingSpeedAutonomousBike*3.6),
-
+		"Riding Speed Autonomous Bike [km/h]: "+string(RidingSpeedAutonomousBike*3.6),
+		"Riding Speed Dockless Bike [km/h]: "+string(RidingSpeedDocklessBike*3.6),
 		
 		"------------------------------STATION PARAMETERS------------------------------",
 		"Number of Charging Stations: "+string(numChargingStations),
@@ -86,7 +88,7 @@ global {
 		
 		"------------------------------LOGGING PARAMETERS------------------------------",
 		"Print Enabled: "+string(printsEnabled),
-		"Bike Event/Trip Log: " +string(autonomousBikeEventLog),
+		"Autonomous Bike Event/Trip Log: " +string(autonomousBikeEventLog),
 		"Dockless Bike Event/Trip Log: " +string(docklessBikeEventLog),
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
 		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
@@ -478,21 +480,21 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 
 species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 	
-	string filename <- 'dockless_bike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	string filename <- 'docklessBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Distance Traveled",
 		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
-	docklessBike docklessbiketarget;
+	docklessBike docklessBiketarget;
 	
 	float totalDistance <- 0.0;
 	int totalIntersections <- 0;
 	
 	init {
-		docklessbiketarget <- docklessBike(target);
-		docklessbiketarget.travelLogger <- self;
-		loggingAgent <- docklessbiketarget;
+		docklessBiketarget <- docklessBike(target);
+		docklessBiketarget.travelLogger <- self;
+		loggingAgent <- docklessBiketarget;
 	}
 	
 	action logRoads(float distanceTraveled, int numIntersections) {
@@ -653,11 +655,11 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 	];
 	
 	bool logPredicate { return docklessBikeEventLog; }
-	docklessBike docklessbiketarget;
+	docklessBike docklessBiketarget;
 	init {
-		docklessbiketarget <- docklessBike(target);
-		docklessbiketarget.eventLogger <- self;
-		loggingAgent <- docklessbiketarget;
+		docklessBiketarget <- docklessBike(target);
+		docklessBiketarget.eventLogger <- self;
+		loggingAgent <- docklessBiketarget;
 	}
 	
 	int cycleStartActivity;
@@ -669,16 +671,16 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
 		timeStartActivity <- current_date;
-		locationStartActivity <- docklessbiketarget.location;
+		locationStartActivity <- docklessBiketarget.location;
 		
-		distanceStartActivity <- docklessbiketarget.travelLogger.totalDistance;
+		distanceStartActivity <- docklessBiketarget.travelLogger.totalDistance;
 		
-		currentState <- docklessbiketarget.state;
-		do log( ['START: ' + docklessbiketarget.state] + [logmessage]);
+		currentState <- docklessBiketarget.state;
+		do log( ['START: ' + docklessBiketarget.state] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- docklessbiketarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- docklessBiketarget.travelLogger.totalDistance - distanceStartActivity;
 		string timeStartstr;
 		string currentstr;
 		

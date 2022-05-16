@@ -6,7 +6,7 @@ global {
 	//----------------------Simulation Parameters------------------------
 	
 	//Simulation time step
-	float step <- 2 #sec; //TODO: Adjust this as desired (bigger step -> higher speed -> lower resolution)
+	float step <- 2 #sec; 
 	
 	//Simulation starting date
 	date starting_date <- date("2021-10-12 18:00:00"); 
@@ -27,6 +27,7 @@ global {
 	
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
+	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
@@ -34,9 +35,7 @@ global {
 	
 	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
-	
-	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
-	
+		
 	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
@@ -61,7 +60,7 @@ global {
 	
 	//---------------------Scooter Parameters--------------------------------------------
 	//bool scootersInUse <- true parameter: "Scooters are in use: " category: "Scooter";
-	int numScooters <- 20				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
+	int numScooters <- 2				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
 	float maxBatteryLifeScooter <- 96560.0 #m	min: 16100#m max: 96560#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; //battery capacity in m
 	float PickUpSpeedScooter <-  18/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
 	float RidingSpeedScooter <-  24/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
