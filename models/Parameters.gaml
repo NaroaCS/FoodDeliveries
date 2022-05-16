@@ -82,11 +82,17 @@ global {
 	
 	//----------------------People Parameters------------------------
 	//int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";
-	float maxWaitTime <- 60 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time:" category: "People";
-	float maxDistance <- maxWaitTime*PickUpSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
+	float maxWaitTimePeople <- 60 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time People:" category: "People";
+	float maxDistancePeople_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
+   	float maxDistancePeople_DocklessBike <- maxWaitTimePeople*peopleSpeed #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     
     //--------------------Package--------------------
+    float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
+	float maxDistancePackage_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m;
+	float maxDistancePackage_Scooter <- maxWaitTimePeople*PickUpSpeedScooter#m;
+	float maxDistancePackage_ConventionalBike <- maxWaitTimePeople*PickUpSpeedConventionalBikes #m;
+   
     int numpackage <- 500;
     int lunchmin <- 11;
     int lunchmax <- 14;

@@ -193,14 +193,14 @@ global {
 	bool autonomousBikeClose(people person, package delivery, autonomousBike b){
 		if person !=nil {
 			float d <- distanceInGraph(b.location,person.location);
-			if d<maxDistance { 
+			if d<maxDistancePeople_AutonomousBike { 
 				return true;
 			}else{
 				return false ;
 			}
 		} else if delivery !=nil {
 			float d <- distanceInGraph(b.location,delivery.location);
-			if d<maxDistance { 
+			if d<maxDistancePackage_AutonomousBike { 
 				return true;
 			}else{
 				return false ;
@@ -212,7 +212,7 @@ global {
 	
 	bool scooterClose(package delivery, scooter s){
 		float d <- distanceInGraph(s.location,delivery.location);
-		if d<maxDistance { 
+		if d<maxDistancePackage_Scooter { 
 			return true;
 		}else{
 			return false ;
@@ -221,7 +221,7 @@ global {
 	
 	bool conventionalBikeClose(package delivery, conventionalBike cb){
 		float d <- distanceInGraph(cb.location,delivery.location);
-		if d<maxDistance { 
+		if d<maxDistancePackage_ConventionalBike { 
 			return true;
 		}else{
 			return false ;
@@ -230,7 +230,7 @@ global {
 	
 	bool docklessBikeClose(people person, docklessBike db){
 		float d <- distanceInGraph(db.location,person.location);
-		if d<maxDistance { 
+		if d<maxDistancePeople_DocklessBike { 
 			return true;
 		}else{
 			return false ;
@@ -899,7 +899,6 @@ species scooter control: fsm skills: [moving] {
 
 	//loggers
 	scooterLogger_roadsTraveled travelLogger;
-	scooterLogger_chargeEvents chargeLogger;
 	scooterLogger_event eventLogger;
 	    
 	/* ========================================== PUBLIC FUNCTIONS ========================================= */
@@ -1069,8 +1068,6 @@ species conventionalBike control: fsm skills: [moving] {
 		travelledPath <- moveTowardTarget();
 		
 		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
-		
-		//scooterEmissions <- scooterEmissions + distanceTraveled*scooterCO2Emissions;
 	}
 				
 	state wandering initial: true {
@@ -1169,18 +1166,16 @@ species docklessBike control: fsm skills: [moving] {
 		travelledPath <- moveTowardTarget();
 		
 		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
-		
-		//scooterEmissions <- scooterEmissions + distanceTraveled*scooterCO2Emissions;
 	}
 				
 	state wandering initial: true {
 		enter {
-			//ask eventLogger { do logEnterState; }
+			ask eventLogger { do logEnterState; }
 			target <- nil;
 		}
 		transition to: blocked when: rider != nil{}
 		exit {
-			//ask eventLogger { do logExitState; }
+			ask eventLogger { do logExitState; }
 		}
 	}
 	
@@ -1191,7 +1186,7 @@ species docklessBike control: fsm skills: [moving] {
 		}
 		transition to: in_use_people when: location=rider.location {}
 		exit{
-			//ask eventLogger { do logExitState("Picked up " + myself.rider); }
+			ask eventLogger { do logExitState("Picked up " + myself.rider); }
 		}
 	}
 	
