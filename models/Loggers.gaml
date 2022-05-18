@@ -499,8 +499,7 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 	string filename <- 'AutonomousBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Distance Traveled",
-		"Num Intersections",
-		"Activity"
+		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	autonomousBike autonomousBiketarget;
@@ -514,16 +513,12 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 		loggingAgent <- autonomousBiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections, string activity) {
-		if agent=people{
-			activity<-"People Delivery";
-		} else if agent=package{
-			activity<-"Package Delivery";
-		}
+	action logRoads(float distanceTraveled, int numIntersections) {
+		
 		totalDistance <- totalDistance + distanceTraveled;
 		totalIntersections <- totalIntersections + numIntersections;
 		
-		do log( [distanceTraveled, numIntersections, activity]);
+		do log( [distanceTraveled, numIntersections]);
 	}
 }
 
@@ -532,8 +527,7 @@ species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 	string filename <- 'docklessBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Distance Traveled",
-		"Num Intersections",
-		"Activity"
+		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	docklessBike docklessBiketarget;
@@ -547,12 +541,11 @@ species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 		loggingAgent <- docklessBiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections, string activity) {
-		activity<-"People Delivery";
+	action logRoads(float distanceTraveled, int numIntersections) {
 		totalDistance <- totalDistance + distanceTraveled;
 		totalIntersections <- totalIntersections + numIntersections;
 		
-		do log( [distanceTraveled, numIntersections, activity]);
+		do log( [distanceTraveled, numIntersections]);
 	}
 }
 
@@ -561,8 +554,7 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 	string filename <- 'scooter_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Distance Traveled",
-		"Num Intersections",
-		"Activity"
+		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	scooter scootertarget;
@@ -576,12 +568,11 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 		loggingAgent <- scootertarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections, string activity) {
-		activity <-"Package Delivery";
+	action logRoads(float distanceTraveled, int numIntersections) {
 		totalDistance <- totalDistance + distanceTraveled;
 		totalIntersections <- totalIntersections + numIntersections;
 		
-		do log( [distanceTraveled, numIntersections, activity]);
+		do log( [distanceTraveled, numIntersections]);
 	}
 }
 
@@ -590,8 +581,7 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 	string filename <- 'ConventionalBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Distance Traveled",
-		"Num Intersections",
-		"Activity"
+		"Num Intersections"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	conventionalBike conventionalbiketarget;
@@ -605,17 +595,17 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 		loggingAgent <- conventionalbiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections, string activity) {
-		activity <-"Package Delivery";
+	action logRoads(float distanceTraveled, int numIntersections) {
 		totalDistance <- totalDistance + distanceTraveled;
 		totalIntersections <- totalIntersections + numIntersections;
 		
-		do log( [distanceTraveled, numIntersections, activity]);
+		do log( [distanceTraveled, numIntersections]);
 	}
 }
 
 species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	
+	bool logPredicate { return autonomousBikeEventLog; }
 	string filename <- 'autonomousBike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Event",
@@ -630,7 +620,6 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 		"Battery Gain %"
 	];
 	
-	bool logPredicate { return autonomousBikeEventLog; }
 	autonomousBike autonomousBiketarget;
 	init {
 		autonomousBiketarget <- autonomousBike(target);
@@ -648,7 +637,7 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	float distanceStartActivity;
 	float batteryStartActivity;
 	string currentState;
-	string activity;
+	int activity;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
@@ -659,6 +648,8 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 		distanceStartActivity <- autonomousBiketarget.travelLogger.totalDistance;
 		
 		currentState <- autonomousBiketarget.state;
+		
+		activity <- autonomousBiketarget.activity;
 		do log( ['START: ' + autonomousBiketarget.state] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
@@ -669,11 +660,7 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 		
 		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
 		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
-		if agent=people{
-			activity<-"People Delivery";
-		} else if agent =package{
-			activity<-"Package Delivery";
-		}		
+			
 		do log( [
 			'END: ' + currentState,
 			activity,
@@ -733,7 +720,7 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 	point locationStartActivity;
 	float distanceStartActivity;
 	string currentState;
-	string activity <- "People Delivery";
+	int activity <- 1;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
@@ -745,6 +732,7 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 		currentState <- docklessBiketarget.state;
 		do log( ['START: ' + docklessBiketarget.state] + [logmessage]);
 	}
+	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
 		float d <- docklessBiketarget.travelLogger.totalDistance - distanceStartActivity;
 		string timeStartstr;
@@ -797,7 +785,7 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 	point locationStartActivity;
 	float distanceStartActivity;
 	string currentState;
-	string activity <- "Package Delivery";
+	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
@@ -862,7 +850,7 @@ species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
 	point locationStartActivity;
 	float distanceStartActivity;
 	string currentState;
-	string activity <- "Package Delivery";
+	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;

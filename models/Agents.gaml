@@ -16,6 +16,7 @@ global {
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		if traditionalScenario{
 			autonomousBikesInUse <- false;
+			
 		} else {
 			autonomousBikesInUse <- true;
 		}
@@ -710,6 +711,7 @@ species autonomousBike control: fsm skills: [moving] {
 	
 	people rider;
 	package delivery;
+	int activity; //0=Package 1=Person
 	
 	list<string> rideStates <- ["wandering"]; 
 	bool lowPass <- false;
@@ -721,8 +723,10 @@ species autonomousBike control: fsm skills: [moving] {
 	action pickUp(people person, package pack) { 
 		if person != nil{
 			rider <- person;
+			activity <- 1;
 		} else if pack !=nil {
 			delivery <- pack;
+			activity <- 0;
 		}
 	}
 	
@@ -1120,7 +1124,7 @@ species docklessBike control: fsm skills: [moving] {
 	
 	map<string, rgb> color_map <- [
 		"wandering"::#purple,
-		"picking_up_people"::#green,
+		"blocked"::#green,
 		"in_use_people"::#gamablue
 	];
 	
@@ -1203,7 +1207,7 @@ species docklessBike control: fsm skills: [moving] {
 		}
 		exit {
 			if docklessBikeEventLog {
-				//ask eventLogger { do logExitState("Used" + myself.rider); }
+				ask eventLogger { do logExitState("Used" + myself.rider); }
 			}
 		}
 	}

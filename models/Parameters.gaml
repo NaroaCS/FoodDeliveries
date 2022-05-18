@@ -45,33 +45,38 @@ global {
 	
 	//----------------------Autonomous Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
-	int numAutonomousBikes <- 75 				min: 0 max: 500 parameter: "Num Bikes:" category: "Bike";
-	float maxBatteryLifeAutonomousBike <- 30000.0 #m	min: 10000#m max: 300000#m parameter: "Battery Capacity (m):" category: "Bike"; //battery capacity in m
-	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Bike Pick-up Speed (m/s):" category:  "Bike";
-	float RidingSpeedAutonomousBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed (m/s):" category:  "Bike";
+	int numAutonomousBikes <- 75 				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
+	float maxBatteryLifeAutonomousBike <- 30000.0 #m	min: 10000#m max: 300000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
+	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
+	float RidingSpeedAutonomousBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
-	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Autonomous Bike CO2 Emissions: " category: "Initial";
 	
 	//----------------------Dockless Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
 	int numDocklessBikes <- 75 				min: 0 max: 500 parameter: "Num Dockless Bikes:" category: "Dockless Bike";
+	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
 	float RidingSpeedDocklessBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed Dockless Bike (m/s):" category:  "Dockless Bike";
-	float docklessBikeCO2Emissions <- 0.035 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
+	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
+	float docklessBikeCO2Emissions <- 0.010 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Scooter Parameters--------------------------------------------
-	//bool scootersInUse <- true parameter: "Scooters are in use: " category: "Scooter";
 	int numScooters <- 2				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
-	float maxBatteryLifeScooter <- 96560.0 #m	min: 16100#m max: 96560#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; //battery capacity in m
-	float PickUpSpeedScooter <-  18/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
-	float RidingSpeedScooter <-  24/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
+	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
+	float maxBatteryLifeScooter <- 30000 #m	min: 25000#m max: 45000#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; 
+	float PickUpSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
+	float RidingSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
 	float minSafeBatteryScooter <- 0.25*maxBatteryLifeScooter #m; 
+	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
 	//---------------------Conventional Bike Parameters--------------------------------------------
 	//bool conventionalBikesInUse <- true parameter: "Conventional Bikes are in use: " category: "Conventional Bike";
 	int numConventionalBikes <- 100 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
-	float PickUpSpeedConventionalBikes <-  10/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
-	float RidingSpeedConventionalBikes <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 12/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
+	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
+	float PickUpSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
+	float RidingSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
+	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 		
 	//----------------------numChargingStationsion Parameters------------------------
@@ -89,9 +94,9 @@ global {
     
     //--------------------Package--------------------
     float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
-	float maxDistancePackage_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m;
-	float maxDistancePackage_Scooter <- maxWaitTimePeople*PickUpSpeedScooter#m;
-	float maxDistancePackage_ConventionalBike <- maxWaitTimePeople*PickUpSpeedConventionalBikes #m;
+	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
+	float maxDistancePackage_Scooter <- maxWaitTimePackage*PickUpSpeedScooter#m;
+	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
    
     int numpackage <- 500;
     int lunchmin <- 11;
