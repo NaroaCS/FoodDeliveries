@@ -107,6 +107,13 @@ global {
 			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
 		
+		//------------------------------------------The EBikes------------------------
+	    create eBike number:numEBikes{
+									
+			location <- point(one_of(roadNetwork.vertices));
+			batteryLife <- rnd(minSafeBatteryEBike,maxBatteryLifeEBike); 	//Battery life random bewteen max and min
+		}
+		
 		//------------------------------------------The Conventional Bikes------------------------
 	    create conventionalBike number:numConventionalBikes{
 									
@@ -227,6 +234,7 @@ experiment traditionalScenario {
 			species package aspect:base;
 			species docklessBike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
+			species eBike aspect: realistic trace:10; 
 			species conventionalBike aspect: realistic trace:10; 
 			graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
@@ -238,12 +246,15 @@ experiment traditionalScenario {
 	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
 		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
 		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "E Bike Emissions" value: eBike_total_emissions color: #yellow marker: false;
 		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
         	}
         	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
 		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "E Bike" value: eBike_trips_count_PUP color: #red;
 		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
         	}
+        	
         }    
 	}
 }

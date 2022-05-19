@@ -28,6 +28,7 @@ global {
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
+	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
@@ -61,18 +62,29 @@ global {
 	float docklessBikeCO2Emissions <- 0.010 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Scooter Parameters--------------------------------------------
-	int numScooters <- 2				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
+	int numScooters <- 20				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
 	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
-	float maxBatteryLifeScooter <- 30000 #m	min: 25000#m max: 45000#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; 
+	float maxBatteryLifeScooter <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; 
 	float PickUpSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
 	float RidingSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
 	float minSafeBatteryScooter <- 0.25*maxBatteryLifeScooter #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
+	//---------------------EBike Parameters--------------------------------------------
+	int numEBikes <- 20				min: 0 max: 500 parameter: "Num EBikes:" category: "EBike";
+	// Data extracted from: Juiced Bikes eBikes riding range: https://www.juicedbikes.com/pages/real-world-range-test
+	float maxBatteryLifeEBike <- 30000.0 #m	min: 10000.0#m max: 300000.0#m parameter: "EBike Battery Capacity (m):" category: "EBike"; 
+	// Data extracted from: City Bike eBikes: https://citibikenyc.com/how-it-works/electric
+	float PickUpSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Pick-up Speed (m/s):" category:  "EBike";
+	float RidingSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Riding Speed (m/s):" category:  "EBike";
+	float minSafeBatteryEBike <- 0.25*maxBatteryLifeEBike #m; 
+	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
+	float eBikeCO2Emissions <- 0.024 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
+	
 	//---------------------Conventional Bike Parameters--------------------------------------------
 	//bool conventionalBikesInUse <- true parameter: "Conventional Bikes are in use: " category: "Conventional Bike";
-	int numConventionalBikes <- 100 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
+	int numConventionalBikes <- 20 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
 	float PickUpSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
 	float RidingSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
@@ -88,14 +100,16 @@ global {
 	//----------------------People Parameters------------------------
 	//int numPeople <- 250 				min: 0 max: 1000 parameter: "Num People:" category: "Initial";
 	float maxWaitTimePeople <- 60 #mn		min: 3#mn max: 60#mn parameter: "Max Wait Time People:" category: "People";
+	float maxWalkTimePeople <- 10 #mn  min: 1 #mn  max: 15 #mn parameter: "Max Walking Time People:" category: "People";
 	float maxDistancePeople_AutonomousBike <- maxWaitTimePeople*PickUpSpeedAutonomousBike #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
     float peopleSpeed <- 5/3.6 #m/#s	min: 1/3.6 #m/#s max: 10/3.6 #m/#s parameter: "People Speed (m/s):" category: "People";
-   	float maxDistancePeople_DocklessBike <- maxWaitTimePeople*peopleSpeed #m; //The maxWaitTime is translated into a max radius taking into account the speed of the bikes
+   	float maxDistancePeople_DocklessBike <- maxWalkTimePeople*peopleSpeed #m; 
     
     //--------------------Package--------------------
     float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
 	float maxDistancePackage_Scooter <- maxWaitTimePackage*PickUpSpeedScooter#m;
+	float maxDistancePackage_EBike <- maxWaitTimePackage*PickUpSpeedEBike#m;
 	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
    
     int numpackage <- 500;
