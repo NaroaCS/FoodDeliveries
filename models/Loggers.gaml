@@ -1,8 +1,6 @@
 model Loggers
 import "./main.gaml"
 
-
-
 global {
 	map<string, string> filenames <- []; //Maps log types to filenames
 	
@@ -40,6 +38,7 @@ global {
 		"NScooters: "+string(numScooters),
 		"NEBikes: "+string(numEBikes),
 		"NConventionalBikes: "+string(numConventionalBikes),
+		"NCars: "+string(numCars),
 		"MaxWaitPeople: "+string(maxWaitTimePeople/60),
 		"MaxWaitPackage: "+string(maxWaitTimePackage/60),
 
@@ -76,6 +75,12 @@ global {
 		"Pick-up speed Conventional Bikes [km/h]: "+string(PickUpSpeedConventionalBikes*3.6),
 		"Riding speed Conventional Bikes [km/h]: " + string(RidingSpeedConventionalBikes*3.6),
 		
+		"------------------------------CAR PARAMETERS------------------------------",
+		"Number of Cars: "+string(numCars),
+		"Max Battery Life of Cars [km]: "+string(maxBatteryLifeCar/1000 with_precision 2),
+		"Pick-up speed Cars [km/h]: "+string(PickUpSpeedCar*3.6),
+		"Minimum Battery Cars [%]: "+string(minSafeBatteryCar/maxBatteryLifeCar*100),
+		
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time People [min]: "+string(maxWaitTimePeople/60),
 		"Walking Speed [km/h]: "+string(peopleSpeed*3.6),
@@ -104,6 +109,7 @@ global {
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
 		"EBike Event/Trip Log: " + string(eBikeEventLog),
 		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
+		"Car Event/Trip Log: " + string(carEventLog),
 		"People Trip Log: " + string(peopleTripLog),
 		"Package Trip Log: "+ string(packageTripLog),
 		"People Event Log: " + string(peopleEventLog),
@@ -352,6 +358,7 @@ species packageLogger parent: Logger mirrors: package {
     int cycleScooterRequested;
     int cycleEBikeRequested;
     int cycleConventionalBikeRequested;
+    int cycleCarRequested;
     float waitTime;
     int cycleStartActivity;
     date timeStartActivity;
@@ -393,6 +400,11 @@ species packageLogger parent: Logger mirrors: package {
 					cycleConventionalBikeRequested <- cycle;
 					served <- false;
 				}
+				match "requesting_car" {
+					//trip starts
+					cycleCarRequested <- cycle;
+					served <- false;
+				}
 				match "delivering_autonomousBike" {
 					//trip is served
 					waitTime <- (cycle*step- cycleAutonomousBikeRequested*step)/60;
@@ -417,6 +429,13 @@ species packageLogger parent: Logger mirrors: package {
 				match "delivering_conventionalBike" {
 					//trip is served
 					waitTime <- (cycle*step- cycleConventionalBikeRequested*step)/60;
+					departureTime <- current_date;
+					departureCycle <- cycle;
+					served <- true;
+				}
+				match "delivering_car" {
+					//trip is served
+					waitTime <- (cycle*step- cycleCarRequested*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -615,6 +634,33 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 		conventionalbiketarget <- conventionalBike(target);
 		conventionalbiketarget.travelLogger <- self;
 		loggingAgent <- conventionalbiketarget;
+	}
+	
+	action logRoads(float distanceTraveled, int numIntersections) {
+		totalDistance <- totalDistance + distanceTraveled;
+		totalIntersections <- totalIntersections + numIntersections;
+		
+		do log( [distanceTraveled, numIntersections]);
+	}
+}
+
+species carLogger_roadsTraveled parent: Logger mirrors: car {
+	
+	string filename <- 'car_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Distance Traveled",
+		"Num Intersections"
+	];
+	bool logPredicate { return roadsTraveledLog; }
+	car cartarget;
+	
+	float totalDistance <- 0.0;
+	int totalIntersections <- 0;
+	
+	init {
+		cartarget <- car(target);
+		cartarget.travelLogger <- self;
+		loggingAgent <- cartarget;
 	}
 	
 	action logRoads(float distanceTraveled, int numIntersections) {
@@ -859,7 +905,7 @@ species eBikeLogger_event parent: Logger mirrors: eBike {
 		"Battery Gain %"
 	];
 	
-	bool logPredicate { return scooterEventLog; }
+	bool logPredicate { return eBikeEventLog; }
 	eBike eBiketarget;
 	init {
 		eBiketarget <- eBike(target);
@@ -952,6 +998,71 @@ species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
 		float d <- conventionalbiketarget.travelLogger.totalDistance - distanceStartActivity;
+		string timeStartstr;
+		string currentstr;
+		
+		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+				
+		do log( [
+			'END: ' + currentState,
+			activity,
+			logmessage,
+			timeStartstr,
+			currentstr,
+			(cycle*step - cycleStartActivity*step)/(60),
+			d,
+			nil,
+			nil,
+			nil
+		]);
+	}
+}
+
+species carLogger_event parent: Logger mirrors: car {
+	
+	string filename <- 'car_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Event",
+		"Activity",
+		"Message",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Distance Traveled",
+		"Start Battery %",
+		"End Battery %",
+		"Battery Gain %"
+	];
+	
+	bool logPredicate { return carEventLog; }
+	car cartarget;
+	init {
+		cartarget <- car(target);
+		cartarget.eventLogger <- self;
+		loggingAgent <- cartarget;
+	}
+		
+	int cycleStartActivity;
+	date timeStartActivity;
+	point locationStartActivity;
+	float distanceStartActivity;
+	string currentState;
+	int activity <- 0;
+	
+	action logEnterState(string logmessage) {
+		cycleStartActivity <- cycle;
+		timeStartActivity <- current_date;
+		locationStartActivity <- cartarget.location;
+		
+		distanceStartActivity <- cartarget.travelLogger.totalDistance;
+		
+		currentState <- cartarget.state;
+		do log( ['START: ' + cartarget.state] + [logmessage]);
+	}
+	//action logExitState { do logExitState(""); }
+	action logExitState(string logmessage) {
+		float d <- cartarget.travelLogger.totalDistance - distanceStartActivity;
 		string timeStartstr;
 		string currentstr;
 		

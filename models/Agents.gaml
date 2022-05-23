@@ -13,6 +13,7 @@ global {
 	bool scootersInUse;
 	bool eBikesInUse;
 	bool conventionalBikesInUse;
+	bool carsInUse;
 	
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		if traditionalScenario{
@@ -44,14 +45,14 @@ global {
 		return scooter where (each.availableForRideS());
 	}
 	
-	list<eBike> availableEBikes(package delivery) {
+	list<eBike> availableEBikes (package delivery) {
 		if traditionalScenario{
 			eBikesInUse <- true;
 		} else {
-			eBikesInUse <- false;
+			scootersInUse <- false;
 			numEBikes <- 0;
 		}
-		return eBike where (each.availableForRideEBike());
+		return eBike where (each.availableForRideEB());
 	}
 	
 	list<conventionalBike> availableConventionalBikes(package delivery) {
@@ -62,6 +63,16 @@ global {
 			numConventionalBikes <- 0;
 		}
 		return conventionalBike where (each.availableForRideCB());
+	}
+	
+	list<car> availableCars(package delivery) {
+		if traditionalScenario{
+			carsInUse <- true;
+		} else {
+			carsInUse <- false;
+			numCars <- 0;
+		}
+		return car where (each.availableForRideC());
 	}
 		
 	int autonomousBike_trips_count_total <- 0;
@@ -95,6 +106,11 @@ global {
 	int conventionalBike_trips_count_PUP <- 0;
 	float conventionalBike_distance_D <- 0.0;
 	float conventionalBike_total_emissions <- 0.0;
+	
+	float car_distance_PUP <- 0.0;
+	int car_trips_count_PUP <- 0;
+	float car_distance_D <- 0.0;
+	float car_total_emissions <- 0.0;
 		
 	int chooseDeliveryMode(package delivery) {
     	
@@ -102,6 +118,7 @@ global {
 		float ds;
 		float deb;
 		float dcb;
+		float dc;
 		float mindistance;
 		int choice;
     	
@@ -127,6 +144,13 @@ global {
 		} else {
 			dcb <- 1000000.0;
 		}
+		list<car> availableC <- availableCars (delivery);
+		if !empty(availableC){
+			car c <- availableC closest_to(delivery);
+			dc <- distanceInGraph(c.location,delivery.location);
+		} else {
+			dc <- 1000000.0;
+		}
 		
 		if !traditionalScenario {
 			if empty(availableAB) {
@@ -146,15 +170,18 @@ global {
 			if empty(availableS) and empty(availableEB) and empty(availableCB){
 				choice <- 0;
 			} else {
-				if ds < maxDistancePackage_Scooter and ds<deb and ds<dcb {
+				if ds < maxDistancePackage_Scooter and ds<deb and ds<dcb and ds<dc {
 					mindistance <- ds;
 					choice <- 2;
-				} else if deb < maxDistancePackage_EBike and deb<ds and deb<dcb{
+				} else if deb < maxDistancePackage_EBike and deb<ds and deb<dcb and deb<dc {
 					mindistance <- deb;
 					choice <- 3;
-				} else if dcb < maxDistancePackage_ConventionalBike and dcb<ds and dcb<deb{
+				} else if dcb < maxDistancePackage_ConventionalBike and dcb<ds and dcb<deb and dcb<dc {
 					mindistance <- dcb;
 					choice <- 4;
+				} else if dc < maxDistancePackage_Car and dc<ds and dc<deb and dc<dcb {
+					mindistance <- dc;
+					choice <- 5;
 				} else {
 					choice <- 0;
 				}
@@ -242,13 +269,14 @@ global {
 	bool requestEBike(package delivery, point destination) { 
 
 		list<eBike> available <- availableEBikes(delivery);
+		
 		eBike eb <- available closest_to(delivery);
 		eb.delivery <- delivery;
 		ask delivery {
 			do deliver_eb(eb);
 		}
-		return true;
-	}
+		return true;		
+	}	
 	
 	bool requestConventionalBike(package delivery, point destination) {
 		
@@ -257,6 +285,17 @@ global {
 		cb.delivery <- delivery;
 		ask delivery {
 			do deliver_cb(cb);
+		}
+		return true;
+	}
+	
+	bool requestCar(package delivery, point destination) {
+		
+		list<car> available <- availableCars(delivery);	
+		car c <- available closest_to(delivery);
+		c.delivery <- delivery;
+		ask delivery {
+			do deliver_c(c);
 		}
 		return true;
 	}
@@ -311,6 +350,14 @@ global {
 	bool conventionalBikeClose(package delivery, conventionalBike cb){
 		float d <- distanceInGraph(cb.location,delivery.location);
 		if d<maxDistancePackage_ConventionalBike { 
+			return true;
+		}else{
+			return false ;
+		}
+	}
+	bool carClose(package delivery, car c){
+		float d <- distanceInGraph(c.location,delivery.location);
+		if d<maxDistancePackage_Car { 
 			return true;
 		}else{
 			return false ;
@@ -376,14 +423,17 @@ species package control: fsm skills: [moving] {
 		"requesting_scooter":: #turquoise,
 		"requesting_eBike":: #white,
 		"requesting_conventionalBike":: #brown,
+		"requesting_car":: #gray,
 		"awaiting_autonomousBike_Package":: #yellow,
 		"awaiting_scooter":: #turquoise,
 		"awaiting_eBike":: #white,
 		"awaiting_conventionalBike":: #brown,
+		"awaiting_car":: #gray,
 		"delivering_autonomousBike":: #yellow,
 		"delivering_scooter"::#turquoise,
 		"delivering_eBike"::#white,
 		"delivering_conventionalBike"::#brown,
+		"delivering_car"::#gray,
 		"end":: #magenta
 	];
 	
@@ -402,6 +452,7 @@ species package control: fsm skills: [moving] {
 	scooter scooterToDeliver;
 	eBike eBikeToDeliver;
 	conventionalBike conventionalBikeToDeliver;
+	car carToDeliver;
 	
 	point final_destination; 
     point target; 
@@ -429,6 +480,10 @@ species package control: fsm skills: [moving] {
 	action deliver_cb(conventionalBike cb){
 		conventionalBikeToDeliver <- cb;
 	}
+	
+	action deliver_c(car c){
+		carToDeliver <- c;
+	}
 		
 	bool timeToTravel { return (current_date.hour = start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
 	
@@ -451,7 +506,6 @@ species package control: fsm skills: [moving] {
     	enter {
     		if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
     		choice <- host.chooseDeliveryMode(self);
-    		write choice;
     	}
     	transition to: requesting_autonomousBike_Package when: choice=1 {
     		final_destination <- target_point;
@@ -468,6 +522,10 @@ species package control: fsm skills: [moving] {
     	transition to: requesting_conventionalBike when: choice=4 {
     		final_destination <- target_point;
     		mode <- 4;
+    	}
+    	transition to: requesting_car when: choice=5 {
+    		final_destination <- target_point;
+    		mode <- 5;
     	}
     	transition to: end when: choice=0 {
     		target <- final_destination;
@@ -503,7 +561,7 @@ species package control: fsm skills: [moving] {
 		}
 	}
 	
-	state requesting_eBike {
+	state requesting_eBike{
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
 			closestIntersection <- (intersection closest_to(self)).location; 
@@ -529,6 +587,19 @@ species package control: fsm skills: [moving] {
 		}
 	}
 	
+	state requesting_car {
+		enter {
+			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
+			closestIntersection <- (intersection closest_to(self)).location; 
+		}
+		transition to: firstmile when: host.requestCar(self, final_destination) {
+			target <- closestIntersection;
+		}
+		exit {
+			if packageEventLog {ask logger{do logExitState("Requested Car "+myself.carToDeliver);}}
+		}
+	}
+	
 	state firstmile {
 		enter{
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
@@ -537,6 +608,7 @@ species package control: fsm skills: [moving] {
 		transition to: awaiting_scooter when: choice=2 and location=target{}
 		transition to: awaiting_eBike when: choice=3 and location=target{}
 		transition to: awaiting_conventionalBike when: choice=4 and location=target{}
+		transition to: awaiting_car when: choice=5 and location=target{}
 		exit {
 			if packageEventLog {ask logger{do logExitState;}}
 		}
@@ -582,6 +654,17 @@ species package control: fsm skills: [moving] {
 			target <- nil;
 		}
 		transition to: delivering_conventionalBike when: conventionalBikeToDeliver.state = "in_use_packages" {}
+		exit {
+			if packageEventLog {ask logger { do logExitState; }}
+		}
+	}
+	
+	state awaiting_car {
+		enter {
+			if packageEventLog or packageTripLog {ask logger { do logEnterState( "awaiting " + string(myself.carToDeliver) ); }}
+			target <- nil;
+		}
+		transition to: delivering_car when: carToDeliver.state = "in_use_packages" {}
 		exit {
 			if packageEventLog {ask logger { do logExitState; }}
 		}
@@ -642,6 +725,20 @@ species package control: fsm skills: [moving] {
 			conventionalBikeToDeliver<- nil;
 		}
 		location <- conventionalBikeToDeliver.location;
+	}
+	
+	state delivering_car {
+		enter {
+			if packageEventLog or packageTripLog {ask logger { do logEnterState( "delivering " + string(myself.carToDeliver) ); }}
+		}
+		transition to: end when: carToDeliver.state != "in_use_packages" {
+			target <- final_destination;
+		}
+		exit {
+			if packageEventLog {ask logger { do logExitState; }}
+			carToDeliver<- nil;
+		}
+		location <- carToDeliver.location;
 	}
 	/*state lastmile {
 		enter{
@@ -1173,6 +1270,7 @@ species eBike control: fsm skills: [moving] {
 	
 	map<string, rgb> color_map <- [
 		"wandering"::#white,
+		"low_battery"::#red,
 		"picking_up_packages"::#white,
 		"in_use_packages"::#white
 	];
@@ -1194,13 +1292,14 @@ species eBike control: fsm skills: [moving] {
 	list<string> rideStates <- ["wandering"]; //This defines in which state the bikes have to be to be available for a ride
 	bool lowPass <- false;
 
-	bool availableForRideEBike {
+	bool availableForRideEB {
 		return (state in rideStates) and self.state="wandering" and !setLowBattery() and delivery=nil and eBikesInUse=true;
 	}
 	
 	action pickUpPackage(package pack){
 		delivery <- pack;
 	}
+	
 	/* ========================================== PRIVATE FUNCTIONS ========================================= */
 	// no other species should touch these
 	
@@ -1248,29 +1347,29 @@ species eBike control: fsm skills: [moving] {
 	/* ========================================== STATE MACHINE ========================================= */
 	state wandering initial: true {
 		enter {
-			//ask eventLogger { do logEnterState; }
+			ask eventLogger { do logEnterState; }
 			target <- nil;
 		}
 		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_battery when: setLowBattery() {}
 		exit {
-			//ask eventLogger { do logExitState; }
+			ask eventLogger { do logExitState; }
 		}
 	}
 	
 	state low_battery {
 		//seek either a charging station or another vehicle
 		enter{
-			//ask eventLogger { do logEnterState(myself.state); }
+			ask eventLogger { do logEnterState(myself.state); }
 		}
 		exit {
-			//ask eventLogger { do logExitState; }
+			ask eventLogger { do logExitState; }
 		}
 	}
 	
 	state picking_up_packages {
 		enter {
-			//if eBikeEventLog {ask eventLogger { do logEnterState("Picking up " + myself.delivery); }}
+			if eBikeEventLog {ask eventLogger { do logEnterState("Picking up " + myself.delivery); }}
 			target <- delivery.location; 
 			eBike_trips_count_PUP <- eBike_trips_count_PUP + 1;
 			eBike_distance_PUP <- delivery.location distance_to location;
@@ -1278,13 +1377,13 @@ species eBike control: fsm skills: [moving] {
 		}
 		transition to: in_use_packages when: location=target {}
 		exit{
-			//ask eventLogger { do logExitState("Picked up " + myself.delivery); }
+			ask eventLogger { do logExitState("Picked up " + myself.delivery); }
 		}
 	}
 	
 	state in_use_packages {
 		enter {
-			//if eBikeEventLog {ask eventLogger { do logEnterState("In Use " + myself.delivery); }}
+			if eBikeEventLog {ask eventLogger { do logEnterState("In Use " + myself.delivery); }}
 			target <- delivery.final_destination.location;  
 			eBike_distance_D <- delivery.final_destination.location distance_to location;
 			eBike_total_emissions <- eBike_total_emissions + eBike_distance_D*eBikeCO2Emissions;
@@ -1294,7 +1393,7 @@ species eBike control: fsm skills: [moving] {
 		}
 		exit {
 			if eBikeEventLog {
-				//ask eventLogger { do logExitState("Used" + myself.delivery); }
+				ask eventLogger { do logExitState("Used" + myself.delivery); }
 			}
 		}
 	}
@@ -1488,6 +1587,142 @@ species docklessBike control: fsm skills: [moving] {
 		exit {
 			if docklessBikeEventLog {
 				//ask eventLogger { do logExitState("Used" + myself.rider); }
+			}
+		}
+	}
+}
+
+species car control: fsm skills: [moving] {
+	
+	//----------------Display-----------------
+	rgb color;
+	
+	map<string, rgb> color_map <- [
+		"wandering"::#gray,
+		"low_battery"::#red,
+		"picking_up_packages"::#gray,
+		"in_use_packages"::#gray
+	];
+	
+	aspect realistic {
+		color <- color_map[state];
+		draw rectangle(25,10) color:color border:color rotate: heading + 90 ;
+	} 
+
+	//loggers
+	carLogger_roadsTraveled travelLogger;
+	carLogger_event eventLogger;
+	    
+	/* ========================================== PUBLIC FUNCTIONS ========================================= */
+	// these are how other agents interact with this one. Not used by self
+
+	package delivery;
+	
+	list<string> rideStates <- ["wandering"]; //This defines in which state the bikes have to be to be available for a ride
+	bool lowPass <- false;
+
+	bool availableForRideC {
+		return (state in rideStates) and self.state="wandering" and !setLowBattery() and delivery=nil and carsInUse=true;
+	}
+	
+	action pickUpPackage(package pack){
+		delivery <- pack;
+	}
+	
+	/* ========================================== PRIVATE FUNCTIONS ========================================= */
+	// no other species should touch these
+	
+	//----------------BATTERY-----------------
+	
+	bool setLowBattery { //Determines when to move into the low_battery state
+		
+		if batteryLife < minSafeBatteryCar { return true; } 
+		else {
+			return false;
+		}
+	}
+	float energyCost(float distance) {
+		return distance;
+	}
+	action reduceBattery(float distance) {
+		batteryLife <- batteryLife - energyCost(distance); 
+	}
+	//----------------MOVEMENT-----------------
+	point target;
+	
+	float batteryLife min: 0.0 max: maxBatteryLifeCar; //Number of meters we can travel on current battery
+	float distancePerCycle;
+	
+	path travelledPath; //preallocation. Only used within the moveTowardTarget reflex
+	
+	bool canMove {
+		return ((target != nil and target != location)) and batteryLife > 0;
+	}
+		
+	path moveTowardTarget {
+		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedCar);}
+		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedCar);
+	}
+	
+	reflex move when: canMove() {
+		
+		travelledPath <- moveTowardTarget();
+		
+		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
+						
+		do reduceBattery(distanceTraveled);
+	}
+				
+	/* ========================================== STATE MACHINE ========================================= */
+	state wandering initial: true {
+		enter {
+			ask eventLogger { do logEnterState; }
+			target <- nil;
+		}
+		transition to: picking_up_packages when: delivery != nil{}
+		transition to: low_battery when: setLowBattery() {}
+		exit {
+			ask eventLogger { do logExitState; }
+		}
+	}
+	
+	state low_battery {
+		//seek either a charging station or another vehicle
+		enter{
+			ask eventLogger { do logEnterState(myself.state); }
+		}
+		exit {
+			ask eventLogger { do logExitState; }
+		}
+	}
+	
+	state picking_up_packages {
+		enter {
+			if carEventLog {ask eventLogger { do logEnterState("Picking up " + myself.delivery); }}
+			target <- delivery.location; 
+			car_trips_count_PUP <- car_trips_count_PUP + 1;
+			car_distance_PUP <- delivery.location distance_to location;
+			car_total_emissions <- car_total_emissions + car_distance_PUP*carCO2Emissions;
+		}
+		transition to: in_use_packages when: location=target {}
+		exit{
+			ask eventLogger { do logExitState("Picked up " + myself.delivery); }
+		}
+	}
+	
+	state in_use_packages {
+		enter {
+			if carEventLog {ask eventLogger { do logEnterState("In Use " + myself.delivery); }}
+			target <- delivery.final_destination.location;  
+			car_distance_D <- delivery.final_destination.location distance_to location;
+			car_total_emissions <- car_total_emissions + car_distance_D*carCO2Emissions;
+		}
+		transition to: wandering when: location=target {
+			delivery <- nil;
+		}
+		exit {
+			if carEventLog {
+				ask eventLogger { do logExitState("Used" + myself.delivery); }
 			}
 		}
 	}

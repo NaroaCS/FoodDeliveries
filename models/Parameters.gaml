@@ -30,6 +30,7 @@ global {
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
+	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
@@ -90,6 +91,16 @@ global {
 	float RidingSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	
+	//---------------------Car Parameters--------------------------------------------
+	int numCars <- 20				min: 0 max: 500 parameter: "Num Cars:" category: "Car";
+	// Data extracted from: 
+	float maxBatteryLifeCar <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Car Battery Capacity (m):" category: "Car"; 
+	float PickUpSpeedCar <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Car Pick-up Speed (m/s):" category:  "Car";
+	float RidingSpeedCar<-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
+	float minSafeBatteryCar <- 0.25*maxBatteryLifeScooter #m; 
+	// Data extracted from: 
+	float carCO2Emissions <- 0.035 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
 		
 	//----------------------numChargingStationsion Parameters------------------------
 	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
@@ -111,6 +122,7 @@ global {
 	float maxDistancePackage_Scooter <- maxWaitTimePackage*PickUpSpeedScooter#m;
 	float maxDistancePackage_EBike <- maxWaitTimePackage*PickUpSpeedEBike#m;
 	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
+	float maxDistancePackage_Car <- maxWaitTimePackage*PickUpSpeedCar#m;
    
     int numpackage <- 500;
     int lunchmin <- 11;
