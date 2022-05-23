@@ -36,6 +36,7 @@ global {
 		"NAutonomousBikes: "+string(numAutonomousBikes),
 		"NDocklessBikes: "+string(numDocklessBikes),
 		"NScooters: "+string(numScooters),
+		"NElectricBikes: "+string(numElectricBikes),
 		"NEBikes: "+string(numEBikes),
 		"NConventionalBikes: "+string(numConventionalBikes),
 		"NCars: "+string(numCars),
@@ -63,6 +64,12 @@ global {
 		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeScooter/1000 with_precision 2),
 		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedScooter*3.6),
 		"Minimum Battery Scooters [%]: "+string(minSafeBatteryScooter/maxBatteryLifeScooter*100),
+		
+		"------------------------------ELECTRIC BIKE PARAMETERS------------------------------",
+		"Number of Electric Bikes: "+string(numElectricBikes),
+		"Max Battery Life of Electric Bikes [km]: "+string(maxBatteryLifeElectricBike/1000 with_precision 2),
+		"Pick-up speed Electric Bike [km/h]: "+string(PickUpSpeedElectricBike*3.6),
+		"Minimum Battery Electric Bike [%]: "+string(minSafeBatteryElectricBike/maxBatteryLifeElectricBike*100),
 		
 		"------------------------------EBike PARAMETERS------------------------------",
 		"Number of EBikes: "+string(numEBikes),
@@ -107,6 +114,7 @@ global {
 		"Autonomous Bike Event/Trip Log: " +string(autonomousBikeEventLog),
 		"Dockless Bike Event/Trip Log: " +string(docklessBikeEventLog),
 		"Scooter Event/Trip Log: " + string(scooterEventLog),
+		"Electric Bike Event/Trip Log: " + string(electricBikeEventLog),
 		"EBike Event/Trip Log: " + string(eBikeEventLog),
 		"Conventional Bike Event/Trip Log: " + string(conventionalBikesEventLog),
 		"Car Event/Trip Log: " + string(carEventLog),
@@ -356,6 +364,7 @@ species packageLogger parent: Logger mirrors: package {
 	int departureCycle;
     int cycleAutonomousBikeRequested;
     int cycleScooterRequested;
+    int cycleElectricBikeRequested;
     int cycleEBikeRequested;
     int cycleConventionalBikeRequested;
     int cycleCarRequested;
@@ -390,6 +399,11 @@ species packageLogger parent: Logger mirrors: package {
 					cycleScooterRequested <- cycle;
 					served <- false;
 				}
+				match "requesting_electricBike" {
+					//trip starts
+					cycleElectricBikeRequested <- cycle;
+					served <- false;
+				}
 				match "requesting_eBike" {
 					//trip starts
 					cycleEBikeRequested <- cycle;
@@ -415,6 +429,13 @@ species packageLogger parent: Logger mirrors: package {
 				match "delivering_scooter" {
 					//trip is served
 					waitTime <- (cycle*step- cycleScooterRequested*step)/60;
+					departureTime <- current_date;
+					departureCycle <- cycle;
+					served <- true;
+				}
+				match "delivering_electricBike" {
+					//trip is served
+					waitTime <- (cycle*step- cycleElectricBikeRequested*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -580,6 +601,33 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 		scootertarget <- scooter(target);
 		scootertarget.travelLogger <- self;
 		loggingAgent <- scootertarget;
+	}
+	
+	action logRoads(float distanceTraveled, int numIntersections) {
+		totalDistance <- totalDistance + distanceTraveled;
+		totalIntersections <- totalIntersections + numIntersections;
+		
+		do log( [distanceTraveled, numIntersections]);
+	}
+}
+
+species electricBikeLogger_roadsTraveled parent: Logger mirrors: electricBike {
+	
+	string filename <- 'electricBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Distance Traveled",
+		"Num Intersections"
+	];
+	bool logPredicate { return roadsTraveledLog; }
+	electricBike electricBiketarget;
+	
+	float totalDistance <- 0.0;
+	int totalIntersections <- 0;
+	
+	init {
+		electricBiketarget <- electricBike(target);
+		electricBiketarget.travelLogger <- self;
+		loggingAgent <- electricBiketarget;
 	}
 	
 	action logRoads(float distanceTraveled, int numIntersections) {
@@ -868,6 +916,71 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
 		float d <- scootertarget.travelLogger.totalDistance - distanceStartActivity;
+		string timeStartstr;
+		string currentstr;
+		
+		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+				
+		do log( [
+			'END: ' + currentState,
+			activity,
+			logmessage,
+			timeStartstr,
+			currentstr,
+			(cycle*step - cycleStartActivity*step)/(60),
+			d,
+			nil,
+			nil,
+			nil
+		]);
+	}
+}
+
+species electricBikeLogger_event parent: Logger mirrors: electricBike {
+	
+	string filename <- 'electricBike_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Event",
+		"Activity",
+		"Message",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Distance Traveled",
+		"Start Battery %",
+		"End Battery %",
+		"Battery Gain %"
+	];
+	
+	bool logPredicate { return electricBikeEventLog; }
+	electricBike electricBiketarget;
+	init {
+		electricBiketarget <- electricBike(target);
+		electricBiketarget.eventLogger <- self;
+		loggingAgent <- electricBiketarget;
+	}
+		
+	int cycleStartActivity;
+	date timeStartActivity;
+	point locationStartActivity;
+	float distanceStartActivity;
+	string currentState;
+	int activity <- 0;
+	
+	action logEnterState(string logmessage) {
+		cycleStartActivity <- cycle;
+		timeStartActivity <- current_date;
+		locationStartActivity <- electricBiketarget.location;
+		
+		distanceStartActivity <- electricBiketarget.travelLogger.totalDistance;
+		
+		currentState <- electricBiketarget.state;
+		do log( ['START: ' + electricBiketarget.state] + [logmessage]);
+	}
+	//action logExitState { do logExitState(""); }
+	action logExitState(string logmessage) {
+		float d <- electricBiketarget.travelLogger.totalDistance - distanceStartActivity;
 		string timeStartstr;
 		string currentstr;
 		
