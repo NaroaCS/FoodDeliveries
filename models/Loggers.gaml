@@ -12,13 +12,13 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes", "Num Scooters", "Num Cars", "Num Conventional Bikes", "Num Dockless Bikes", "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes", "Num Scooters", "Num EBikes", "Num Conventional Bikes", "Num Dockless Bikes", "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 			// Parámetro a variar (que luego se quiera ver en los batch)
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, numScooters, numCars, numConventionalBikes, numDocklessBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, numScooters, numEBikes, numConventionalBikes, numDocklessBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss"), traditionalScenario] + data;
@@ -64,10 +64,10 @@ global {
 		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedScooter*3.6),
 		"Minimum Battery Scooters [%]: "+string(minSafeBatteryScooter/maxBatteryLifeScooter*100),
 		
-		"------------------------------EBIKE PARAMETERS------------------------------",
+		"------------------------------EBike PARAMETERS------------------------------",
 		"Number of EBikes: "+string(numEBikes),
-		"Max Battery Life of EBikes [km]: "+string(maxBatteryLifeEBike/1000 with_precision 2),
-		"Pick-up speed EBikes [km/h]: "+string(PickUpSpeedEBike*3.6),
+		"Max Battery Life of EBike [km]: "+string(maxBatteryLifeEBike/1000 with_precision 2),
+		"Pick-up speed EBike [km/h]: "+string(PickUpSpeedEBike*3.6),
 		"Minimum Battery EBike [%]: "+string(minSafeBatteryEBike/maxBatteryLifeEBike*100),
 		
 		"------------------------------CONVENTIONAL BIKE PARAMETERS------------------------------",

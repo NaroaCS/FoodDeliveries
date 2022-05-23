@@ -45,11 +45,11 @@ global {
 		return scooter where (each.availableForRideS());
 	}
 	
-	list<eBike> availableEBikes(package delivery) {
+	list<eBike> availableEBikes (package delivery) {
 		if traditionalScenario{
 			eBikesInUse <- true;
 		} else {
-			eBikesInUse <- false;
+			scootersInUse <- false;
 			numEBikes <- 0;
 		}
 		return eBike where (each.availableForRideEB());
@@ -129,14 +129,14 @@ global {
 			ds <- distanceInGraph(s.location,delivery.location);
 		} else {
 			ds <- 10000000.0;
-		}	
+		}
 		list<eBike> availableEB <- availableEBikes(delivery);
 		if !empty(availableEB){
 			eBike eb <- availableEB closest_to(delivery);
 			deb <- distanceInGraph(eb.location,delivery.location);
 		} else {
-			deb <- 10000000.0;
-		}	
+			deb <- 1000000.0;
+		}		
 		list<conventionalBike> availableCB <- availableConventionalBikes (delivery);
 		if !empty(availableCB){
 			conventionalBike cb <- availableCB closest_to(delivery);
@@ -167,7 +167,7 @@ global {
 				}
 			}
 		} else if traditionalScenario {
-			if empty(availableS) and empty(availableCB) and empty(availableC) {
+			if empty(availableS) and empty(availableEB) and empty(availableCB){
 				choice <- 0;
 			} else {
 				if ds < maxDistancePackage_Scooter and ds<deb and ds<dcb and ds<dc {

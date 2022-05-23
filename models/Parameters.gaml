@@ -74,13 +74,14 @@ global {
 	
 	//---------------------EBike Parameters--------------------------------------------
 	int numEBikes <- 20				min: 0 max: 500 parameter: "Num EBikes:" category: "EBike";
-	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
-	float maxBatteryLifeEBike <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "EBike Battery Capacity (m):" category: "EBike"; 
-	float PickUpSpeedEBike <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "EBike Pick-up Speed (m/s):" category:  "EBike";
-	float RidingSpeedEBike <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "EBike Riding Speed (m/s):" category:  "EBike";
+	// Data extracted from: Juiced Bikes eBikes riding range: https://www.juicedbikes.com/pages/real-world-range-test
+	float maxBatteryLifeEBike <- 30000.0 #m	min: 10000.0#m max: 300000.0#m parameter: "EBike Battery Capacity (m):" category: "EBike"; 
+	// Data extracted from: City Bike eBikes: https://citibikenyc.com/how-it-works/electric
+	float PickUpSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Pick-up Speed (m/s):" category:  "EBike";
+	float RidingSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Riding Speed (m/s):" category:  "EBike";
 	float minSafeBatteryEBike <- 0.25*maxBatteryLifeEBike #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float eBikeCO2Emissions <- 0.035 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
+	float eBikeCO2Emissions <- 0.024 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Conventional Bike Parameters--------------------------------------------
 	//bool conventionalBikesInUse <- true parameter: "Conventional Bikes are in use: " category: "Conventional Bike";
