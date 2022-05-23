@@ -97,33 +97,33 @@ global {
 		// -------------------------------------------The Dockless Bikes -----------------------------------------
 		create docklessBike number:numDocklessBikes{
 									
-			location <- point(one_of(roadNetwork.vertices));
+			location <- point(one_of(road));
 		}
 	    
 	    //------------------------------------------The Scooters------------------------
 	    create scooter number:numScooters{
 									
-			location <- point(one_of(roadNetwork.vertices));
+			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The EBikes------------------------
 	    create eBike number:numEBikes{
 									
-			location <- point(one_of(roadNetwork.vertices));
+			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryEBike,maxBatteryLifeEBike); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The Conventional Bikes------------------------
 	    create conventionalBike number:numConventionalBikes{
 									
-			location <- point(one_of(roadNetwork.vertices));
+			location <- point(one_of(road));
 		}
 		
 		//------------------------------------------The Cars------------------------
 	    create car number:numCars{
 									
-			location <- point(one_of(roadNetwork.vertices));
+			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryCar,maxBatteryLifeCar); 	//Battery life random bewteen max and min
 		}
 	    
@@ -230,7 +230,9 @@ global {
 
 experiment traditionalScenario {
 	parameter var: numScooters init: numScooters;
+	parameter var: numEBikes init: numEBikes;
 	parameter var: numConventionalBikes init: numConventionalBikes;
+	parameter var: numCars init: numCars;
 	parameter var: numDocklessBikes init: numDocklessBikes;
 	output {
 		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
