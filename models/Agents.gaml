@@ -8,6 +8,13 @@ global {
 		return origin distance_to destination;	
 	}
 	
+	// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	int numScooters;
+	int numEBikes;
+	int numConventionalBikes;
+	int numCars;
+	
+	
 	bool autonomousBikesInUse;
 	bool docklessBikesInUse;
 	bool scootersInUse;
@@ -38,6 +45,7 @@ global {
 	list<scooter> availableScooters(package delivery) {
 		if traditionalScenario{
 			scootersInUse <- true;
+			numScooters <- round(0.24*numVehiclesPackageTraditional);
 		} else {
 			scootersInUse <- false;
 			numScooters <- 0;
@@ -48,6 +56,7 @@ global {
 	list<eBike> availableEBikes (package delivery) {
 		if traditionalScenario{
 			eBikesInUse <- true;
+			numEBikes <- round(0.06*numVehiclesPackageTraditional);
 		} else {
 			scootersInUse <- false;
 			numEBikes <- 0;
@@ -58,6 +67,7 @@ global {
 	list<conventionalBike> availableConventionalBikes(package delivery) {
 		if traditionalScenario{
 			conventionalBikesInUse <- true;
+			numConventionalBikes <- round(0.49*numVehiclesPackageTraditional);
 		} else {
 			conventionalBikesInUse <- false;
 			numConventionalBikes <- 0;
@@ -68,6 +78,7 @@ global {
 	list<car> availableCars(package delivery) {
 		if traditionalScenario{
 			carsInUse <- true;
+			numCars <- round(0.205*numVehiclesPackageTraditional);
 		} else {
 			carsInUse <- false;
 			numCars <- 0;
@@ -120,13 +131,18 @@ global {
 		float dcb;
 		float dc;
 		float mindistance;
-		int choice;
+		int choice <- 0;
     	
 		list<autonomousBike> availableAB <- availableAutonomousBikes(nil, delivery);
 		list<scooter> availableS <- availableScooters(delivery);
 		if !empty(availableS){
 			scooter s <- availableS closest_to(delivery);
 			ds <- distanceInGraph(s.location,delivery.location);
+			if ds <= maxDistancePackage_Scooter {
+				ds <- ds;
+			} else {
+				ds <- 1000000.0;
+			}
 		} else {
 			ds <- 10000000.0;
 		}
@@ -134,6 +150,11 @@ global {
 		if !empty(availableEB){
 			eBike eb <- availableEB closest_to(delivery);
 			deb <- distanceInGraph(eb.location,delivery.location);
+			if deb <= maxDistancePackage_EBike {
+				deb <- deb;
+			} else {
+				deb <- 1000000.0;
+			}
 		} else {
 			deb <- 1000000.0;
 		}		
@@ -141,6 +162,11 @@ global {
 		if !empty(availableCB){
 			conventionalBike cb <- availableCB closest_to(delivery);
 			dcb <- distanceInGraph(cb.location,delivery.location);
+			if dcb <= maxDistancePackage_ConventionalBike {
+				dcb <- dcb;
+			} else {
+				dcb <- 1000000.0;
+			}
 		} else {
 			dcb <- 1000000.0;
 		}
@@ -148,6 +174,11 @@ global {
 		if !empty(availableC){
 			car c <- availableC closest_to(delivery);
 			dc <- distanceInGraph(c.location,delivery.location);
+			if dc <= maxDistancePackage_Car {
+				dc <- dc;
+			} else {
+				dc <- 1000000.0;
+			}
 		} else {
 			dc <- 1000000.0;
 		}
@@ -170,19 +201,20 @@ global {
 			if empty(availableS) and empty(availableEB) and empty(availableCB) and empty(availableC) {
 				choice <- 0;
 			} else {
-				if ds < maxDistancePackage_Scooter and ds<deb and ds<dcb and ds<dc {
+				if ds<dc and ds<=deb and ds<=dcb {
 					mindistance <- ds;
 					choice <- 2;
-				} else if deb < maxDistancePackage_EBike and deb<ds and deb<dcb and deb<dc {
+				} else if deb<dc and deb<ds and deb<=dcb {
 					mindistance <- deb;
 					choice <- 3;
-				} else if dcb < maxDistancePackage_ConventionalBike and dcb<ds and dcb<deb and dcb<dc {
+				} else if dcb<dc and dcb<ds and dcb<deb {
 					mindistance <- dcb;
 					choice <- 4;
-				} else if dc < maxDistancePackage_Car and dc<ds and dc<deb and dc<dcb {
+				} else if dc<=ds and dc<=deb and dc<=dcb {
 					mindistance <- dc;
 					choice <- 5;
-				} else {
+				} 
+				else {
 					choice <- 0;
 				}
 			}
@@ -485,6 +517,22 @@ species package control: fsm skills: [moving] {
 	action deliver_c(car c){
 		carToDeliver <- c;
 	}
+	
+	/*action updatePollutionMap (autonomousBike ab, scooter s, eBike eb, conventionalBike cb, car c){
+		ask gridHeatmaps overlapping(current_path.shape) {
+			if ab!=nil{
+				pollution_level <- pollution_level + 32;
+			} else if s !=nil {
+				pollution_level <- pollution_level + 22;
+			} else if eb !=nil {
+				pollution_level <- pollution_level + 15;
+			} else if cb !=nil {
+				pollution_level <- pollution_level + 6;
+			} else if c !=nil {
+				pollution_level <- pollution_level + 100;
+			}
+		}
+	}*/
 		
 	bool timeToTravel { return (current_date.hour = start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
 	
@@ -511,22 +559,27 @@ species package control: fsm skills: [moving] {
     	transition to: requesting_autonomousBike_Package when: choice=1 {
     		final_destination <- target_point;
     		mode <- 1;
+    		//do updatePollutionMap(autonomousBikeToDeliver,nil,nil,nil,nil);
     	}
     	transition to: requesting_scooter when: choice=2 {
     		final_destination <- target_point;
     		mode <- 2;
+    		//do updatePollutionMap(nil,scooterToDeliver,nil,nil,nil);
     	}
     	transition to: requesting_eBike when: choice=3 {
     		final_destination <- target_point;
     		mode <- 3;
+    		//do updatePollutionMap(nil,nil,eBikeToDeliver,nil,nil);
     	}
     	transition to: requesting_conventionalBike when: choice=4 {
     		final_destination <- target_point;
     		mode <- 4;
+    		//do updatePollutionMap(nil,nil,nil,conventionalBikeToDeliver,nil);
     	}
     	transition to: requesting_car when: choice=5 {
     		final_destination <- target_point;
     		mode <- 5;
+    		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
     	}
     	transition to: end when: choice=0 {
     		target <- final_destination;
@@ -814,6 +867,19 @@ species people control: fsm skills: [moving] {
     		mode <- 1;
     	}
     }	
+    
+    /*action updatePollutionMap (autonomousBike ab, docklessBike db) {
+    	if ab !=nil{
+    		ask gridHeatmaps overlapping(current_path.shape) {
+			pollution_level <- pollution_level + 32;
+			}
+    	} else if db != nil {
+    		ask gridHeatmaps overlapping(current_path.shape) {
+			pollution_level <- pollution_level + 6;
+			}
+    	}
+		
+	}*/
 
     bool timeToTravel { return (current_date.hour = start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
     
@@ -824,9 +890,11 @@ species people control: fsm skills: [moving] {
     	}
     	transition to: requesting_autonomousBike when: timeToTravel() and !traditionalScenario {
        		final_destination <- target_point;
+       		//do updatePollutionMap(autonomousBikeToRide, nil);
     	}
     	transition to: requesting_docklessBike when: timeToTravel() and traditionalScenario {
        		final_destination <- target_point;
+       		//do updatePollutionMap(nil, docklessBikeToRide);
     	}
     	exit {
 			if peopleEventLog {ask logger { do logExitState; }}
@@ -1729,3 +1797,13 @@ species car control: fsm skills: [moving] {
 		}
 	}
 }
+
+/*grid gridHeatmaps height: 50 width: 50 {
+	int pollution_level <- 0 ;
+	int density<-0;
+	rgb pollution_color <- rgb(pollution_level*10,0,0) update:rgb(pollution_level*10,0,0);
+	
+	aspect pollution{
+		draw shape color:pollution_color;
+	}
+}*/

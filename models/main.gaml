@@ -101,27 +101,31 @@ global {
 		}
 	    
 	    //------------------------------------------The Scooters------------------------
-	    create scooter number:numScooters{
+	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	    create scooter number:round(0.24*numVehiclesPackageTraditional){
 									
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The EBikes------------------------
-	    create eBike number:numEBikes{
+		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	    create eBike number:round(0.06*numVehiclesPackageTraditional){
 									
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryEBike,maxBatteryLifeEBike); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The Conventional Bikes------------------------
-	    create conventionalBike number:numConventionalBikes{
+		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	    create conventionalBike number:round(0.49*numVehiclesPackageTraditional){
 									
 			location <- point(one_of(road));
 		}
 		
 		//------------------------------------------The Cars------------------------
-	    create car number:numCars{
+	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	    create car number:round(0.205*numVehiclesPackageTraditional){
 									
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryCar,maxBatteryLifeCar); 	//Battery life random bewteen max and min
@@ -229,11 +233,7 @@ global {
 }*/
 
 experiment traditionalScenario {
-	parameter var: numScooters init: numScooters;
-	parameter var: numEBikes init: numEBikes;
-	parameter var: numConventionalBikes init: numConventionalBikes;
-	parameter var: numCars init: numCars;
-	parameter var: numDocklessBikes init: numDocklessBikes;
+	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
 	output {
 		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
 			species building aspect: type ;
@@ -246,6 +246,7 @@ experiment traditionalScenario {
 			species eBike aspect: realistic trace:10; 
 			species conventionalBike aspect: realistic trace:10;
 			species car aspect: realistic trace:10;  
+			//species gridHeatmaps aspect:pollution;
 			graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
 				{world.shape.width * 0.8, world.shape.height * 0.975};

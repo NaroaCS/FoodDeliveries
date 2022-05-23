@@ -44,6 +44,7 @@ global {
 	
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
+	int numVehiclesPackageTraditional <- 100 min:100 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
@@ -54,7 +55,7 @@ global {
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
 	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Autonomous Bike CO2 Emissions: " category: "Initial";
 	
-	//----------------------Dockless Bike Parameters------------------------
+	//--------------------Dockless Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
 	int numDocklessBikes <- 75 				min: 0 max: 500 parameter: "Num Dockless Bikes:" category: "Dockless Bike";
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
@@ -63,7 +64,6 @@ global {
 	float docklessBikeCO2Emissions <- 0.010 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Scooter Parameters--------------------------------------------
-	int numScooters <- 20				min: 0 max: 500 parameter: "Num Scooters:" category: "Scooter";
 	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
 	float maxBatteryLifeScooter <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; 
 	float PickUpSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
@@ -73,7 +73,6 @@ global {
 	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
 	//---------------------EBike Parameters--------------------------------------------
-	int numEBikes <- 20				min: 0 max: 500 parameter: "Num EBikes:" category: "EBike";
 	// Data extracted from: Juiced Bikes eBikes riding range: https://www.juicedbikes.com/pages/real-world-range-test
 	float maxBatteryLifeEBike <- 30000.0 #m	min: 10000.0#m max: 300000.0#m parameter: "EBike Battery Capacity (m):" category: "EBike"; 
 	// Data extracted from: City Bike eBikes: https://citibikenyc.com/how-it-works/electric
@@ -84,8 +83,6 @@ global {
 	float eBikeCO2Emissions <- 0.024 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Conventional Bike Parameters--------------------------------------------
-	//bool conventionalBikesInUse <- true parameter: "Conventional Bikes are in use: " category: "Conventional Bike";
-	int numConventionalBikes <- 20 	min: 0 max: 500 parameter: "Num Conventional Bikes:" category: "Conventional Bike";
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
 	float PickUpSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
 	float RidingSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
@@ -93,14 +90,13 @@ global {
 	float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
 	//---------------------Car Parameters--------------------------------------------
-	int numCars <- 20				min: 0 max: 500 parameter: "Num Cars:" category: "Car";
 	// Data extracted from: 
-	float maxBatteryLifeCar <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Car Battery Capacity (m):" category: "Car"; 
-	float PickUpSpeedCar <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Car Pick-up Speed (m/s):" category:  "Car";
-	float RidingSpeedCar<-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
-	float minSafeBatteryCar <- 0.25*maxBatteryLifeScooter #m; 
+	float maxBatteryLifeCar <- 500000.0 #m	min: 300000.0#m max: 900000.0#m parameter: "Car Battery Capacity (m):" category: "Car"; 
+	float PickUpSpeedCar <-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Pick-up Speed (m/s):" category:  "Car";
+	float RidingSpeedCar<-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
+	float minSafeBatteryCar <- 0.10*maxBatteryLifeCar #m; 
 	// Data extracted from: 
-	float carCO2Emissions <- 0.035 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
+	float carCO2Emissions <- 0.160 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
 		
 	//----------------------numChargingStationsion Parameters------------------------
 	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
