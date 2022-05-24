@@ -453,17 +453,17 @@ species package control: fsm skills: [moving] {
     	"firstmile":: #blue,
 		"requesting_autonomousBike_Package":: #yellow,
 		"requesting_scooter":: #turquoise,
-		"requesting_eBike":: #white,
+		"requesting_eBike":: #green,
 		"requesting_conventionalBike":: #brown,
 		"requesting_car":: #gray,
 		"awaiting_autonomousBike_Package":: #yellow,
 		"awaiting_scooter":: #turquoise,
-		"awaiting_eBike":: #white,
+		"awaiting_eBike":: #green,
 		"awaiting_conventionalBike":: #brown,
 		"awaiting_car":: #gray,
 		"delivering_autonomousBike":: #yellow,
 		"delivering_scooter"::#turquoise,
-		"delivering_eBike"::#white,
+		"delivering_eBike"::#green,
 		"delivering_conventionalBike"::#brown,
 		"delivering_car"::#gray,
 		"lastmile"::#blue,
@@ -591,11 +591,10 @@ species package control: fsm skills: [moving] {
     
 	state requesting_autonomousBike_Package{
 		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location; 
+			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
 		}
 		transition to: firstmile when: host.requestAutonomousBike(nil, self, final_destination) {
-			target <- closestIntersection;
+			target <- (road closest_to(self)).location;
 		}
 		exit {
 			if packageEventLog {ask logger{do logExitState("Requested Bike "+myself.autonomousBikeToDeliver);}}
@@ -605,10 +604,9 @@ species package control: fsm skills: [moving] {
 	state requesting_scooter{
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location; 
 		}
 		transition to: firstmile when: host.requestScooter(self, final_destination) {
-			target <- closestIntersection;
+			target <- (road closest_to(self)).location;
 		}
 		exit {
 			if packageEventLog {ask logger{do logExitState("Requested Scooter "+myself.scooterToDeliver);}}
@@ -618,10 +616,9 @@ species package control: fsm skills: [moving] {
 	state requesting_eBike{
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location; 
 		}
 		transition to: firstmile when: host.requestEBike(self, final_destination) {
-			target <- closestIntersection;
+			target <- (road closest_to(self)).location;
 		}
 		exit {
 			if packageEventLog {ask logger{do logExitState("Requested EBike "+myself.eBikeToDeliver);}}
@@ -631,10 +628,9 @@ species package control: fsm skills: [moving] {
 	state requesting_conventionalBike {
 		enter {
 			if packageEventLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location;
 		}
 		transition to: firstmile when: host.requestConventionalBike (self, final_destination) {
-			target <- closestIntersection;
+			target <- (road closest_to(self)).location;
 		}
 		exit {
 			if packageEventLog {ask logger{do logExitState("Requested Conventional Bike "+myself.conventionalBikeToDeliver);}}
@@ -643,11 +639,10 @@ species package control: fsm skills: [moving] {
 	
 	state requesting_car {
 		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location; 
+			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
 		}
 		transition to: firstmile when: host.requestCar(self, final_destination) {
-			target <- closestIntersection;
+			target <- (road closest_to(self)).location;
 		}
 		exit {
 			if packageEventLog {ask logger{do logExitState("Requested Car "+myself.carToDeliver);}}
@@ -1434,15 +1429,15 @@ species eBike control: fsm skills: [moving] {
 	rgb color;
 	
 	map<string, rgb> color_map <- [
-		"wandering"::#white,
+		"wandering"::#green,
 		"low_battery"::#red,
-		"picking_up_packages"::#white,
-		"in_use_packages"::#white
+		"picking_up_packages"::#green,
+		"in_use_packages"::#green
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw rectangle(25,10) color:color border:color rotate: heading + 90 ;
+		draw triangle(25,10) color:color border:color rotate: heading + 90 ;
 	} 
 
 	//loggers
