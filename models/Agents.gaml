@@ -10,7 +10,6 @@ global {
 	
 	// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
 	int numScooters;
-	int numElectricBikes;
 	int numEBikes;
 	int numConventionalBikes;
 	int numCars;
@@ -19,7 +18,6 @@ global {
 	bool autonomousBikesInUse;
 	bool docklessBikesInUse;
 	bool scootersInUse;
-	bool electricBikesInUse;
 	bool eBikesInUse;
 	bool conventionalBikesInUse;
 	bool carsInUse;
@@ -53,17 +51,6 @@ global {
 			numScooters <- 0;
 		}
 		return scooter where (each.availableForRideS());
-	}
-	
-	list<electricBike> availableElectricBikes(package delivery) {
-		if traditionalScenario{
-			electricBikesInUse <- true;
-			numElectricBikes <- round(0.06*numVehiclesPackageTraditional);
-		} else {
-			electricBikesInUse <- false;
-			numElectricBikes <- 0;
-		}
-		return electricBike where (each.availableForRideElB());
 	}
 	
 	list<eBike> availableEBikes (package delivery) {
@@ -121,11 +108,6 @@ global {
 	float scooter_distance_D <- 0.0;
 	float scooter_total_emissions <-0.0;
 	
-	float electricBike_distance_PUP <- 0.0;
-	int electricBike_trips_count_PUP <- 0;
-	float electricBike_distance_D <- 0.0;
-	float electricBike_total_emissions <-0.0;
-	
 	float eBike_distance_PUP <- 0.0;
 	int eBike_trips_count_PUP <- 0;
 	float eBike_distance_D <- 0.0;
@@ -145,7 +127,6 @@ global {
     	
     	float dab; 
 		float ds;
-		float delb;
 		float deb;
 		float dcb;
 		float dc;
@@ -164,18 +145,6 @@ global {
 			}
 		} else {
 			ds <- 10000000.0;
-		}
-		list<electricBike> availableElB <- availableElectricBikes(delivery);
-		if !empty(availableElB){
-			electricBike elb <- availableElB closest_to(delivery);
-			delb <- distanceInGraph(elb.location,delivery.location);
-			if delb <= maxDistancePackage_ElectricBike {
-				delb <- delb;
-			} else {
-				delb <- 1000000.0;
-			}
-		} else {
-			delb <- 10000000.0;
 		}
 		list<eBike> availableEB <- availableEBikes(delivery);
 		if !empty(availableEB){
@@ -229,25 +198,23 @@ global {
 				}
 			}
 		} else if traditionalScenario {
-			if empty(availableS) and empty(availableElB) and empty(availableEB) and empty(availableCB) and empty(availableC) {
+			if empty(availableS) and empty(availableEB) and empty(availableCB) and empty(availableC) {
 				choice <- 0;
 			} else {
-				if ds<dc and ds<=deb and ds<=delb and ds<=dcb {
+				if ds<dc and ds<=deb and ds<=dcb {
 					mindistance <- ds;
 					choice <- 2;
-				} else if deb<dc and deb<ds and deb<delb and deb<=dcb {
+				} else if deb<dc and deb<ds and deb<=dcb {
 					mindistance <- deb;
 					choice <- 3;
-				} else if dcb<dc and dcb<ds and dcb<delb and dcb<deb {
+				} else if dcb<dc and dcb<ds and dcb<deb {
 					mindistance <- dcb;
 					choice <- 4;
-				} else if dc<=ds and dc<=delb and dc<=deb and dc<=dcb {
+				} else if dc<=ds and dc<=deb and dc<=dcb {
 					mindistance <- dc;
 					choice <- 5;
-				} else if delb<dc and delb<ds and delb<=deb and delb<=dcb {
-					mindistance <- delb;
-					choice <- 6;
-				} else {
+				} 
+				else {
 					choice <- 0;
 				}
 			}
@@ -331,18 +298,6 @@ global {
 		return true;		
 	}	
 	
-	bool requestElectricBike (package delivery, point destination) { 
-
-		list<electricBike> available <- availableElectricBikes(delivery);
-		
-		electricBike elb <- available closest_to(delivery);
-		elb.delivery <- delivery;
-		ask delivery {
-			do deliver_elb(elb);
-		}
-		return true;		
-	}
-	
 	bool requestEBike(package delivery, point destination) { 
 
 		list<eBike> available <- availableEBikes(delivery);
@@ -409,15 +364,6 @@ global {
 	bool scooterClose(package delivery, scooter s){
 		float d <- distanceInGraph(s.location,delivery.location);
 		if d<maxDistancePackage_Scooter { 
-			return true;
-		}else{
-			return false ;
-		}
-	}
-	
-	bool electricBikeClose(package delivery, electricBike elb){
-		float d <- distanceInGraph(elb.location,delivery.location);
-		if d<maxDistancePackage_ElectricBike { 
 			return true;
 		}else{
 			return false ;
@@ -507,19 +453,16 @@ species package control: fsm skills: [moving] {
     	"firstmile":: #blue,
 		"requesting_autonomousBike_Package":: #yellow,
 		"requesting_scooter":: #turquoise,
-		"requesting_electricBike":: #orange,
 		"requesting_eBike":: #white,
 		"requesting_conventionalBike":: #brown,
 		"requesting_car":: #gray,
 		"awaiting_autonomousBike_Package":: #yellow,
 		"awaiting_scooter":: #turquoise,
-		"awaiting_electricBike":: #orange,
 		"awaiting_eBike":: #white,
 		"awaiting_conventionalBike":: #brown,
 		"awaiting_car":: #gray,
 		"delivering_autonomousBike":: #yellow,
 		"delivering_scooter"::#turquoise,
-		"delivering_electricBike"::#orange,
 		"delivering_eBike"::#white,
 		"delivering_conventionalBike"::#brown,
 		"delivering_car"::#gray,
@@ -540,7 +483,6 @@ species package control: fsm skills: [moving] {
 	
 	autonomousBike autonomousBikeToDeliver;
 	scooter scooterToDeliver;
-	electricBike electricBikeToDeliver;
 	eBike eBikeToDeliver;
 	conventionalBike conventionalBikeToDeliver;
 	car carToDeliver;
@@ -562,10 +504,6 @@ species package control: fsm skills: [moving] {
 	
 	action deliver_s(scooter s){
 		scooterToDeliver <- s;
-	}
-	
-	action deliver_elb(electricBike elb){
-		electricBikeToDeliver <- elb;
 	}
 	
 	action deliver_eb(eBike eb){
@@ -628,11 +566,6 @@ species package control: fsm skills: [moving] {
     		mode <- 2;
     		//do updatePollutionMap(nil,scooterToDeliver,nil,nil,nil);
     	}
-    	transition to: requesting_electricBike when: choice=6 {
-    		final_destination <- target_point;
-    		mode <- 6;
-    		//do updatePollutionMap(nil,scooterToDeliver,nil,nil,nil);
-    	}
     	transition to: requesting_eBike when: choice=3 {
     		final_destination <- target_point;
     		mode <- 3;
@@ -682,19 +615,6 @@ species package control: fsm skills: [moving] {
 		}
 	}
 	
-	state requesting_electricBike {
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-			closestIntersection <- (intersection closest_to(self)).location; 
-		}
-		transition to: firstmile when: host.requestElectricBike(self, final_destination) {
-			target <- closestIntersection;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested Electric Bike "+myself.electricBikeToDeliver);}}
-		}
-	}
-	
 	state requesting_eBike{
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
@@ -740,7 +660,6 @@ species package control: fsm skills: [moving] {
 		}
 		transition to: awaiting_autonomousBike_Package when: choice=1 and location=target{}
 		transition to: awaiting_scooter when: choice=2 and location=target{}
-		transition to: awaiting_electricBike when: choice=6 and location=target{}
 		transition to: awaiting_eBike when: choice=3 and location=target{}
 		transition to: awaiting_conventionalBike when: choice=4 and location=target{}
 		transition to: awaiting_car when: choice=5 and location=target{}
@@ -767,17 +686,6 @@ species package control: fsm skills: [moving] {
 			target <- nil;
 		}
 		transition to: delivering_scooter when: scooterToDeliver.state = "in_use_packages" {}
-		exit {
-			if packageEventLog {ask logger { do logExitState; }}
-		}
-	}
-	
-	state awaiting_electricBike {
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState( "awaiting " + string(myself.electricBikeToDeliver) ); }}
-			target <- nil;
-		}
-		transition to: delivering_electricBike when: electricBikeToDeliver.state = "in_use_packages" {}
 		exit {
 			if packageEventLog {ask logger { do logExitState; }}
 		}
@@ -843,20 +751,6 @@ species package control: fsm skills: [moving] {
 			scooterToDeliver<- nil;
 		}
 		location <- scooterToDeliver.location;
-	}
-	
-	state delivering_electricBike {
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState( "delivering " + string(myself.electricBikeToDeliver) ); }}
-		}
-		transition to: lastmile when: electricBikeToDeliver.state != "in_use_packages" {
-			target <- final_destination;
-		}
-		exit {
-			if packageEventLog {ask logger { do logExitState; }}
-			electricBikeToDeliver<- nil;
-		}
-		location <- electricBikeToDeliver.location;
 	}
 	
 	state delivering_eBike {
@@ -1528,142 +1422,6 @@ species scooter control: fsm skills: [moving] {
 		}
 		exit {
 			if scooterEventLog {
-				ask eventLogger { do logExitState("Used" + myself.delivery); }
-			}
-		}
-	}
-}
-
-species electricBike control: fsm skills: [moving] {
-	
-	//----------------Display-----------------
-	rgb color;
-	
-	map<string, rgb> color_map <- [
-		"wandering"::#orange,
-		"low_battery"::#red,
-		"picking_up_packages"::#orange,
-		"in_use_packages"::#orange
-	];
-	
-	aspect realistic {
-		color <- color_map[state];
-		draw rectangle(25,10) color:color border:color rotate: heading + 90 ;
-	} 
-
-	//loggers
-	electricBikeLogger_roadsTraveled travelLogger;
-	electricBikeLogger_event eventLogger;
-	    
-	/* ========================================== PUBLIC FUNCTIONS ========================================= */
-	// these are how other agents interact with this one. Not used by self
-
-	package delivery;
-	
-	list<string> rideStates <- ["wandering"]; //This defines in which state the bikes have to be to be available for a ride
-	bool lowPass <- false;
-
-	bool availableForRideElB {
-		return (state in rideStates) and self.state="wandering" and !setLowBattery() and delivery=nil and electricBikesInUse=true;
-	}
-	
-	action pickUpPackage(package pack){
-		delivery <- pack;
-	}
-	
-	/* ========================================== PRIVATE FUNCTIONS ========================================= */
-	// no other species should touch these
-	
-	//----------------BATTERY-----------------
-	
-	bool setLowBattery { //Determines when to move into the low_battery state
-		
-		if batteryLife < minSafeBatteryElectricBike { return true; } 
-		else {
-			return false;
-		}
-	}
-	float energyCost(float distance) {
-		return distance;
-	}
-	action reduceBattery(float distance) {
-		batteryLife <- batteryLife - energyCost(distance); 
-	}
-	//----------------MOVEMENT-----------------
-	point target;
-	
-	float batteryLife min: 0.0 max: maxBatteryLifeElectricBike; //Number of meters we can travel on current battery
-	float distancePerCycle;
-	
-	path travelledPath; //preallocation. Only used within the moveTowardTarget reflex
-	
-	bool canMove {
-		return ((target != nil and target != location)) and batteryLife > 0;
-	}
-		
-	path moveTowardTarget {
-		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedElectricBike);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedElectricBike);
-	}
-	
-	reflex move when: canMove() {
-		
-		travelledPath <- moveTowardTarget();
-		
-		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
-						
-		do reduceBattery(distanceTraveled);
-	}
-				
-	/* ========================================== STATE MACHINE ========================================= */
-	state wandering initial: true {
-		enter {
-			ask eventLogger { do logEnterState; }
-			target <- nil;
-		}
-		transition to: picking_up_packages when: delivery != nil{}
-		transition to: low_battery when: setLowBattery() {}
-		exit {
-			ask eventLogger { do logExitState; }
-		}
-	}
-	
-	state low_battery {
-		//seek either a charging station or another vehicle
-		enter{
-			ask eventLogger { do logEnterState(myself.state); }
-		}
-		exit {
-			ask eventLogger { do logExitState; }
-		}
-	}
-	
-	state picking_up_packages {
-		enter {
-			if electricBikeEventLog {ask eventLogger { do logEnterState("Picking up " + myself.delivery); }}
-			target <- delivery.location; 
-			electricBike_trips_count_PUP <- electricBike_trips_count_PUP + 1;
-			electricBike_distance_PUP <- delivery.location distance_to location;
-			electricBike_total_emissions <- electricBike_total_emissions + electricBike_distance_PUP*electricBikeCO2Emissions;
-		}
-		transition to: in_use_packages when: location=target {}
-		exit{
-			ask eventLogger { do logExitState("Picked up " + myself.delivery); }
-		}
-	}
-	
-	state in_use_packages {
-		enter {
-			if electricBikeEventLog {ask eventLogger { do logEnterState("In Use " + myself.delivery); }}
-			target <- road closest_to delivery.final_destination.location;  
-			electricBike_distance_D <- delivery.final_destination.location distance_to location;
-			electricBike_total_emissions <- electricBike_total_emissions + electricBike_distance_D*electricBikeCO2Emissions;
-		}
-		transition to: wandering when: location=target {
-			delivery <- nil;
-		}
-		exit {
-			if electricBikeEventLog {
 				ask eventLogger { do logExitState("Used" + myself.delivery); }
 			}
 		}
