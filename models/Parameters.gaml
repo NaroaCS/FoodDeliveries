@@ -28,6 +28,7 @@ global {
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
+	bool electricBikeEventLog <- false parameter: "Electric Bike Event/Trip Log" category: "Logs";
 	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
 	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
@@ -71,6 +72,15 @@ global {
 	float minSafeBatteryScooter <- 0.25*maxBatteryLifeScooter #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	
+	//---------------------Electric Bike Parameters--------------------------------------------
+	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
+	float maxBatteryLifeElectricBike <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Electric Bike Battery Capacity (m):" category: "Electric Bike"; 
+	float PickUpSpeedElectricBike <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Electric Bike Pick-up Speed (m/s):" category:  "Electric Bike";
+	float RidingSpeedElectricBike <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Electric Bike Riding Speed (m/s):" category:  "Electric Bike";
+	float minSafeBatteryElectricBike <- 0.25*maxBatteryLifeElectricBike #m; 
+	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
+	float electricBikeCO2Emissions <- 0.035 #kg/#km parameter: "Electric Bike CO2 Emissions: " category: "Initial";
 	
 	//---------------------EBike Parameters--------------------------------------------
 	// Data extracted from: Juiced Bikes eBikes riding range: https://www.juicedbikes.com/pages/real-world-range-test
@@ -116,6 +126,7 @@ global {
     float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
 	float maxDistancePackage_Scooter <- maxWaitTimePackage*PickUpSpeedScooter#m;
+	float maxDistancePackage_ElectricBike <- maxWaitTimePackage*PickUpSpeedElectricBike#m;
 	float maxDistancePackage_EBike <- maxWaitTimePackage*PickUpSpeedEBike#m;
 	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
 	float maxDistancePackage_Car <- maxWaitTimePackage*PickUpSpeedCar#m;

@@ -108,6 +108,14 @@ global {
 			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
 		
+		//------------------------------------------The Scooters------------------------
+	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+	    create electricBike number:round(0.06*numVehiclesPackageTraditional){
+									
+			location <- point(one_of(road));
+			batteryLife <- rnd(minSafeBatteryElectricBike,maxBatteryLifeElectricBike); 	//Battery life random bewteen max and min
+		}
+		
 		//------------------------------------------The EBikes------------------------
 		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
 	    create eBike number:round(0.06*numVehiclesPackageTraditional){
@@ -243,6 +251,7 @@ experiment traditionalScenario {
 			species package aspect:base;
 			species docklessBike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
+			species electricBike aspect: realistic trace:10; 
 			species eBike aspect: realistic trace:10; 
 			species conventionalBike aspect: realistic trace:10;
 			species car aspect: realistic trace:10;  
@@ -257,12 +266,14 @@ experiment traditionalScenario {
 	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
 		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
 		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "Electric Bike Emissions" value: electricBike_total_emissions color: #yellow marker: false;
 		        data "E Bike Emissions" value: eBike_total_emissions color: #yellow marker: false;
 		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
 		        data "Car Emissions" value: car_total_emissions color: #black marker: false;
         	}
         	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
 		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "Electric Bike" value: electricBike_trips_count_PUP color: #yellow;
 		        data "E Bike" value: eBike_trips_count_PUP color: #yellow;
 		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
 		        data "Car" value: car_trips_count_PUP color: #black;
