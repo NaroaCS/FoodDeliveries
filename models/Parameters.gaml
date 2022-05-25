@@ -43,7 +43,7 @@ global {
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
+	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
 	int numVehiclesPackageTraditional <- 100 min:100 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Bike Parameters------------------------
