@@ -36,10 +36,10 @@ global {
 		"NAutonomousBikes: "+string(numAutonomousBikes),
 		"NDocklessBikes: "+string(numDocklessBikes),
 		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-		"NScooters: "+string(round(0.24*numVehiclesPackageTraditional)),
-		"NEBikes: "+string(round(0.06*numVehiclesPackageTraditional)),
-		"NConventionalBikes: "+string(round(0.49*numVehiclesPackageTraditional)),
-		"NCars: "+string(round(0.205*numVehiclesPackageTraditional)),
+		"NScooters: "+string(numScooters),
+		"NEBikes: "+string(numEBikes),
+		"NConventionalBikes: "+string(numConventionalBikes),
+		"NCars: "+string(numCars),
 		"MaxWaitPeople: "+string(maxWaitTimePeople/60),
 		"MaxWaitPackage: "+string(maxWaitTimePackage/60),
 
