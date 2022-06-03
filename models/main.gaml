@@ -87,53 +87,62 @@ global {
 			}
 		}
 		
+		if traditionalScenario{
+			numAutonomousBikes <- 0;			
+			numScooters <- round(0.24*numVehiclesPackageTraditional);
+			numEBikes <- round(0.06*numVehiclesPackageTraditional);
+			numConventionalBikes <- round(0.49*numVehiclesPackageTraditional);
+			numCars <- round(0.205*numVehiclesPackageTraditional);
+			
+		} else if !traditionalScenario {
+			numDocklessBikes <- 0;			
+			numScooters <- 0;
+			numEBikes <- 0;
+			numConventionalBikes <- 0;
+			numCars <- 0;
+		}
+			
 		// -------------------------------------------The Bikes -----------------------------------------
-		create autonomousBike number:numAutonomousBikes{
-									
+		create autonomousBike number:numAutonomousBikes{					
 			location <- point(one_of(roadNetwork.vertices));
 			batteryLife <- rnd(minSafeBatteryAutonomousBike,maxBatteryLifeAutonomousBike); 	//Battery life random bewteen max and min
 		}
 		
 		// -------------------------------------------The Dockless Bikes -----------------------------------------
-		create docklessBike number:numDocklessBikes{
-									
+		create docklessBike number:numDocklessBikes{					
 			location <- point(one_of(road));
 		}
 	    
 	    //------------------------------------------The Scooters------------------------
 	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create scooter number:round(0.24*numVehiclesPackageTraditional){
-									
+	    create scooter number:numScooters{					
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
 		}
-		
+	
 		//------------------------------------------The EBikes------------------------
 		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create eBike number:round(0.06*numVehiclesPackageTraditional){
-									
+	    create eBike number:numEBikes{						
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryEBike,maxBatteryLifeEBike); 	//Battery life random bewteen max and min
 		}
 		
 		//------------------------------------------The Conventional Bikes------------------------
 		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create conventionalBike number:round(0.49*numVehiclesPackageTraditional){
-									
+	    create conventionalBike number:numConventionalBikes{					
 			location <- point(one_of(road));
 		}
 		
 		//------------------------------------------The Cars------------------------
 	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create car number:round(0.205*numVehiclesPackageTraditional){
-									
+	    create car number:numCars{					
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryCar,maxBatteryLifeCar); 	//Battery life random bewteen max and min
 		}
 	    
 		// -------------------------------------------The People -----------------------------------------
 	    
-	   create package number:numpackage {
+	   /*create package number:numpackage {
 	   		list<building> deliv <- building where (each.type=residence or each.type=office);
 			building dest <- one_of(deliv);
 			target_point <- dest.location;
@@ -149,22 +158,24 @@ global {
 				start_h <- dinnermin + rnd(dinnermax-1-dinnermin);
 				start_min <- rnd(0,59);
 			}
-		}
+		}*/
 		
-		/*create package from: pdemand_csv with:
-		[start_hour::date(get("starttime"))			
+		create package from: pdemand_csv with:
+		[start_hour::date(get("start_time")),
+				start_lat::float(get("latitude")),
+				start_lon::float(get("longitude"))	
 		]{
-			building dest <- one_of(building);
+			list<building> deliv <- building where (each.type=residence or each.type=office);
+			building dest <- one_of(deliv);
 			target_point <- dest.location;
-			supermarket sup <- one_of(supermarket);
-			start_point <- sup.location;
+			start_point  <- to_GAMA_CRS({start_lon,start_lat},"EPSG:4326").location;
 			location <- start_point;
 			
 			string start_h_str <- string(start_hour,'kk');
 			start_h <-  int(start_h_str);
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
-		}*/
+		}
 	   
 	    create people from: demand_csv with:
 		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'

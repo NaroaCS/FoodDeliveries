@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 18:00:00"); 
+	date starting_date <- date("2021-10-12 08:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-05-04 00:00:00");
+	date logDate <- date("2022-06-03 10:14:00");
 	
 	date nowDate <- #now;
 	
@@ -43,7 +43,7 @@ global {
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
+	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
 	int numVehiclesPackageTraditional <- 100 min:100 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Bike Parameters------------------------
@@ -57,7 +57,7 @@ global {
 	
 	//--------------------Dockless Bike Parameters------------------------
 	//bool autonomousBikesInUse <- true parameter: "Bike are in use: " category: "Bike";
-	int numDocklessBikes <- 75 				min: 0 max: 500 parameter: "Num Dockless Bikes:" category: "Dockless Bike";
+	int numDocklessBikes <- 75 	min: 0 max: 500 parameter: "Num Dockless Bikes:" category: "Dockless Bike";
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
 	float RidingSpeedDocklessBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed Dockless Bike (m/s):" category:  "Dockless Bike";
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
@@ -120,16 +120,16 @@ global {
 	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
 	float maxDistancePackage_Car <- maxWaitTimePackage*PickUpSpeedCar#m;
    
-    int numpackage <- 500;
+    /*int numpackage <- 500;
     int lunchmin <- 11;
     int lunchmax <- 14;
     int dinnermin <- 17;
-    int dinnermax <- 21;
+    int dinnermax <- 21;*/
     
     //Demand 
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/package_delivery.csv",true);
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/package_demand.csv",true);
        
     //----------------------Map Parameters------------------------
 	

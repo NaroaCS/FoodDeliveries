@@ -12,13 +12,13 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes", "Num Scooters", "Num Conventional Bikes", "Num Dockless Bikes", "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes", "Num Dockless Bikes", "Num Scooters", "Num eBikes", "Num Conventional Bikes", "Num Cars",  "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 			// Parámetro a variar (que luego se quiera ver en los batch)
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, numScooters, numConventionalBikes, numDocklessBikes] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, numDocklessBikes, numScooters, numEBikes, numConventionalBikes, numCars] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss"), traditionalScenario] + data;
@@ -447,7 +447,7 @@ species packageLogger parent: Logger mirrors: package {
 					}
 				
 					if cycle != 0 {
-						ask packagetarget.tripLogger {
+						/*ask packagetarget.tripLogger {
 							do logTrip(
 								myself.served,
 								myself.mode,
@@ -459,7 +459,7 @@ species packageLogger parent: Logger mirrors: package {
 								packagetarget.target_point.location,
 								myself.tripdistance
 							);
-						}
+						}*/
 					}
 				}
 			}
@@ -520,7 +520,6 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 	autonomousBike autonomousBiketarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		autonomousBiketarget <- autonomousBike(target);
@@ -528,12 +527,11 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 		loggingAgent <- autonomousBiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
+	action logRoads(float distanceTraveled) {
 		
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
+		totalDistance <- distanceTraveled;
 		
-		do log( [distanceTraveled, numIntersections]);
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -548,7 +546,6 @@ species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 	docklessBike docklessBiketarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		docklessBiketarget <- docklessBike(target);
@@ -556,11 +553,9 @@ species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 		loggingAgent <- docklessBiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
-		
-		do log( [distanceTraveled, numIntersections]);
+	action logRoads(float distanceTraveled) {
+		totalDistance <- distanceTraveled;
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -575,7 +570,6 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 	scooter scootertarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		scootertarget <- scooter(target);
@@ -583,11 +577,9 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 		loggingAgent <- scootertarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
-		
-		do log( [distanceTraveled, numIntersections]);
+	action logRoads(float distanceTraveled) {
+		totalDistance <-  distanceTraveled;
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -602,7 +594,6 @@ species eBikeLogger_roadsTraveled parent: Logger mirrors: eBike {
 	eBike eBiketarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		eBiketarget <- eBike(target);
@@ -610,11 +601,9 @@ species eBikeLogger_roadsTraveled parent: Logger mirrors: eBike {
 		loggingAgent <- eBiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
-		
-		do log( [distanceTraveled, numIntersections]);
+	action logRoads(float distanceTraveled) {
+		totalDistance <- distanceTraveled;		
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -629,7 +618,6 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 	conventionalBike conventionalbiketarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		conventionalbiketarget <- conventionalBike(target);
@@ -637,11 +625,9 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 		loggingAgent <- conventionalbiketarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
-		
-		do log( [distanceTraveled, numIntersections]);
+	action logRoads(float distanceTraveled) {
+		totalDistance <- distanceTraveled;
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -656,7 +642,6 @@ species carLogger_roadsTraveled parent: Logger mirrors: car {
 	car cartarget;
 	
 	float totalDistance <- 0.0;
-	int totalIntersections <- 0;
 	
 	init {
 		cartarget <- car(target);
@@ -664,11 +649,9 @@ species carLogger_roadsTraveled parent: Logger mirrors: car {
 		loggingAgent <- cartarget;
 	}
 	
-	action logRoads(float distanceTraveled, int numIntersections) {
-		totalDistance <- totalDistance + distanceTraveled;
-		totalIntersections <- totalIntersections + numIntersections;
-		
-		do log( [distanceTraveled, numIntersections]);
+	action logRoads(float distanceTraveled) {
+		totalDistance <- distanceTraveled;
+		do log( [distanceTraveled]);
 	}
 }
 
@@ -703,7 +686,6 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float distanceStartActivity;
 	float batteryStartActivity;
 	string currentState;
 	int activity;
@@ -714,16 +696,14 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 		batteryStartActivity <- autonomousBiketarget.batteryLife;
 		locationStartActivity <- autonomousBiketarget.location;
 		
-		distanceStartActivity <- autonomousBiketarget.travelLogger.totalDistance;
-		
 		currentState <- autonomousBiketarget.state;
 		
 		activity <- autonomousBiketarget.activity;
-		do log( ['START: ' + autonomousBiketarget.state] + [logmessage]);
+		do log( ['START: ' + autonomousBiketarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- autonomousBiketarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- autonomousBiketarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -787,7 +767,6 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float distanceStartActivity;
 	string currentState;
 	int activity <- 1;
 	
@@ -796,14 +775,12 @@ species docklessBikeLogger_event parent: Logger mirrors: docklessBike {
 		timeStartActivity <- current_date;
 		locationStartActivity <- docklessBiketarget.location;
 		
-		distanceStartActivity <- docklessBiketarget.travelLogger.totalDistance;
-		
 		currentState <- docklessBiketarget.state;
-		do log( ['START: ' + docklessBiketarget.state] + [logmessage]);
+		do log( ['START: ' + docklessBiketarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- docklessBiketarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- docklessBiketarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -852,23 +829,23 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
+	float batteryStartActivity;
 	float distanceStartActivity;
 	string currentState;
-	int activity <- 0;
+	int activity <- 0; // Activity: 0 -> Packages || Activity: 1 -> People
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
 		timeStartActivity <- current_date;
+		batteryStartActivity <- scootertarget.batteryLife;
 		locationStartActivity <- scootertarget.location;
 		
-		distanceStartActivity <- scootertarget.travelLogger.totalDistance;
-		
 		currentState <- scootertarget.state;
-		do log( ['START: ' + scootertarget.state] + [logmessage]);
+		do log( ['START: ' + scootertarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- scootertarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- scootertarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -883,8 +860,8 @@ species scooterLogger_event parent: Logger mirrors: scooter {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			nil,
-			nil,
+			batteryStartActivity/maxBatteryLifeScooter*100,
+			scootertarget.batteryLife/maxBatteryLifeScooter*100,
 			nil
 		]);
 	}
@@ -917,23 +894,22 @@ species eBikeLogger_event parent: Logger mirrors: eBike {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float distanceStartActivity;
+	float batteryStartActivity;
 	string currentState;
 	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
 		timeStartActivity <- current_date;
+		batteryStartActivity <- eBiketarget.batteryLife;
 		locationStartActivity <- eBiketarget.location;
-		
-		distanceStartActivity <- eBiketarget.travelLogger.totalDistance;
-		
+			
 		currentState <- eBiketarget.state;
-		do log( ['START: ' + eBiketarget.state] + [logmessage]);
+		do log( ['START: ' + eBiketarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- eBiketarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- eBiketarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -948,8 +924,8 @@ species eBikeLogger_event parent: Logger mirrors: eBike {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			nil,
-			nil,
+			batteryStartActivity/maxBatteryLifeEBike*100,
+			eBiketarget.batteryLife/maxBatteryLifeEBike*100,
 			nil
 		]);
 	}
@@ -982,7 +958,6 @@ species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float distanceStartActivity;
 	string currentState;
 	int activity <- 0;
 	
@@ -991,14 +966,12 @@ species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
 		timeStartActivity <- current_date;
 		locationStartActivity <- conventionalbiketarget.location;
 		
-		distanceStartActivity <- conventionalbiketarget.travelLogger.totalDistance;
-		
 		currentState <- conventionalbiketarget.state;
-		do log( ['START: ' + conventionalbiketarget.state] + [logmessage]);
+		do log( ['START: ' + conventionalbiketarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- conventionalbiketarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- conventionalbiketarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -1047,23 +1020,22 @@ species carLogger_event parent: Logger mirrors: car {
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float distanceStartActivity;
+	float batteryStartActivity;
 	string currentState;
 	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
 		timeStartActivity <- current_date;
+		batteryStartActivity <- cartarget.batteryLife;
 		locationStartActivity <- cartarget.location;
 		
-		distanceStartActivity <- cartarget.travelLogger.totalDistance;
-		
 		currentState <- cartarget.state;
-		do log( ['START: ' + cartarget.state] + [logmessage]);
+		do log( ['START: ' + cartarget.state] + [activity] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {
-		float d <- cartarget.travelLogger.totalDistance - distanceStartActivity;
+		float d <- cartarget.travelLogger.totalDistance;
 		string timeStartstr;
 		string currentstr;
 		
@@ -1078,8 +1050,8 @@ species carLogger_event parent: Logger mirrors: car {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			nil,
-			nil,
+			batteryStartActivity/maxBatteryLifeCar*100,
+			cartarget.batteryLife/maxBatteryLifeCar*100,
 			nil
 		]);
 	}
