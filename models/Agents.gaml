@@ -798,7 +798,6 @@ species people control: fsm skills: [moving] {
 	rgb color;
 	
     map<string, rgb> color_map <- [
-		"idle"::#lavender,
 		"requesting_autonomousBike":: #springgreen,
 		"requesting_docklessBike"::#gamablue,
 		"awaiting_autonomousBike":: #springgreen,
