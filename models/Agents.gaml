@@ -1299,14 +1299,14 @@ species docklessBike control: fsm skills: [moving] {
 	
 	state in_use_people {
 		enter {
+			target <- road closest_to rider.final_destination.location;
 			docklessBike_trips_count_DP <- docklessBike_trips_count_DP + 1;
 			docklessBike_distance_DP <- target distance_to location;
-			docklessBike_total_emissions <- docklessBike_total_emissions + docklessBike_distance_DP*docklessBikeCO2Emissions;	
+			docklessBike_total_emissions <- docklessBike_total_emissions + docklessBike_distance_DP*docklessBikeCO2Emissions;
 			if docklessBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.rider); }
 				ask travelLogger { do logRoads(docklessBike_distance_DP);}
-			}
-			target <- road closest_to rider.final_destination.location;  		
+			}	
 		}
 		transition to: wandering when: location=target {
 			rider <- nil;
@@ -1680,6 +1680,7 @@ species conventionalBike control: fsm skills: [moving] {
 	
 	state picking_up_packages {
 		enter {
+			target <- delivery.location; 
 			conventionalBike_trips_count_PUP <- conventionalBike_trips_count_PUP + 1;
 			conventionalBike_distance_PUP <- target distance_to location;
 			conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_PUP*conventionalBikeCO2Emissions;		
@@ -1687,7 +1688,6 @@ species conventionalBike control: fsm skills: [moving] {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 				ask travelLogger { do logRoads(conventionalBike_distance_PUP);}
 			}
-			target <- delivery.location; 		
 		}
 		transition to: in_use_packages when: location=target {}
 		exit{
@@ -1697,13 +1697,13 @@ species conventionalBike control: fsm skills: [moving] {
 	
 	state in_use_packages {
 		enter {
+			target <- road closest_to delivery.final_destination.location;  
 			conventionalBike_distance_D <- target distance_to location;
 			conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_D*conventionalBikeCO2Emissions;
 			if conventionalBikesEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(conventionalBike_distance_D);}
 			}
-			target <- road closest_to delivery.final_destination.location;  
 		}
 		transition to: wandering when: location=target {
 			delivery <- nil;

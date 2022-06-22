@@ -22,7 +22,7 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
