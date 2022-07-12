@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 08:00:00"); 
+	date starting_date <- date("2021-10-12 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -43,7 +43,7 @@ global {
 	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
+	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
 	int numVehiclesPackageTraditional <- 100 min:100 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Bike Parameters------------------------
@@ -129,17 +129,20 @@ global {
     //Demand 
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/package_demand.csv",true);
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips.csv",true);
        
     //----------------------Map Parameters------------------------
 	
 	//Case 1 - Urban Swarms Map
-	string cityScopeCity <- "Kendall";
+	string cityScopeCity <- "Cambridge";
 	string residence <- "R";
 	string office <- "O";
-	string usage <- "Usage";
+	string park <- "P";
+	string health <- "H";
+	string education <- "E";
+	string usage <- "usage";
 	
-	map<string, rgb> color_map <- [residence::#white, office::#gray, "Other"::#black];
+	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#green, health::#pink, education::#blue, "Other"::#black];
     
 	//GIS FILES To Upload
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
@@ -150,7 +153,7 @@ global {
 	
 	file chargingStations_csv <- file("./../includes/City/Cambridge/current_bluebikes_stations.csv");
 		
-	csv_file supermarket_csv <- csv_file (cityGISFolder+ "/FoodPlaces.csv",true);
+	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge.csv",true);
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');

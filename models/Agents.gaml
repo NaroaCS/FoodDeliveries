@@ -416,13 +416,13 @@ species chargingStation {
 	}
 }
 
-species supermarket{
+species restaurant{
 	
 	rgb color <- #red;
 	
 	float lat;
 	float lon;
-	point sup;
+	point rest;
 	
 	aspect base{
 		draw circle(20) color:color border:#black;
@@ -465,6 +465,8 @@ species package control: fsm skills: [moving] {
 	date start_hour;
 	float start_lat; 
 	float start_lon;
+	float target_lat; 
+	float target_lon;
 	
 	point start_point;
 	point target_point;

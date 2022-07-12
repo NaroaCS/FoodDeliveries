@@ -18,7 +18,7 @@ global {
     	// ---------------------------------------Buildings-----------------------------i----------------
 		do logSetUp;
 	    create building from: buildings_shapefile with: [type:string(read (usage))] {
-		 	if(type!=office and type!=residence){ type <- "Other"; }
+		 	if(type!=office and type!=residence and type!=park and type!=health and type!=education){ type <- "Other"; }
 		}
 	        
 	    list<building> residentialBuildings <- building where (each.type=residence);
@@ -28,14 +28,13 @@ global {
 		create road from: roads_shapefile;
 		
 		roadNetwork <- as_edge_graph(road) ;
-		
-		create supermarket from: supermarket_csv with:
-			[lat::float(get("lat")),
-			lon::float(get("lon"))
+				
+		create restaurant from: restaurants_csv with:
+			[lat::float(get("latitude")),
+			lon::float(get("longitude"))
 			]
 			{
-				sup <- to_GAMA_CRS({lon,lat},"EPSG:4326").location; 
-				location <- sup;
+				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location; 
 			}
 			   
 		// -------------------------------------Location of the charging stations----------------------------------------   
@@ -162,13 +161,14 @@ global {
 		
 		create package from: pdemand_csv with:
 		[start_hour::date(get("start_time")),
-				start_lat::float(get("latitude")),
-				start_lon::float(get("longitude"))	
+				start_lat::float(get("start_latitude")),
+				start_lon::float(get("start_longitude")),
+				target_lat::float(get("end_latitude")),
+				target_lon::float(get("end_longitude"))	
 		]{
-			list<building> deliv <- building where (each.type=residence or each.type=office);
-			building dest <- one_of(deliv);
-			target_point <- dest.location;
+			
 			start_point  <- to_GAMA_CRS({start_lon,start_lat},"EPSG:4326").location;
+			target_point  <- to_GAMA_CRS({target_lon,target_lat},"EPSG:4326").location;
 			location <- start_point;
 			
 			string start_h_str <- string(start_hour,'kk');
@@ -250,7 +250,7 @@ experiment traditionalScenario {
 			species building aspect: type ;
 			species road aspect: base ;
 			species people aspect: base ;
-			species supermarket aspect:base;
+			species restaurant aspect:base;
 			species package aspect:base;
 			species docklessBike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
@@ -291,7 +291,7 @@ experiment autonomousScenario type: gui {
 			species road aspect: base ;
 			species people aspect: base ;
 			species chargingStation aspect: base ;
-			species supermarket aspect:base;
+			species restaurant aspect:base;
 			species package aspect:base;
 			species autonomousBike aspect: realistic trace: 10 ;
 			graphics "text" {
