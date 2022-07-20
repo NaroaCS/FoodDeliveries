@@ -130,32 +130,32 @@ global {
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_kendall.csv",true);
        
     //----------------------Map Parameters------------------------
 	
 	//Case 1 - Cambridge
-	string cityScopeCity <- "Cambridge";
+	string cityScopeCity <- "Kendall";
 	string residence <- "R";
 	string office <- "O";
 	string park <- "P";
 	string health <- "H";
 	string education <- "E";
-	string usage <- "usage";
+	string usage <- "Usage";
 	
 	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#green, health::#pink, education::#blue, "Other"::#black];
     
 	//GIS FILES To Upload
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
 	file bound_shapefile <- file(cityGISFolder + "/Bounds.shp")			parameter: "Bounds Shapefile:" category: "GIS";
-	file buildings_shapefile <- file(cityGISFolder + "/Buildings.shp")	parameter: "Building Shapefile:" category: "GIS";
+	file buildings_shapefile <- file(cityGISFolder + "/Buildings_Kendall.shp")	parameter: "Building Shapefile:" category: "GIS";
 	file roads_shapefile <- file(cityGISFolder + "/Roads.shp")			parameter: "Road Shapefile:" category: "GIS";
 	
 	//Charging Statios
-	file chargingStations_csv <- file("./../includes/City/Cambridge/current_bluebikes_stations.csv");
+	file chargingStations_csv <- file("./../includes/City/Kendall/current_bluebikes_stations.csv");
 	
 	//Restaurants	
-	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge_filter.csv",true);
+	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_kendall.csv",true);
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');
