@@ -88,10 +88,10 @@ global {
 		
 		if traditionalScenario{
 			numAutonomousBikes <- 0;			
-			numScooters <- round(0.24*numVehiclesPackageTraditional);
-			numEBikes <- round(0.06*numVehiclesPackageTraditional);
-			numConventionalBikes <- round(0.49*numVehiclesPackageTraditional);
-			numCars <- round(0.205*numVehiclesPackageTraditional);
+			numScooters <- round(0.0*numVehiclesPackageTraditional);
+			numEBikes <- round(0.0*numVehiclesPackageTraditional);
+			numConventionalBikes <- round(0.0*numVehiclesPackageTraditional);
+			numCars <- round(1*numVehiclesPackageTraditional);
 			
 		} else if !traditionalScenario {
 			numDocklessBikes <- 0;			
@@ -138,27 +138,8 @@ global {
 			location <- point(one_of(road));
 			batteryLife <- rnd(minSafeBatteryCar,maxBatteryLifeCar); 	//Battery life random bewteen max and min
 		}
-	    
-		// -------------------------------------------The People -----------------------------------------
-	    
-	   /*create package number:numpackage {
-	   		list<building> deliv <- building where (each.type=residence or each.type=office);
-			building dest <- one_of(deliv);
-			target_point <- dest.location;
-			supermarket sup <- one_of(supermarket);
-			start_point <- sup.location;
-			location <- start_point;
-			
-			int decision <- rnd(0,1);
-			if decision = 0 {
-				start_h <- lunchmin + rnd(lunchmax-1-lunchmin);
-				start_min <- rnd(0,59);
-			} else if decision = 1 {
-				start_h <- dinnermin + rnd(dinnermax-1-dinnermin);
-				start_min <- rnd(0,59);
-			}
-		}*/
-		
+	    	    
+		// -------------------------------------------The Packages -----------------------------------------
 		create package from: pdemand_csv with:
 		[start_hour::date(get("start_time")),
 				start_lat::float(get("start_latitude")),
@@ -176,7 +157,8 @@ global {
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
 		}
-	   
+		
+		// -------------------------------------------The People -----------------------------------------
 	    create people from: demand_csv with:
 		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'
 				start_lat::float(get("start_lat")),
@@ -204,6 +186,83 @@ global {
 		do pause ;
 	}
 }
+
+experiment traditionalScenario {
+	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
+	output {
+		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species restaurant aspect:base;
+			species package aspect:base;
+			species docklessBike aspect: realistic trace: 10 ;
+			species scooter aspect: realistic trace:10; 
+			species eBike aspect: realistic trace:10; 
+			species conventionalBike aspect: realistic trace:10;
+			species car aspect: realistic trace:10;  
+			//species gridHeatmaps aspect:pollution;
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
+		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
+		        data "E Bike Emissions" value: eBike_total_emissions color: #yellow marker: false;
+		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
+		        data "Car Emissions" value: car_total_emissions color: #black marker: false;
+        	}
+        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		        data "Scooter" value: scooter_trips_count_PUP color: #green;
+		        data "E Bike" value: eBike_trips_count_PUP color: #yellow;
+		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
+		        data "Car" value: car_trips_count_PUP color: #black;
+        	}	
+        }*/    
+	}
+}
+
+experiment autonomousScenario type: gui {
+	parameter var: numAutonomousBikes init: numAutonomousBikes;
+    output {
+		display autonomousScenario type:opengl background: #black draw_env: false{	 
+			species building aspect: type ;
+			species road aspect: base ;
+			species people aspect: base ;
+			species chargingStation aspect: base ;
+			species restaurant aspect:base;
+			species package aspect:base;
+			species autonomousBike aspect: realistic trace: 10 ;
+			graphics "text" {
+				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
+				{world.shape.width * 0.8, world.shape.height * 0.975};
+				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
+			}
+		}
+		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
+	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
+		        data "Autonomous Bike Emissions in People Delivery" value: autonomousBike_total_emissions_people color: #purple marker: false;
+		        data "Autonomous Bike Emissions in Package Delivery" value: autonomousBike_total_emissions_package color: #green marker: false;
+		        data "Autonomous Bike Emissions Going to Charge" value: autonomousBike_total_emissions_C color: #red marker: false;
+        	}
+        	chart "Autonomous Bike Usage per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
+		        data "People" value: autonomousBike_trips_count_people color: #green;
+		        data "package" value: autonomousBike_trips_count_package color: #red;
+        	}
+        	chart "CO2 Emissions Total" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0.5}{
+		        data "Autonomous Bike Emissions Total" value: autonomousBike_total_emissions color: #black marker: false;
+        	}
+        }*/
+    }
+}
+
+/*experiment main_headless {
+	parameter var: numAutonomousBikes init: numAutonomousBikes;
+}*/
 
 /*experiment batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numAutonomousBikes among: [25, 50, 75, 100, 125];
@@ -241,81 +300,4 @@ global {
         	}
         }
     }
-}*/
-
-experiment traditionalScenario {
-	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
-	output {
-		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type ;
-			species road aspect: base ;
-			species people aspect: base ;
-			species restaurant aspect:base;
-			species package aspect:base;
-			species docklessBike aspect: realistic trace: 10 ;
-			species scooter aspect: realistic trace:10; 
-			species eBike aspect: realistic trace:10; 
-			species conventionalBike aspect: realistic trace:10;
-			species car aspect: realistic trace:10;  
-			//species gridHeatmaps aspect:pollution;
-			graphics "text" {
-				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
-				{world.shape.width * 0.8, world.shape.height * 0.975};
-				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}
-		}
-		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
-		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
-		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
-		        data "E Bike Emissions" value: eBike_total_emissions color: #yellow marker: false;
-		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
-		        data "Car Emissions" value: car_total_emissions color: #black marker: false;
-        	}
-        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
-		        data "Scooter" value: scooter_trips_count_PUP color: #green;
-		        data "E Bike" value: eBike_trips_count_PUP color: #yellow;
-		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
-		        data "Car" value: car_trips_count_PUP color: #black;
-        	}
-        	
-        }    
-	}
-}
-
-experiment autonomousScenario type: gui {
-	parameter var: numAutonomousBikes init: numAutonomousBikes;
-    output {
-		display autonomousScenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type ;
-			species road aspect: base ;
-			species people aspect: base ;
-			species chargingStation aspect: base ;
-			species restaurant aspect:base;
-			species package aspect:base;
-			species autonomousBike aspect: realistic trace: 10 ;
-			graphics "text" {
-				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
-				{world.shape.width * 0.8, world.shape.height * 0.975};
-				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}
-		}
-		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
-		        data "Autonomous Bike Emissions in People Delivery" value: autonomousBike_total_emissions_people color: #purple marker: false;
-		        data "Autonomous Bike Emissions in Package Delivery" value: autonomousBike_total_emissions_package color: #green marker: false;
-		        data "Autonomous Bike Emissions Going to Charge" value: autonomousBike_total_emissions_C color: #red marker: false;
-        	}
-        	chart "Autonomous Bike Usage per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
-		        data "People" value: autonomousBike_trips_count_people color: #green;
-		        data "package" value: autonomousBike_trips_count_package color: #red;
-        	}
-        	chart "CO2 Emissions Total" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0.5}{
-		        data "Autonomous Bike Emissions Total" value: autonomousBike_total_emissions color: #black marker: false;
-        	}
-        }
-    }
-}
-/*experiment main_headless {
-	parameter var: numAutonomousBikes init: numAutonomousBikes;
 }*/

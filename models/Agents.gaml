@@ -532,11 +532,15 @@ species package control: fsm skills: [moving] {
 	state end initial: true {
     	
     	enter {
-    		if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
+    		
+    		if packageEventLog or packageTripLog {ask logger { do logEnterState;}} 
     		target <- nil;
     	}
     	transition to: choosingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
+    		if cycle !=0{
+    			write(package);
+    		}
     	}
     	exit {
 			if packageEventLog {ask logger { do logExitState; }}

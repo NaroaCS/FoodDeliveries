@@ -201,6 +201,7 @@ species packageLogger_trip parent: Logger mirrors: package {
 	
 	init {
 		packagetarget <- package(target);
+		packagetarget.tripLogger <- self;
 		loggingAgent <- packagetarget;
 	}
 	
@@ -412,6 +413,7 @@ species packageLogger parent: Logger mirrors: package {
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
+					mode <- 1;
 				}
 				match "delivering_scooter" {
 					//trip is served
@@ -419,6 +421,7 @@ species packageLogger parent: Logger mirrors: package {
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
+					mode <- 2;
 				}
 				match "delivering_eBike" {
 					//trip is served
@@ -426,6 +429,7 @@ species packageLogger parent: Logger mirrors: package {
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
+					mode <- 3;
 				}
 				match "delivering_conventionalBike" {
 					//trip is served
@@ -433,6 +437,7 @@ species packageLogger parent: Logger mirrors: package {
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
+					mode <- 4;
 				}
 				match "delivering_car" {
 					//trip is served
@@ -440,6 +445,7 @@ species packageLogger parent: Logger mirrors: package {
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
+					mode <- 5;
 				}
 				match "end"{
 					if tripdistance = 0 {
@@ -447,7 +453,7 @@ species packageLogger parent: Logger mirrors: package {
 					}
 				
 					if cycle != 0 {
-						/*ask packagetarget.tripLogger {
+						ask packagetarget.tripLogger {
 							do logTrip(
 								myself.served,
 								myself.mode,
@@ -459,7 +465,7 @@ species packageLogger parent: Logger mirrors: package {
 								packagetarget.target_point.location,
 								myself.tripdistance
 							);
-						}*/
+						}
 					}
 				}
 			}
