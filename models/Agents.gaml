@@ -406,7 +406,7 @@ species chargingStation {
 	
 	point point_station;
 	aspect base {
-		draw circle(10) color:#blue;		
+		draw circle(25) color:#gamaorange border:#black;		
 	}
 	
 	reflex chargeBikes {
@@ -538,9 +538,6 @@ species package control: fsm skills: [moving] {
     	}
     	transition to: choosingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
-    		if cycle !=0{
-    			write(package);
-    		}
     	}
     	exit {
 			if packageEventLog {ask logger { do logExitState; }}

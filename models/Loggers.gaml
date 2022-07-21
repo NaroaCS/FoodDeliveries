@@ -5,8 +5,11 @@ global {
 	map<string, string> filenames <- []; //Maps log types to filenames
 	
 	action registerLogFile(string filename) {
-		filenames[filename] <- './../data/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
-		
+		if traditionalScenario = true {
+			filenames[filename] <- './../data/Cambridge/TraditionalScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
+		} else {
+			filenames[filename] <- './../data/Cambridge/AutonomousScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
+		}
 	}
 	
 	action log(string filename, list data, list<string> columns) {
@@ -27,7 +30,12 @@ global {
 	
 	action logForSetUp (list<string> parameters) {
 		loop param over: parameters {
-			save (param) to: './../data/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;}
+			if traditionalScenario = true {
+				save (param) to: './../data/Cambridge/TraditionalScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;
+			} else {
+				save (param) to: './../data/Cambridge/AutonomousScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;
+			}
+		}
 	}
 	
 	//Los parámetros que no se varían pero se quieren guardar para acordarse de su inicialización

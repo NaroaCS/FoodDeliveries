@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-07-21 10:11:00");
+	date logDate <- date("2022-07-21 14:39:00");
 	
 	date nowDate <- #now;
 	
@@ -129,12 +129,12 @@ global {
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
-    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
+    csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_empty.csv",true); // Change to user_trips_new when wanting to mix people and packages
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
        
     //----------------------Map Parameters------------------------
 	
-	//Case 1 - Cambridge
+	//Case - Cambridge
 	string cityScopeCity <- "Cambridge";
 	string residence <- "R";
 	string office <- "O";
@@ -145,16 +145,16 @@ global {
 	
 	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#green, health::#pink, education::#blue, "Other"::#black];
     
-	//GIS FILES To Upload
+	//GIS FILES To Upload - Cambridge
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
 	file bound_shapefile <- file(cityGISFolder + "/Bounds.shp")			parameter: "Bounds Shapefile:" category: "GIS";
 	file buildings_shapefile <- file(cityGISFolder + "/Buildings.shp")	parameter: "Building Shapefile:" category: "GIS";
 	file roads_shapefile <- file(cityGISFolder + "/Roads.shp")			parameter: "Road Shapefile:" category: "GIS";
 	
-	//Charging Statios
+	//Charging Stations - Cambridge
 	file chargingStations_csv <- file("./../includes/City/Cambridge/current_bluebikes_stations.csv");
 	
-	//Restaurants	
+	//Restaurants - Cambridge
 	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge_filter.csv",true);
 	 
 	//Image File
