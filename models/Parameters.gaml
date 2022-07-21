@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-06-03 10:14:00");
+	date logDate <- date("2022-07-21 14:31:00");
 	
 	date nowDate <- #now;
 	
@@ -22,7 +22,7 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
@@ -35,8 +35,8 @@ global {
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
-	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
-	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
+	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
+	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
 		
 	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
 	
@@ -127,14 +127,14 @@ global {
 	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
 	float maxDistancePackage_Car <- maxWaitTimePackage*PickUpSpeedCar#m;
      
-    //--------------------------Demand Parameters-----------------------------
+    //--------------------------Demand Parameters - Kendall Square-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
     csv_file demand_csv <- csv_file (cityDemandFolder+ "/user_trips_new.csv",true);
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_kendall.csv",true);
        
     //----------------------Map Parameters------------------------
 	
-	//Case 1 - Cambridge
+	//Case Kendall Square
 	string cityScopeCity <- "Kendall";
 	string residence <- "R";
 	string office <- "O";
@@ -145,7 +145,7 @@ global {
 	
 	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#green, health::#pink, education::#blue, "Other"::#black];
     
-	//GIS FILES To Upload
+	//GIS FILES To Upload - Kendall Square
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
 	file bound_shapefile <- file(cityGISFolder + "/Bounds.shp")			parameter: "Bounds Shapefile:" category: "GIS";
 	file buildings_shapefile <- file(cityGISFolder + "/Buildings_Kendall.shp")	parameter: "Building Shapefile:" category: "GIS";
@@ -154,7 +154,7 @@ global {
 	//Charging Statios
 	file chargingStations_csv <- file("./../includes/City/Kendall/current_bluebikes_stations.csv");
 	
-	//Restaurants	
+	//Restaurants - Kendall Square
 	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_kendall.csv",true);
 	 
 	//Image File

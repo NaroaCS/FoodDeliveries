@@ -5,7 +5,11 @@ global {
 	map<string, string> filenames <- []; //Maps log types to filenames
 	
 	action registerLogFile(string filename) {
-		filenames[filename] <- './../data/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
+		if traditionalScenario = true{
+			filenames[filename] <- './../data/Kendall/TraditionalScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
+		} else {
+			filenames[filename] <- './../data/Kendall/AutonomousScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + filename + '.csv';
+		}
 		
 	}
 	
@@ -27,7 +31,12 @@ global {
 	
 	action logForSetUp (list<string> parameters) {
 		loop param over: parameters {
-			save (param) to: './../data/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;}
+			if traditionalScenario = true{
+			save (param) to: './../data/Kendall/TraditionalScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;
+			} else {
+			save (param) to: './../data/Kendall/AutonomousScenario/' + string(logDate, 'yyyy-MM-dd hh.mm.ss','en') + '/' + 'setUp' + '.txt' type: "text" rewrite: false header: false;
+			}
+		}
 	}
 	
 	//Los parámetros que no se varían pero se quieren guardar para acordarse de su inicialización
@@ -201,6 +210,7 @@ species packageLogger_trip parent: Logger mirrors: package {
 	
 	init {
 		packagetarget <- package(target);
+		packagetarget.tripLogger <- self;
 		loggingAgent <- packagetarget;
 	}
 	
@@ -447,7 +457,7 @@ species packageLogger parent: Logger mirrors: package {
 					}
 				
 					if cycle != 0 {
-						/*ask packagetarget.tripLogger {
+						ask packagetarget.tripLogger {
 							do logTrip(
 								myself.served,
 								myself.mode,
@@ -459,7 +469,7 @@ species packageLogger parent: Logger mirrors: package {
 								packagetarget.target_point.location,
 								myself.tripdistance
 							);
-						}*/
+						}
 					}
 				}
 			}
