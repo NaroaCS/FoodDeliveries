@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-07-21 14:39:00");
+	date logDate <- date("2022-07-21 15:22:00");
 	
 	date nowDate <- #now;
 	
@@ -56,10 +56,14 @@ global {
 	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Autonomous Bike CO2 Emissions: " category: "Initial";
 	
 	//----------------------numChargingStationsion Parameters------------------------
-	int numChargingStations <- 5 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
+	//----------------------numChargingStationsion Parameters------------------------
+	int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
 	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
 	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
 	int chargingStationCapacity <- 16; //Average number of docks in bluebikes stations in April 2022
+	/*int numChargingStations <- 75 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
+	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
+	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport*/
 	
 	
 	//----------------------Traditional Scenario-------------------------
@@ -70,45 +74,41 @@ global {
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
 	float RidingSpeedDocklessBike <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Riding Speed Dockless Bike (m/s):" category:  "Dockless Bike";
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float docklessBikeCO2Emissions <- 0.010 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
+	// float docklessBikeCO2Emissions <- 0.010 #kg/#km parameter: "Dockless Bike CO2 Emissions: " category: "Initial";
 	
 	//----------------------Movement of Packages--------------------------
 	//------------------------Car Parameters------------------------------
 	// Data extracted from: https://www.thecoldwire.com/how-many-miles-does-a-full-tank-of-gas-last/
-	float maxBatteryLifeCar <- 500000.0 #m	min: 320000.0#m max: 645000.0#m parameter: "Car Battery Capacity (m):" category: "Car";
+	float maxFuelCar <- 500000.0 #m	min: 320000.0#m max: 645000.0#m parameter: "Car Battery Capacity (m):" category: "Car";
 	// Data extracted from: https://movotiv.com/statistics
-	float PickUpSpeedCar <-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Pick-up Speed (m/s):" category:  "Car";
 	float RidingSpeedCar<-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
 	// Data extracted from: https://www.autoinsuresavings.org/far-drive-vehicle-empty/
-	float minSafeBatteryCar <- 1*maxBatteryLifeCar/16 #m; 
+	float minSafeFuelCar <- 1*maxFuelCar/16 #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float carCO2Emissions <- 0.162 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
+	// float carCO2Emissions <- 0.162 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
 	
 	//-----------------------Scooter Parameters----------------------------
 	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
 	float maxBatteryLifeScooter <- 30000.0 #m	min: 25000.0#m max: 45000.0#m parameter: "Scooter Battery Capacity (m):" category: "Scooter"; 
-	float PickUpSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Pick-up Speed (m/s):" category:  "Scooter";
 	float RidingSpeedScooter <-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 25/3.6 #m/#s parameter: "Scooter Riding Speed (m/s):" category:  "Scooter";
 	float minSafeBatteryScooter <- 0.25*maxBatteryLifeScooter #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	// float scooterCO2Emissions <- 0.035 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 	
 	//-------------------------EBike Parameters-----------------------------
 	// Data extracted from: Juiced Bikes eBikes riding range: https://www.juicedbikes.com/pages/real-world-range-test
 	float maxBatteryLifeEBike <- 30000.0 #m	min: 10000.0#m max: 300000.0#m parameter: "EBike Battery Capacity (m):" category: "EBike"; 
 	// Data extracted from: City Bike eBikes: https://citibikenyc.com/how-it-works/electric
-	float PickUpSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Pick-up Speed (m/s):" category:  "EBike";
 	float RidingSpeedEBike <-  17/3.6 #m/#s min: 1/3.6 #m/#s max: 30/3.6 #m/#s parameter: "EBike Riding Speed (m/s):" category:  "EBike";
 	float minSafeBatteryEBike <- 0.25*maxBatteryLifeEBike #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float eBikeCO2Emissions <- 0.024 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
+	// float eBikeCO2Emissions <- 0.024 #kg/#km parameter: "EBike CO2 Emissions: " category: "Initial";
 	
 	//---------------------Conventional Bike Parameters-----------------------
 	// Data extracted from: Characterizing the speed and paths of shared bicycle use in Lyon || Simulation study on the fleet performance of shared autonomous bicycles
-	float PickUpSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Pick-up Speed (m/s):" category:  "Conventional Bike";
 	float RidingSpeedConventionalBikes <-  10.2/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Conventional Bike Riding Speed (m/s):" category:  "Conventional Bike";
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
-	float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
+	// float conventionalBikeCO2Emissions <- 0.010 #kg/#km parameter: "Scooter CO2 Emissions: " category: "Initial";
 		
 		
 	//--------------------------People Parameters----------------------------
@@ -122,10 +122,10 @@ global {
     //--------------------------Package Parameters----------------------------
     float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
-	float maxDistancePackage_Scooter <- maxWaitTimePackage*PickUpSpeedScooter#m;
-	float maxDistancePackage_EBike <- maxWaitTimePackage*PickUpSpeedEBike#m;
-	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*PickUpSpeedConventionalBikes #m;
-	float maxDistancePackage_Car <- maxWaitTimePackage*PickUpSpeedCar#m;
+	float maxDistancePackage_Scooter <- maxWaitTimePackage*RidingSpeedScooter#m;
+	float maxDistancePackage_EBike <- maxWaitTimePackage*RidingSpeedEBike#m;
+	float maxDistancePackage_ConventionalBike <- maxWaitTimePackage*RidingSpeedConventionalBikes #m;
+	float maxDistancePackage_Car <- maxWaitTimePackage*RidingSpeedCar#m;
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
@@ -152,10 +152,13 @@ global {
 	file roads_shapefile <- file(cityGISFolder + "/Roads.shp")			parameter: "Road Shapefile:" category: "GIS";
 	
 	//Charging Stations - Cambridge
-	file chargingStations_csv <- file("./../includes/City/Cambridge/current_bluebikes_stations.csv");
+	file chargingStations_csv <- file("./../includes/City/Cambridge/bluebikes_stations_cambridge.csv");
 	
 	//Restaurants - Cambridge
-	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge_filter.csv",true);
+	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge.csv",true);
+	
+	//Gas Stations - Cambridge
+	csv_file gasstations_csv <- csv_file (cityGISFolder+ "/gasstations.csv",true);
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');

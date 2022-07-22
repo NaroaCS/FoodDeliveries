@@ -21,6 +21,8 @@ global {
 	bool conventionalBikesInUse;
 	bool carsInUse;
 	
+	int chargingStationCapacity;
+	
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		if traditionalScenario{
 			autonomousBikesInUse <- false;
@@ -432,6 +434,31 @@ species restaurant{
 species intersection {
 	int id;	
 }
+
+species gasstation{
+	
+	rgb color <- #purple;
+	
+	float lat;
+	float lon;
+	
+	aspect base{
+		draw circle(50) color:color border:#black;
+	}
+}
+
+/*species chargeStation{
+	
+	rgb color <- #gamaorange;
+	
+	float lat;
+	float lon;
+	int capacity;
+	
+	aspect base{
+		draw circle(50) color:color border:#black;
+	}
+}*/
 
 species package control: fsm skills: [moving] {
 
@@ -1305,7 +1332,7 @@ species docklessBike control: fsm skills: [moving] {
 			target <- road closest_to rider.final_destination.location;
 			docklessBike_trips_count_DP <- docklessBike_trips_count_DP + 1;
 			docklessBike_distance_DP <- target distance_to location;
-			docklessBike_total_emissions <- docklessBike_total_emissions + docklessBike_distance_DP*docklessBikeCO2Emissions;
+			// docklessBike_total_emissions <- docklessBike_total_emissions + docklessBike_distance_DP*docklessBikeCO2Emissions;
 			if docklessBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.rider); }
 				ask travelLogger { do logRoads(docklessBike_distance_DP);}
@@ -1389,7 +1416,7 @@ species scooter control: fsm skills: [moving] {
 		
 	path moveTowardTarget {
 		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedScooter);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedScooter);
+		return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedScooter);
 	}
 	
 	reflex move when: canMove() {
@@ -1434,7 +1461,7 @@ species scooter control: fsm skills: [moving] {
 		enter {
 			scooter_trips_count_PUP <- scooter_trips_count_PUP + 1;
 			scooter_distance_PUP <- delivery.location distance_to location;
-			scooter_total_emissions <- scooter_total_emissions + scooter_distance_PUP*scooterCO2Emissions;
+			// scooter_total_emissions <- scooter_total_emissions + scooter_distance_PUP*scooterCO2Emissions;
 			if scooterEventLog {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery);}
 				ask travelLogger { do logRoads(scooter_distance_PUP);}
@@ -1451,7 +1478,7 @@ species scooter control: fsm skills: [moving] {
 		enter {
 			target <- road closest_to delivery.final_destination.location;  
 			scooter_distance_D <- delivery.final_destination.location distance_to location;
-			scooter_total_emissions <- scooter_total_emissions + scooter_distance_D*scooterCO2Emissions;
+			// scooter_total_emissions <- scooter_total_emissions + scooter_distance_D*scooterCO2Emissions;
 			if scooterEventLog {
 				ask eventLogger { do logEnterState("In use " + myself.delivery); }
 				ask travelLogger { do logRoads(scooter_distance_D);}
@@ -1535,7 +1562,7 @@ species eBike control: fsm skills: [moving] {
 		
 	path moveTowardTarget {
 		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedEBike);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedEBike);
+		return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedEBike);
 	}
 	
 	reflex move when: canMove() {
@@ -1580,7 +1607,7 @@ species eBike control: fsm skills: [moving] {
 		enter {
 			eBike_trips_count_PUP <- eBike_trips_count_PUP + 1;
 			eBike_distance_PUP <- delivery.location distance_to location;
-			eBike_total_emissions <- eBike_total_emissions + eBike_distance_PUP*eBikeCO2Emissions;
+			// eBike_total_emissions <- eBike_total_emissions + eBike_distance_PUP*eBikeCO2Emissions;
 			if eBikeEventLog {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 				ask travelLogger { do logRoads(eBike_distance_PUP);}
@@ -1597,7 +1624,7 @@ species eBike control: fsm skills: [moving] {
 		enter {
 			target <- road closest_to delivery.final_destination.location;  
 			eBike_distance_D <- delivery.final_destination.location distance_to location;
-			eBike_total_emissions <- eBike_total_emissions + eBike_distance_D*eBikeCO2Emissions;
+			// eBike_total_emissions <- eBike_total_emissions + eBike_distance_D*eBikeCO2Emissions;
 			if eBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(eBike_distance_D);}
@@ -1657,7 +1684,7 @@ species conventionalBike control: fsm skills: [moving] {
 		
 	path moveTowardTarget {
 		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedConventionalBikes);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedConventionalBikes);
+		return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedConventionalBikes);
 	}
 	
 	reflex move when: canMove() {
@@ -1686,7 +1713,7 @@ species conventionalBike control: fsm skills: [moving] {
 			target <- delivery.location; 
 			conventionalBike_trips_count_PUP <- conventionalBike_trips_count_PUP + 1;
 			conventionalBike_distance_PUP <- target distance_to location;
-			conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_PUP*conventionalBikeCO2Emissions;		
+			// conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_PUP*conventionalBikeCO2Emissions;		
 			if conventionalBikesEventLog {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 				ask travelLogger { do logRoads(conventionalBike_distance_PUP);}
@@ -1702,7 +1729,7 @@ species conventionalBike control: fsm skills: [moving] {
 		enter {
 			target <- road closest_to delivery.final_destination.location;  
 			conventionalBike_distance_D <- target distance_to location;
-			conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_D*conventionalBikeCO2Emissions;
+			// conventionalBike_total_emissions <- conventionalBike_total_emissions + conventionalBike_distance_D*conventionalBikeCO2Emissions;
 			if conventionalBikesEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(conventionalBike_distance_D);}
@@ -1761,7 +1788,7 @@ species car control: fsm skills: [moving] {
 	
 	bool setLowBattery { //Determines when to move into the low_battery state
 		
-		if batteryLife < minSafeBatteryCar { return true; } 
+		if batteryLife < minSafeFuelCar { return true; } 
 		else {
 			return false;
 		}
@@ -1775,7 +1802,7 @@ species car control: fsm skills: [moving] {
 	//----------------MOVEMENT-----------------
 	point target;
 	
-	float batteryLife min: 0.0 max: maxBatteryLifeCar; //Number of meters we can travel on current battery
+	float batteryLife min: 0.0 max: maxFuelCar; //Number of meters we can travel on current battery
 	float distancePerCycle;
 	
 	path travelledPath; //preallocation. Only used within the moveTowardTarget reflex
@@ -1786,7 +1813,7 @@ species car control: fsm skills: [moving] {
 		
 	path moveTowardTarget {
 		if (state="in_use_packages"){return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedCar);}
-		return goto(on:roadNetwork, target:target, return_path: true, speed:PickUpSpeedCar);
+		return goto(on:roadNetwork, target:target, return_path: true, speed:RidingSpeedCar);
 	}
 	
 	reflex move when: canMove() {
@@ -1831,7 +1858,7 @@ species car control: fsm skills: [moving] {
 		enter {
 			car_trips_count_PUP <- car_trips_count_PUP + 1;
 			car_distance_PUP <- delivery.location distance_to location;
-			car_total_emissions <- car_total_emissions + car_distance_PUP*carCO2Emissions;
+			// car_total_emissions <- car_total_emissions + car_distance_PUP*carCO2Emissions;
 			if carEventLog {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 				ask travelLogger { do logRoads(car_distance_PUP);}
@@ -1847,7 +1874,7 @@ species car control: fsm skills: [moving] {
 	state in_use_packages {
 		enter {
 			car_distance_D <- delivery.final_destination.location distance_to location;
-			car_total_emissions <- car_total_emissions + car_distance_D*carCO2Emissions;
+			// car_total_emissions <- car_total_emissions + car_distance_D*carCO2Emissions;
 			if carEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(car_distance_D);}

@@ -20,9 +20,6 @@ global {
 	    create building from: buildings_shapefile with: [type:string(read (usage))] {
 		 	if(type!=office and type!=residence and type!=park and type!=health and type!=education){ type <- "Other"; }
 		}
-	        
-	    list<building> residentialBuildings <- building where (each.type=residence);
-	    list<building> officeBuildings <- building where (each.type=office);
 	    
 		// ---------------------------------------The Road Network----------------------------------------------
 		create road from: roads_shapefile;
@@ -33,13 +30,27 @@ global {
 			[lat::float(get("latitude")),
 			lon::float(get("longitude"))
 			]
+			{location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;}
+			
+		create gasstation from: gasstations_csv with:
+			[lat::float(get("lat")),
+			lon::float(get("lon"))
+			]
+			{location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;}
+			
+		/*create chargeStation from: chargingStations_csv with:
+			[lat::float(get("Latitude")),
+			lon::float(get("Longitude")),
+			capacity::int(get("Total Docks"))
+			]
 			{
-				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location; 
-			}
+				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
+			 	chargingStationCapacity <- capacity;
+			}*/
 			   
 		// -------------------------------------Location of the charging stations----------------------------------------   
 		
-	    list<int> tmpDist;
+		list<int> tmpDist;
 	    		
 		loop vertex over: roadNetwork.vertices {
 			create intersection {
@@ -86,6 +97,8 @@ global {
 			}
 		}
 		
+		//-----------------------Scenarios-------------------------------------------------------------
+			
 		if traditionalScenario{
 			numAutonomousBikes <- 0;			
 			numScooters <- round(0.0*numVehiclesPackageTraditional);
@@ -136,7 +149,7 @@ global {
 	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
 	    create car number:numCars{					
 			location <- point(one_of(road));
-			batteryLife <- rnd(minSafeBatteryCar,maxBatteryLifeCar); 	//Battery life random bewteen max and min
+			batteryLife <- rnd(minSafeFuelCar,maxFuelCar); 	//Battery life random bewteen max and min
 		}
 	    	    
 		// -------------------------------------------The Packages -----------------------------------------
@@ -195,6 +208,7 @@ experiment traditionalScenario {
 			species road aspect: base ;
 			species people aspect: base ;
 			species restaurant aspect:base;
+			species gasstation aspect:base;
 			species package aspect:base;
 			species docklessBike aspect: realistic trace: 10 ;
 			species scooter aspect: realistic trace:10; 
@@ -234,6 +248,7 @@ experiment autonomousScenario type: gui {
 			species road aspect: base ;
 			species people aspect: base ;
 			species chargingStation aspect: base ;
+			//species chargeStation aspect:base;
 			species restaurant aspect:base;
 			species package aspect:base;
 			species autonomousBike aspect: realistic trace: 10 ;

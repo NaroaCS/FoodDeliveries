@@ -70,25 +70,26 @@ global {
 		"------------------------------SCOOTER PARAMETERS------------------------------",
 		"Number of Scooters: "+string(numScooters),
 		"Max Battery Life of Scooters [km]: "+string(maxBatteryLifeScooter/1000 with_precision 2),
-		"Pick-up speed Scooters [km/h]: "+string(PickUpSpeedScooter*3.6),
+		"Pick-up speed Scooters [km/h]: "+string(RidingSpeedScooter*3.6),
 		"Minimum Battery Scooters [%]: "+string(minSafeBatteryScooter/maxBatteryLifeScooter*100),
 		
 		"------------------------------EBike PARAMETERS------------------------------",
 		"Number of EBikes: "+string(numEBikes),
 		"Max Battery Life of EBike [km]: "+string(maxBatteryLifeEBike/1000 with_precision 2),
-		"Pick-up speed EBike [km/h]: "+string(PickUpSpeedEBike*3.6),
+		"Pick-up speed EBike [km/h]: "+string(RidingSpeedEBike*3.6),
 		"Minimum Battery EBike [%]: "+string(minSafeBatteryEBike/maxBatteryLifeEBike*100),
 		
 		"------------------------------CONVENTIONAL BIKE PARAMETERS------------------------------",
 		"Number of Conventional Bikes: "+string(numConventionalBikes),
-		"Pick-up speed Conventional Bikes [km/h]: "+string(PickUpSpeedConventionalBikes*3.6),
+		"Pick-up speed Conventional Bikes [km/h]: "+string(RidingSpeedConventionalBikes*3.6),
 		"Riding speed Conventional Bikes [km/h]: " + string(RidingSpeedConventionalBikes*3.6),
 		
 		"------------------------------CAR PARAMETERS------------------------------",
 		"Number of Cars: "+string(numCars),
-		"Max Battery Life of Cars [km]: "+string(maxBatteryLifeCar/1000 with_precision 2),
-		"Pick-up speed Cars [km/h]: "+string(PickUpSpeedCar*3.6),
-		"Minimum Battery Cars [%]: "+string(minSafeBatteryCar/maxBatteryLifeCar*100),
+		"Max Battery Life of Cars [km]: "+string(maxFuelCar/1000 with_precision 2),
+		"Minimum Battery Cars [%]: "+string(minSafeFuelCar/maxFuelCar*100),
+		"Riding speed Cars [km/h]: " + string(RidingSpeedCar*3.6),
+		
 		
 		"------------------------------PEOPLE PARAMETERS------------------------------",
 		"Maximum Wait Time People [min]: "+string(maxWaitTimePeople/60),
@@ -158,10 +159,10 @@ species peopleLogger_trip parent: Logger mirrors: people {
 		"Departure Time",
 		"Arrival Time",
 		"Duration (min)",
-		"Home [lat]",
-		"Home [lon]",
-		"Work [lat]",
-		"Work [lon]",
+		"Origin [lat]",
+		"Origin [lon]",
+		"Destination [lat]",
+		"Destination [lon]",
 		"Distance (m)"
 	];
 
@@ -197,10 +198,10 @@ species packageLogger_trip parent: Logger mirrors: package {
 		"Departure Time",
 		"Arrival Time",
 		"Duration (min)",
-		"Home [lat]",
-		"Home [lon]",
-		"Work [lat]",
-		"Work [lon]",
+		"Origin [lat]",
+		"Origin [lon]",
+		"Destination [lat]",
+		"Destination [lon]",
 		"Distance (m)"
 	];
 
@@ -527,8 +528,7 @@ species autonomousBikeLogger_roadsTraveled parent: Logger mirrors: autonomousBik
 	
 	string filename <- 'AutonomousBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	autonomousBike autonomousBiketarget;
@@ -553,8 +553,7 @@ species docklessBikeLogger_roadsTraveled parent: Logger mirrors: docklessBike {
 	
 	string filename <- 'docklessBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	docklessBike docklessBiketarget;
@@ -577,8 +576,7 @@ species scooterLogger_roadsTraveled parent: Logger mirrors: scooter {
 	
 	string filename <- 'scooter_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	scooter scootertarget;
@@ -601,8 +599,7 @@ species eBikeLogger_roadsTraveled parent: Logger mirrors: eBike {
 	
 	string filename <- 'eBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	eBike eBiketarget;
@@ -625,8 +622,7 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 	
 	string filename <- 'ConventionalBike_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	conventionalBike conventionalbiketarget;
@@ -649,8 +645,7 @@ species carLogger_roadsTraveled parent: Logger mirrors: car {
 	
 	string filename <- 'car_roadstraveled'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
-		"Distance Traveled",
-		"Num Intersections"
+		"Distance Traveled"
 	];
 	bool logPredicate { return roadsTraveledLog; }
 	car cartarget;
@@ -1064,8 +1059,8 @@ species carLogger_event parent: Logger mirrors: car {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			batteryStartActivity/maxBatteryLifeCar*100,
-			cartarget.batteryLife/maxBatteryLifeCar*100,
+			batteryStartActivity/maxFuelCar*100,
+			cartarget.batteryLife/maxFuelCar*100,
 			nil
 		]);
 	}
