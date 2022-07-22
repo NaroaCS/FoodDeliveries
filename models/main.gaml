@@ -37,20 +37,11 @@ global {
 			lon::float(get("lon"))
 			]
 			{location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;}
-			
-		/*create chargeStation from: chargingStations_csv with:
-			[lat::float(get("Latitude")),
-			lon::float(get("Longitude")),
-			capacity::int(get("Total Docks"))
-			]
-			{
-				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
-			 	chargingStationCapacity <- capacity;
-			}*/
-			   
+					   
 		// -------------------------------------Location of the charging stations----------------------------------------   
+		//-----------------------------------------------Before----------------------------------------------------------
 		
-		list<int> tmpDist;
+		/*list<int> tmpDist;
 	    		
 		loop vertex over: roadNetwork.vertices {
 			create intersection {
@@ -95,7 +86,21 @@ global {
 			create chargingStation{
 				location <- point(roadNetwork.vertices[chargingStationLocation[i]]);
 			}
-		}
+		}*/
+		
+		//--------------------------------------After--------------------------------------------------
+		
+		create chargingStation from: chargingStations_csv with:
+			[lat::float(get("Latitude")),
+			lon::float(get("Longitude")),
+			capacity::int(get("Total docks"))
+			]
+			{
+				write(capacity);
+				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
+				
+			 	chargingStationCapacity <- capacity;
+			}
 		
 		//-----------------------Scenarios-------------------------------------------------------------
 			
@@ -248,7 +253,6 @@ experiment autonomousScenario type: gui {
 			species road aspect: base ;
 			species people aspect: base ;
 			species chargingStation aspect: base ;
-			//species chargeStation aspect:base;
 			species restaurant aspect:base;
 			species package aspect:base;
 			species autonomousBike aspect: realistic trace: 10 ;

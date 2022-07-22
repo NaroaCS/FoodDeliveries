@@ -56,14 +56,16 @@ global {
 	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Autonomous Bike CO2 Emissions: " category: "Initial";
 	
 	//----------------------numChargingStationsion Parameters------------------------
-	//----------------------numChargingStationsion Parameters------------------------
+	//----------------------------------Before---------------------------------------
+	/*int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
+	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
+	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
+	int chargingStationCapacity <- 16; //Average number of docks in bluebikes stations in April 2022*/
+	
+	//------------------------------------After--------------------------------------
 	int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
 	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
 	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
-	int chargingStationCapacity <- 16; //Average number of docks in bluebikes stations in April 2022
-	/*int numChargingStations <- 75 	min: 1 max: 10 parameter: "Num Charging Stations:" category: "Initial";
-	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
-	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport*/
 	
 	
 	//----------------------Traditional Scenario-------------------------
@@ -152,7 +154,7 @@ global {
 	file roads_shapefile <- file(cityGISFolder + "/Roads.shp")			parameter: "Road Shapefile:" category: "GIS";
 	
 	//Charging Stations - Cambridge
-	file chargingStations_csv <- file("./../includes/City/Cambridge/bluebikes_stations_cambridge.csv");
+	csv_file chargingStations_csv <- csv_file(cityGISFolder+ "/bluebikes_stations_cambridge.csv",true);
 	
 	//Restaurants - Cambridge
 	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge.csv",true);

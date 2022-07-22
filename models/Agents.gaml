@@ -401,7 +401,7 @@ species building {
 	string type; 
 }
 
-species chargingStation {
+/*species chargingStation {
 	list<autonomousBike> autonomousBikesToCharge;
 	float lat;
 	float lon;
@@ -409,6 +409,27 @@ species chargingStation {
 	point point_station;
 	aspect base {
 		draw circle(25) color:#gamaorange border:#black;		
+	}
+	
+	reflex chargeBikes {
+		ask chargingStationCapacity first autonomousBikesToCharge {
+			batteryLife <- batteryLife + step*V2IChargingRate;
+		}
+	}
+}*/
+
+species chargingStation{
+	
+	list<autonomousBike> autonomousBikesToCharge;
+	
+	rgb color <- #gamaorange;
+	
+	float lat;
+	float lon;
+	int capacity;
+	
+	aspect base{
+		draw circle(20) color:color border:#black;
 	}
 	
 	reflex chargeBikes {
@@ -446,19 +467,6 @@ species gasstation{
 		draw circle(50) color:color border:#black;
 	}
 }
-
-/*species chargeStation{
-	
-	rgb color <- #gamaorange;
-	
-	float lat;
-	float lon;
-	int capacity;
-	
-	aspect base{
-		draw circle(50) color:color border:#black;
-	}
-}*/
 
 species package control: fsm skills: [moving] {
 
