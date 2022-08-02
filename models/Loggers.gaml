@@ -104,6 +104,11 @@ global {
 		"Number of Charging Stations: "+string(numChargingStations),
 		"V2I Charging Rate: "+string(V2IChargingRate  with_precision 2),
 		"Charging Station Capacity: "+string(chargingStationCapacity),
+		
+		"---------------------------GAS STATION PARAMETERS------------------------------",
+		"Number of Gas Stations: "+string(numGasStations),
+		"Refilling Rate: "+string(refillingRate  with_precision 2),
+		"Gas Station Capacity: "+string(gasStationCapacity),
 
 		"------------------------------MAP PARAMETERS------------------------------",
 		"City Map Name: "+string(cityScopeCity),
@@ -125,6 +130,7 @@ global {
 		"People Event Log: " + string(peopleEventLog),
 		"Package Event Log:" + string(packageEventLog),
 		"Station Charge Log: "+ string(stationChargeLogs),
+		"Gas Station Charge Log: "+ string(gasstationFuelLogs),
 		"Roads Traveled Log: " + string(roadsTraveledLog)
 		];
 		do logForSetUp(parameters);
@@ -215,8 +221,10 @@ species packageLogger_trip parent: Logger mirrors: package {
 	}
 	
 	action logTrip( bool served, int mode, float waitTime, date departure, date arrival, float tripduration, point origin, point destination, float distance) {
+		
 		point origin_WGS84 <- CRS_transform(origin, "EPSG:4326").location; 
-		point destination_WGS84 <- CRS_transform(destination, "EPSG:4326").location; 
+		point destination_WGS84 <- CRS_transform(destination, "EPSG:4326").location;
+			
 		string dep;
 		string des;
 		
@@ -375,7 +383,7 @@ species packageLogger parent: Logger mirrors: package {
     date timeStartActivity;
     point locationStartActivity;
     string currentState;
-    bool served;
+    bool served <- false;
     int mode;
     
     string timeStartstr;
@@ -461,7 +469,7 @@ species packageLogger parent: Logger mirrors: package {
 						tripdistance <- packagetarget.start_point distance_to packagetarget.target_point;
 					}
 				
-					if cycle != 0 {
+					if cycle != 0 and served=true{
 						ask packagetarget.tripLogger {
 							do logTrip(
 								myself.served,
@@ -473,7 +481,26 @@ species packageLogger parent: Logger mirrors: package {
 								packagetarget.start_point.location,
 								packagetarget.target_point.location,
 								myself.tripdistance
-							);
+							);						
+						}
+					} else if cycle != 0 and served=false{
+						mode <- nil;
+						waitTime <- nil;
+						departureTime <- nil;
+						tripdistance <- nil;
+						
+						ask packagetarget.tripLogger {
+							do logTrip(
+								myself.served,
+								myself.mode,
+								myself.waitTime,
+								myself.departureTime,
+								nil,
+								0,
+								packagetarget.start_point.location,
+								packagetarget.target_point.location,
+								myself.tripdistance
+							);		
 						}
 					}
 				}
@@ -638,6 +665,37 @@ species conventionalBikesLogger_roadsTraveled parent: Logger mirrors: convention
 	action logRoads(float distanceTraveled) {
 		totalDistance <- distanceTraveled;
 		do log( [distanceTraveled]);
+	}
+}
+
+species carLogger_fuelEvents parent: Logger mirrors: car { //Fuel refilling
+	string filename <- 'Car_fuel_refilling'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
+	list<string> columns <- [
+		"Gas Station",
+		"Start Time",
+		"End Time",
+		"Duration (min)",
+		"Start Fuel %",
+		"End Fuel %",
+		"Fuel Gain %"
+	];
+	bool logPredicate { return gasstationFuelLogs; }
+	car cartarget;
+	string startstr;
+	string endstr;
+	
+	init {
+		cartarget <- car(target);
+		cartarget.fuelLogger <- self;
+		loggingAgent <- cartarget;
+	}
+	
+	action logRefill(gasstation station, date startTime, date endTime, float refillDuration, float startFuel, float endFuel, float fuelGain) {
+				
+		if startTime= nil {startstr <- nil;}else{startstr <- string(startTime,"HH:mm:ss");}
+		if endTime = nil {endstr <- nil;} else {endstr <- string(endTime,"HH:mm:ss");}
+		
+		do log([station, startstr, endstr, refillDuration, startFuel, endFuel, fuelGain]);
 	}
 }
 
@@ -1004,6 +1062,7 @@ species conventionalBikesLogger_event parent: Logger mirrors: conventionalBike {
 
 species carLogger_event parent: Logger mirrors: car {
 	
+	bool logPredicate { return carEventLog; }
 	string filename <- 'car_trip_event'+string(nowDate.hour)+"_"+string(nowDate.minute)+"_"+string(nowDate.second);
 	list<string> columns <- [
 		"Event",
@@ -1013,30 +1072,33 @@ species carLogger_event parent: Logger mirrors: car {
 		"End Time",
 		"Duration (min)",
 		"Distance Traveled",
-		"Start Battery %",
-		"End Battery %",
-		"Battery Gain %"
+		"Start Fuel %",
+		"End Fuel %",
+		"Fuel Gain %"
 	];
 	
-	bool logPredicate { return carEventLog; }
 	car cartarget;
 	init {
 		cartarget <- car(target);
 		cartarget.eventLogger <- self;
 		loggingAgent <- cartarget;
 	}
+	
+	gasstation gasstationRefilling; //Station where being refield [id]
+	float refillingStartTime; //Refill start time [s]
+	float fuelBeginningCharge; //Fuel when beginning charge [%]
 		
 	int cycleStartActivity;
 	date timeStartActivity;
 	point locationStartActivity;
-	float batteryStartActivity;
+	float fuelStartActivity;
 	string currentState;
 	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
 		timeStartActivity <- current_date;
-		batteryStartActivity <- cartarget.batteryLife;
+		fuelStartActivity <- cartarget.fuel;
 		locationStartActivity <- cartarget.location;
 		
 		currentState <- cartarget.state;
@@ -1059,9 +1121,24 @@ species carLogger_event parent: Logger mirrors: car {
 			currentstr,
 			(cycle*step - cycleStartActivity*step)/(60),
 			d,
-			batteryStartActivity/maxFuelCar*100,
-			cartarget.batteryLife/maxFuelCar*100,
-			nil
+			fuelStartActivity/maxFuelCar*100,
+			cartarget.fuel/maxFuelCar*100,
+			(cartarget.fuel-fuelStartActivity)/maxFuelCar*100
 		]);
+		
+		if currentState = "getting_fuel" {
+			//just finished a charge
+			ask cartarget.fuelLogger {
+				do logRefill(
+					gasstation closest_to cartarget,
+					myself.timeStartActivity,
+					current_date,
+					(cycle*step - myself.cycleStartActivity*step)/(60),
+					myself.fuelStartActivity/maxFuelCar*100,
+					cartarget.fuel/maxFuelCar*100,
+					(cartarget.fuel-myself.fuelStartActivity)/maxFuelCar*100
+				);
+			}
+		}
 	}
 }

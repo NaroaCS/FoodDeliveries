@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 08:00:00"); 
+	date starting_date <- date("2021-10-12 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-07-21 15:22:00");
+	date logDate <- date("2022-08-01 12:08:00");
 	
 	date nowDate <- #now;
 	
@@ -30,7 +30,7 @@ global {
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
-	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
+	bool carEventLog <-true parameter: "Car Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
@@ -39,12 +39,13 @@ global {
 	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
 		
 	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
+	bool gasstationFuelLogs <- true parameter: "Gas Station Charge Log" category: "Logs";
 	
-	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
+	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
-	int numVehiclesPackageTraditional <- 100 min:100 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
+	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
+	int numVehiclesPackageTraditional <- 10 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
@@ -65,7 +66,7 @@ global {
 	//------------------------------------After--------------------------------------
 	int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Initial";
 	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
-	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(111) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
+	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
 	
 	
 	//----------------------Traditional Scenario-------------------------
@@ -88,6 +89,8 @@ global {
 	float minSafeFuelCar <- 1*maxFuelCar/16 #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	// float carCO2Emissions <- 0.162 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
+	float refillingRate <- maxFuelCar/(120) #m/#s;  // average time to fill a tank is 2 minutes: https://www.api.org/oil-and-natural-gas/consumer-information/consumer-resources/staying-safe-pump#:~:text=It%20may%20be%20a%20temptation,be%20discharged%20at%20the%20nozzle.
+	
 	
 	//-----------------------Scooter Parameters----------------------------
 	// Data extracted from: Mi Electric Scooter Pro: https://www.mi.com/global/mi-electric-scooter-pro/specs/
@@ -122,7 +125,7 @@ global {
    	float maxDistancePeople_DocklessBike <- maxWalkTimePeople*peopleSpeed #m; 
     
     //--------------------------Package Parameters----------------------------
-    float maxWaitTimePackage <- 15 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
+    float maxWaitTimePackage <- 120 #mn		min: 3#mn max: 15#mn parameter: "Max Wait Time Package:" category: "Package";
 	float maxDistancePackage_AutonomousBike <- maxWaitTimePackage*PickUpSpeedAutonomousBike #m;
 	float maxDistancePackage_Scooter <- maxWaitTimePackage*RidingSpeedScooter#m;
 	float maxDistancePackage_EBike <- maxWaitTimePackage*RidingSpeedEBike#m;

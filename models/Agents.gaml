@@ -22,7 +22,9 @@ global {
 	bool carsInUse;
 	
 	int chargingStationCapacity;
-	
+	int numGasStations;
+	int gasStationCapacity;
+
 	list<autonomousBike> availableAutonomousBikes(people person , package delivery) {
 		if traditionalScenario{
 			autonomousBikesInUse <- false;
@@ -109,10 +111,10 @@ global {
 	float conventionalBike_distance_D <- 0.0;
 	float conventionalBike_total_emissions <- 0.0;
 	
-	float car_distance_PUP <- 0.0;
 	int car_trips_count_PUP <- 0;
+	float car_distance_PUP <- 0.0;
 	float car_distance_D <- 0.0;
-	float car_total_emissions <- 0.0;
+	float car_distance_C <- 0.0;
 		
 	int chooseDeliveryMode(package delivery) {
     	
@@ -316,11 +318,16 @@ global {
 		
 		list<car> available <- availableCars(delivery);	
 		car c <- available closest_to(delivery);
-		c.delivery <- delivery;
-		ask delivery {
-			do deliver_c(c);
-		}
+		if c != nil{
+			c.delivery <- delivery;
+			ask delivery {
+				do deliver_c(c);
+			}
 		return true;
+		} else {
+			return false;
+		}
+		
 	}
 		
 	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
@@ -460,12 +467,19 @@ species gasstation{
 	
 	rgb color <- #purple;
 	
+	list<car> carsToRefill;
 	float lat;
 	float lon;
+	int capacity;
 	
 	aspect base{
 		draw circle(50) color:color border:#black;
 	}
+	reflex refillCars {
+		ask gasStationCapacity first carsToRefill {
+			fuel <- fuel + step*refillingRate;
+		}
+	}	
 }
 
 species package control: fsm skills: [moving] {
@@ -567,7 +581,6 @@ species package control: fsm skills: [moving] {
 	state end initial: true {
     	
     	enter {
-    		
     		if packageEventLog or packageTripLog {ask logger { do logEnterState;}} 
     		target <- nil;
     	}
@@ -1759,7 +1772,10 @@ species car control: fsm skills: [moving] {
 	
 	map<string, rgb> color_map <- [
 		"wandering"::#gray,
-		"low_battery"::#red,
+		
+		"low_fuel"::#red,
+		"getting_fuel"::#pink,
+		
 		"picking_up_packages"::#gray,
 		"in_use_packages"::#gray
 	];
@@ -1771,6 +1787,7 @@ species car control: fsm skills: [moving] {
 
 	//loggers
 	carLogger_roadsTraveled travelLogger;
+	carLogger_fuelEvents fuelLogger;
 	carLogger_event eventLogger;
 	    
 	/* ========================================== PUBLIC FUNCTIONS ========================================= */
@@ -1778,11 +1795,11 @@ species car control: fsm skills: [moving] {
 
 	package delivery;
 	
-	list<string> rideStates <- ["wandering"]; //This defines in which state the bikes have to be to be available for a ride
+	list<string> rideStates <- ["wandering"]; //This defines in which state the cars have to be to be available for a ride
 	bool lowPass <- false;
 
 	bool availableForRideC {
-		return (state in rideStates) and self.state="wandering" and !setLowBattery() and delivery=nil and carsInUse=true;
+		return (state in rideStates) and self.state="wandering" and !setLowFuel() and delivery=nil and carsInUse=true;
 	}
 	
 	action pickUpPackage(package pack){
@@ -1794,9 +1811,8 @@ species car control: fsm skills: [moving] {
 	
 	//----------------BATTERY-----------------
 	
-	bool setLowBattery { //Determines when to move into the low_battery state
-		
-		if batteryLife < minSafeFuelCar { return true; } 
+	bool setLowFuel { //Determines when to move into the low_fuel state
+		if fuel < minSafeFuelCar { return true; } 
 		else {
 			return false;
 		}
@@ -1804,19 +1820,19 @@ species car control: fsm skills: [moving] {
 	float energyCost(float distance) {
 		return distance;
 	}
-	action reduceBattery(float distance) {
-		batteryLife <- batteryLife - energyCost(distance); 
+	action reduceFuel(float distance) {
+		fuel <- fuel - energyCost(distance); 
 	}
 	//----------------MOVEMENT-----------------
 	point target;
 	
-	float batteryLife min: 0.0 max: maxFuelCar; //Number of meters we can travel on current battery
+	float fuel min: 0.0 max: maxFuelCar; //Number of meters we can travel on current fuel
 	float distancePerCycle;
 	
 	path travelledPath; //preallocation. Only used within the moveTowardTarget reflex
 	
 	bool canMove {
-		return ((target != nil and target != location)) and batteryLife > 0;
+		return ((target != nil and target != location)) and fuel > 0;
 	}
 		
 	path moveTowardTarget {
@@ -1830,7 +1846,7 @@ species car control: fsm skills: [moving] {
 		
 		float distanceTraveled <- host.distanceInGraph(travelledPath.source,travelledPath.target);
 						
-		do reduceBattery(distanceTraveled);
+		do reduceFuel(distanceTraveled);
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
@@ -1843,35 +1859,57 @@ species car control: fsm skills: [moving] {
 			target <- nil;
 		}
 		transition to: picking_up_packages when: delivery != nil{}
-		transition to: low_battery when: setLowBattery() {}
+		transition to: low_fuel when: setLowFuel() {}
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
 	
-	state low_battery {
-		//seek either a charging station or another vehicle
+	state low_fuel {
 		enter{
+			target <- (gasstation closest_to(self)).location;
+			car_distance_C <- target distance_to location;
+			write (self.state);
 			if carEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
-				ask travelLogger { do logRoads(0.0);}
+				ask travelLogger { do logRoads(car_distance_C);}
 			}
 		}
+		transition to: getting_fuel when: self.location = target {}
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	
+	state getting_fuel {
+		enter {
+			if gasstationFuelLogs{
+				ask eventLogger { do logEnterState("Refilling at " + (gasstation closest_to myself)); }
+				ask travelLogger { do logRoads(0.0);}
+			}		
+			target <- nil;
+			ask gasstation closest_to(self) {
+				carsToRefill <- carsToRefill + myself;
+			}
+		}
+		transition to: wandering when: fuel >= maxFuelCar {}
+		exit {
+			if gasstationFuelLogs{ask eventLogger { do logExitState("Refilled at " + (gasstation closest_to myself)); }}
+			ask gasstation closest_to(self) {
+				carsToRefill <- carsToRefill - myself;
+			}
 		}
 	}
 	
 	state picking_up_packages {
 		enter {
+			target <- delivery.location; 
 			car_trips_count_PUP <- car_trips_count_PUP + 1;
-			car_distance_PUP <- delivery.location distance_to location;
-			// car_total_emissions <- car_total_emissions + car_distance_PUP*carCO2Emissions;
+			car_distance_PUP <- target distance_to location;
 			if carEventLog {
 				ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 				ask travelLogger { do logRoads(car_distance_PUP);}
 			}
-			target <- delivery.location; 	
 		}
 		transition to: in_use_packages when: location=target {}
 		exit{
@@ -1881,19 +1919,18 @@ species car control: fsm skills: [moving] {
 	
 	state in_use_packages {
 		enter {
-			car_distance_D <- delivery.final_destination.location distance_to location;
-			// car_total_emissions <- car_total_emissions + car_distance_D*carCO2Emissions;
+			target <- road closest_to delivery.final_destination.location; 
+			car_distance_D <- target distance_to location;
 			if carEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(car_distance_D);}
 			}
-			target <- road closest_to delivery.final_destination.location;  
 		}
 		transition to: wandering when: location=target {
 			delivery <- nil;
 		}
 		exit {
-			if carEventLog {ask eventLogger { do logExitState("Used" + myself.delivery); }}
+			if carEventLog {ask eventLogger { do logExitState("Used " + myself.delivery); }}
 		}
 	}
 }

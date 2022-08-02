@@ -36,7 +36,11 @@ global {
 			[lat::float(get("lat")),
 			lon::float(get("lon"))
 			]
-			{location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;}
+			{	
+				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
+				// DATA: https://faqautotips.com/how-many-fuel-pumps-does-a-typical-gas-station-have
+				gasStationCapacity <- rnd(8,16);
+			}
 					   
 		// -------------------------------------Location of the charging stations----------------------------------------   
 		//-----------------------------------------------Before----------------------------------------------------------
@@ -96,7 +100,6 @@ global {
 			capacity::int(get("Total docks"))
 			]
 			{
-				write(capacity);
 				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
 				
 			 	chargingStationCapacity <- capacity;
@@ -154,7 +157,7 @@ global {
 	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
 	    create car number:numCars{					
 			location <- point(one_of(road));
-			batteryLife <- rnd(minSafeFuelCar,maxFuelCar); 	//Battery life random bewteen max and min
+			fuel <- rnd(minSafeFuelCar,maxFuelCar); 	//Battery life random bewteen max and min
 		}
 	    	    
 		// -------------------------------------------The Packages -----------------------------------------
@@ -320,3 +323,10 @@ experiment autonomousScenario type: gui {
         }
     }
 }*/
+experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numVehiclesPackageTraditional among: [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200];
+}
+
+experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among: [10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200];
+}
