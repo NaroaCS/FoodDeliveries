@@ -240,12 +240,19 @@ global {
 			if !autonomousBikeClose(nil,delivery,b){
 				return false;
 			}
-		
-			b.delivery <- delivery;
+			
+			if b != nil {
+				b.delivery <- delivery;
 	
-			ask delivery {
-				do deliver_ab(b);
+				ask delivery {
+					do deliver_ab(b);
+				}
+				return true;
+			} else {
+				return false;
 			}
+		
+			
 		} else {
 			return false;
 		}
@@ -1156,8 +1163,8 @@ species autonomousBike control: fsm skills: [moving] {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
 			autonomousBike_distance_C <- target distance_to location;
-			autonomousBike_total_emissions_C <- autonomousBike_total_emissions_C+autonomousBike_distance_C*autonomousBikeCO2Emissions;
-			autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_C;
+			// autonomousBike_total_emissions_C <- autonomousBike_total_emissions_C+autonomousBike_distance_C*autonomousBikeCO2Emissions;
+			// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_C;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
 				ask travelLogger { do logRoads(autonomousBike_distance_C);}
@@ -1195,8 +1202,8 @@ species autonomousBike control: fsm skills: [moving] {
 				autonomousBike_trips_count_people <- autonomousBike_trips_count_people + 1;
 				autonomousBike_trips_count_total <- autonomousBike_trips_count_total + 1;
 				autonomousBike_distance_PUP_people <- target distance_to location;
-				autonomousBike_total_emissions_people <- autonomousBike_total_emissions_people + autonomousBike_distance_PUP_people*autonomousBikeCO2Emissions;
-				autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_people;
+				// autonomousBike_total_emissions_people <- autonomousBike_total_emissions_people + autonomousBike_distance_PUP_people*autonomousBikeCO2Emissions;
+				// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_people;
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.rider); }
 					ask travelLogger { do logRoads(autonomousBike_distance_PUP_people);}
@@ -1214,8 +1221,8 @@ species autonomousBike control: fsm skills: [moving] {
 				autonomousBike_trips_count_package <- autonomousBike_trips_count_people + 1;
 				autonomousBike_trips_count_total <- autonomousBike_trips_count_total + 1;
 				autonomousBike_distance_PUP_package <- target distance_to location;
-				autonomousBike_total_emissions_package <- autonomousBike_total_emissions_package + autonomousBike_distance_PUP_package*autonomousBikeCO2Emissions;
-				autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_package;
+				// autonomousBike_total_emissions_package <- autonomousBike_total_emissions_package + autonomousBike_distance_PUP_package*autonomousBikeCO2Emissions;
+				// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_package;
 				if autonomousBikeEventLog {
 					ask eventLogger { do logEnterState("Picking up " + myself.delivery); }
 					ask travelLogger { do logRoads(autonomousBike_distance_PUP_package);}
@@ -1231,8 +1238,8 @@ species autonomousBike control: fsm skills: [moving] {
 		enter {
 			target <- (road closest_to rider.final_destination).location;
 			autonomousBike_distance_D_people <- target distance_to location;
-			autonomousBike_total_emissions_people <- autonomousBike_total_emissions_people + autonomousBike_distance_D_people*autonomousBikeCO2Emissions;
-			autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_people;
+			// autonomousBike_total_emissions_people <- autonomousBike_total_emissions_people + autonomousBike_distance_D_people*autonomousBikeCO2Emissions;
+			// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_people;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.rider); }
 				ask travelLogger { do logRoads(autonomousBike_distance_D_people);}
@@ -1250,8 +1257,8 @@ species autonomousBike control: fsm skills: [moving] {
 		enter {
 			target <- (road closest_to delivery.final_destination).location;  
 			autonomousBike_distance_D_package <- target distance_to location;
-			autonomousBike_total_emissions_package <- autonomousBike_total_emissions_package + autonomousBike_distance_D_package*autonomousBikeCO2Emissions;
-			autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_package;
+			// autonomousBike_total_emissions_package <- autonomousBike_total_emissions_package + autonomousBike_distance_D_package*autonomousBikeCO2Emissions;
+			// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_package;
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(autonomousBike_distance_D_package);}
