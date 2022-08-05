@@ -583,7 +583,7 @@ species package control: fsm skills: [moving] {
 		}
 	}*/
 		
-	bool timeToTravel { return (current_date.hour = start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
+	bool timeToTravel { return (current_date.hour >= start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
 	
 	state end initial: true {
     	
@@ -1876,7 +1876,6 @@ species car control: fsm skills: [moving] {
 		enter{
 			target <- (gasstation closest_to(self)).location;
 			car_distance_C <- target distance_to location;
-			write (self.state);
 			if carEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
 				ask travelLogger { do logRoads(car_distance_C);}
