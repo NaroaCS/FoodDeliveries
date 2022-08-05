@@ -324,7 +324,7 @@ experiment autonomousScenario type: gui {
     }
 }*/
 experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numVehiclesPackageTraditional among: [/*20,40,60,80,100,*/120,140,160,180,200];
+	parameter var: numVehiclesPackageTraditional among: [20,40,60,80,100/*,120,140,160,180,200*/];
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
