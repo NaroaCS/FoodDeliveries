@@ -585,6 +585,8 @@ species package control: fsm skills: [moving] {
 		
 	bool timeToTravel { return (current_date.hour >= start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
 	
+	int register <- 1;
+	
 	state end initial: true {
     	
     	enter {
@@ -593,6 +595,7 @@ species package control: fsm skills: [moving] {
     	}
     	transition to: choosingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
+    		register <- 1;
     	}
     	exit {
 			if packageEventLog {ask logger { do logExitState; }}
@@ -602,7 +605,9 @@ species package control: fsm skills: [moving] {
     state choosingDeliveryMode {
     	
     	enter {
-    		if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
+    		if register =1 {
+    			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
+    		}
     		choice <- host.chooseDeliveryMode(self);
     	}
     	transition to: requesting_autonomousBike_Package when: choice=1 {
@@ -630,11 +635,14 @@ species package control: fsm skills: [moving] {
     		mode <- 5;
     		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
     	}
-    	transition to: end when: choice=0 {
+    	transition to: choosingDeliveryMode when: choice=0 {
     		target <- final_destination;
+    		register <- 0;
     	}
     	exit {
-			if packageEventLog {ask logger { do logExitState; }}
+    		if register = 1 {
+    			if packageEventLog {ask logger { do logExitState; }}
+    		}
 		}
     }
     
