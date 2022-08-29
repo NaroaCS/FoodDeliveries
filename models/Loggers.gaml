@@ -469,7 +469,7 @@ species packageLogger parent: Logger mirrors: package {
 						tripdistance <- packagetarget.start_point distance_to packagetarget.target_point;
 					}
 				
-					if cycle != 0 and served=true{
+					if cycle != 0 {
 						ask packagetarget.tripLogger {
 							do logTrip(
 								myself.served,
@@ -483,26 +483,7 @@ species packageLogger parent: Logger mirrors: package {
 								myself.tripdistance
 							);						
 						}
-					} else if cycle != 0 and served=false{
-						mode <- nil;
-						waitTime <- nil;
-						departureTime <- nil;
-						tripdistance <- nil;
-						
-						ask packagetarget.tripLogger {
-							do logTrip(
-								myself.served,
-								myself.mode,
-								myself.waitTime,
-								myself.departureTime,
-								nil,
-								0,
-								packagetarget.start_point.location,
-								packagetarget.target_point.location,
-								myself.tripdistance
-							);		
-						}
-					}
+					} 
 				}
 			}
 		}

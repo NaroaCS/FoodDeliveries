@@ -590,25 +590,27 @@ species package control: fsm skills: [moving] {
 	state end initial: true {
     	
     	enter {
-    		if packageEventLog or packageTripLog {ask logger { do logEnterState;}} 
+    		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
     	transition to: choosingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
-    		register <- 1;
     	}
     	exit {
-			if packageEventLog {ask logger { do logExitState; }}
+			if register=1 and (packageEventLog) {ask logger { do logExitState; }}
 		}
     }
     
     state choosingDeliveryMode {
     	
     	enter {
-    		if register =1 {
-    			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
-    		}
+    		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
     		choice <- host.chooseDeliveryMode(self);
+    		if choice = 0 {
+    			register <- 0;
+    		} else {
+    			register <- 1;
+    		}
     	}
     	transition to: requesting_autonomousBike_Package when: choice=1 {
     		final_destination <- target_point;
@@ -635,14 +637,11 @@ species package control: fsm skills: [moving] {
     		mode <- 5;
     		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
     	}
-    	transition to: choosingDeliveryMode when: choice=0 {
+    	transition to: end when: choice=0 {
     		target <- final_destination;
-    		register <- 0;
     	}
     	exit {
-    		if register = 1 {
-    			if packageEventLog {ask logger { do logExitState; }}
-    		}
+    		if register=1 and packageEventLog {ask logger { do logExitState; }}
 		}
     }
     
