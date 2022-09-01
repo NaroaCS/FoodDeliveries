@@ -175,6 +175,9 @@ global {
 			
 			string start_h_str <- string(start_hour,'kk');
 			start_h <-  int(start_h_str);
+			if start_h = 24 {
+				start_h <- 0;
+			}
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
 		}
@@ -324,10 +327,10 @@ experiment autonomousScenario type: gui {
     }
 }*/
 experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numVehiclesPackageTraditional among: [20,40,60,80,100,120,140,160,180,200,220,240,260,280,300];
+	parameter var: numVehiclesPackageTraditional among: [/*20,40,*/60/*,80,100,120,140,160,180,200,220,240,260,280,300*/];
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [20,40,60,80,100,120,140,160,180,200,220,240,260,280,300];
+	parameter var: numAutonomousBikes among: [320,340,360,380,400,420,440,460,480,500];
 	//parameter var: maxBatteryLifeAutonomousBike among: [10000.0,15000.0,20000.0,25000.0,30000.0];
 }

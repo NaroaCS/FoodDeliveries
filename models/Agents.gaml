@@ -583,7 +583,7 @@ species package control: fsm skills: [moving] {
 		}
 	}*/
 		
-	bool timeToTravel { return (current_date.hour >= start_h and current_date.minute >= start_min) and !(self overlaps target_point); }
+	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= start_min) or (current_date.hour > start_h)) and !(self overlaps target_point); }
 	
 	int register <- 1;
 	
