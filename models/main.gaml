@@ -327,10 +327,11 @@ experiment autonomousScenario type: gui {
     }
 }*/
 experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numVehiclesPackageTraditional among: [/*20,40,*/60/*,80,100,120,140,160,180,200,220,240,260,280,300*/];
+	parameter var: numVehiclesPackageTraditional among: [20,40,60,80,100,120,140,160,180,200,220,240,260,280,300];
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [320,340,360,380,400,420,440,460,480,500];
-	//parameter var: maxBatteryLifeAutonomousBike among: [10000.0,15000.0,20000.0,25000.0,30000.0];
+	parameter var: numAutonomousBikes among: [20,40,60,80];
+	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
+	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
 }

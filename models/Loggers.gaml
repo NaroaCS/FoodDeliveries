@@ -15,13 +15,13 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes", "Num Dockless Bikes", "Num Scooters", "Num eBikes", "Num Conventional Bikes", "Num Cars",  "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes","Autonomous Bikes Battery Life","AB PickUp Speed", "Num Dockless Bikes", "Num Scooters", "Num eBikes", "Num Conventional Bikes", "Num Cars",  "Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 			// Parámetro a variar (que luego se quiera ver en los batch)
 		}
 		
 		//if level <= loggingLevel {
 		if loggingEnabled {
-			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, numDocklessBikes, numScooters, numEBikes, numConventionalBikes, numCars] + data to: filenames[filename] type: "csv" rewrite: false header: false;
+			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike, numDocklessBikes, numScooters, numEBikes, numConventionalBikes, numCars] + data to: filenames[filename] type: "csv" rewrite: false header: false;
 		}
 		if  printsEnabled {
 			write [cycle, string(current_date,"HH:mm:ss"), traditionalScenario] + data;
