@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2021-10-12 06:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -22,7 +22,7 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
@@ -45,7 +45,7 @@ global {
 	
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
-	int numVehiclesPackageTraditional <- 20 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
+	int numVehiclesPackageTraditional <- 60 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
@@ -148,7 +148,7 @@ global {
 	string education <- "E";
 	string usage <- "usage";
 	
-	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#green, health::#pink, education::#blue, "Other"::#black];
+	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#lightgreen, health::#lightpink, education::#lightblue, "Other"::#black];
     
 	//GIS FILES To Upload - Cambridge
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;

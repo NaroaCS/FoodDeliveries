@@ -318,7 +318,7 @@ experiment autonomousScenario type: gui {
 		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
 		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
 		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
-        	}
+        	}.
         	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
 		        data "Scooter" value: scooter_trips_count_PUP color: #green;
 		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;

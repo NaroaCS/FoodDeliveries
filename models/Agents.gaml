@@ -436,14 +436,14 @@ species chargingStation{
 	
 	list<autonomousBike> autonomousBikesToCharge;
 	
-	rgb color <- #gamaorange;
+	rgb color <- #violet;
 	
 	float lat;
 	float lon;
 	int capacity;
 	
 	aspect base{
-		draw circle(20) color:color border:#black;
+		draw hexagon(25,25) color:color border:#black;
 	}
 	
 	reflex chargeBikes {
@@ -455,7 +455,7 @@ species chargingStation{
 
 species restaurant{
 	
-	rgb color <- #red;
+	rgb color <- #sandybrown;
 	
 	float lat;
 	float lon;
@@ -495,24 +495,27 @@ species package control: fsm skills: [moving] {
 	
     map<string, rgb> color_map <- [
     	
-    	"firstmile":: #blue,
-		"requesting_autonomousBike_Package":: #yellow,
+    	"generated":: #transparent,
+    	"firstmile":: #lightsteelblue,
+		"requesting_autonomousBike_Package":: #lime,
 		"requesting_scooter":: #turquoise,
 		"requesting_eBike":: #green,
 		"requesting_conventionalBike":: #brown,
-		"requesting_car":: #gray,
-		"awaiting_autonomousBike_Package":: #yellow,
+		"requesting_car":: #palevioletred,
+		"awaiting_autonomousBike_Package":: #lime,
 		"awaiting_scooter":: #turquoise,
 		"awaiting_eBike":: #green,
 		"awaiting_conventionalBike":: #brown,
-		"awaiting_car":: #gray,
+		"awaiting_car":: #palevioletred,
 		"delivering_autonomousBike":: #yellow,
 		"delivering_scooter"::#turquoise,
 		"delivering_eBike"::#green,
 		"delivering_conventionalBike"::#brown,
 		"delivering_car"::#gray,
-		"lastmile"::#blue,
-		"end":: #magenta
+		"lastmile"::#lightsteelblue,
+		"choosingDeliveryMode":: #red,
+		"retry":: #red,
+		"delivered":: #darkolivegreen
 	];
 	
 	packageLogger logger;
@@ -587,7 +590,7 @@ species package control: fsm skills: [moving] {
 	
 	int register <- 1;
 	
-	state end initial: true {
+	state generated initial: true {
     	
     	enter {
     		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
@@ -637,12 +640,19 @@ species package control: fsm skills: [moving] {
     		mode <- 5;
     		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
     	}
-    	transition to: end when: choice=0 {
+    	transition to: retry when: choice=0 {
     		target <- final_destination;
     	}
     	exit {
     		if register=1 and packageEventLog {ask logger { do logExitState; }}
 		}
+    }
+    
+    state retry {
+    	
+    	transition to: choosingDeliveryMode when: timeToTravel() {
+    		final_destination <- target_point;
+    	}
     }
     
 	state requesting_autonomousBike_Package{
@@ -850,11 +860,16 @@ species package control: fsm skills: [moving] {
 		enter{
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
 		}
-		transition to:end when: location=target{}
+		transition to:delivered when: location=target{}
 		exit {
 			if packageEventLog {ask logger{do logExitState;}}
 		}
 		do goto target: target on: roadNetwork;
+	}
+	state delivered {
+		enter{
+			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
+		}
 	}
 }
 
@@ -1063,20 +1078,20 @@ species autonomousBike control: fsm skills: [moving] {
 	rgb color;
 	
 	map<string, rgb> color_map <- [
-		"wandering"::#purple,
+		"wandering"::#slategray,
 		
 		"low_battery":: #red,
 		"getting_charge":: #pink,
 		
 		"picking_up_people"::#springgreen,
-		"picking_up_packages"::#white,
+		"picking_up_packages"::#lime,
 		"in_use_people"::#gamagreen,
 		"in_use_packages"::#orange
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw triangle(25) color:color border:color rotate: heading + 90 ;
+		draw triangle(35) color:color border:color rotate: heading + 90 ;
 	} 
 
 	//loggers
@@ -1790,13 +1805,13 @@ species car control: fsm skills: [moving] {
 		"low_fuel"::#red,
 		"getting_fuel"::#pink,
 		
-		"picking_up_packages"::#gray,
-		"in_use_packages"::#gray
+		"picking_up_packages"::#indianred,
+		"in_use_packages"::#lightslategray
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw rectangle(25,10) color:color border:color rotate: heading + 90 ;
+		draw hexagon(25,25) color:color border:color rotate: heading + 90 ;
 	} 
 
 	//loggers
