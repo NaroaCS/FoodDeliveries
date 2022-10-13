@@ -373,6 +373,7 @@ species packageLogger parent: Logger mirrors: package {
 	
 	date departureTime;
 	int departureCycle;
+	int cycleChoosingDeliveryMode;
     int cycleAutonomousBikeRequested;
     int cycleScooterRequested;
     int cycleEBikeRequested;
@@ -399,6 +400,11 @@ species packageLogger parent: Logger mirrors: package {
 		
 		if packageTripLog{ //because trips are logged by the eventLogger
 			switch currentState {
+				match "choosingDeliveryMode" {
+					//time starts counting
+					cycleChoosingDeliveryMode <- cycle;
+					served <- false;
+				}
 				match "requesting_autonomousBike_Package" {
 					//trip starts
 					cycleAutonomousBikeRequested <- cycle;
@@ -464,7 +470,7 @@ species packageLogger parent: Logger mirrors: package {
 					served <- true;
 					mode <- 5;
 				}
-				match "end"{
+				match "delivered"{
 					if tripdistance = 0 {
 						tripdistance <- packagetarget.start_point distance_to packagetarget.target_point;
 					}

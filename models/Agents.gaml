@@ -607,7 +607,7 @@ species package control: fsm skills: [moving] {
     state choosingDeliveryMode {
     	
     	enter {
-    		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
+    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
     		choice <- host.chooseDeliveryMode(self);
     		if choice = 0 {
     			register <- 0;
@@ -866,6 +866,7 @@ species package control: fsm skills: [moving] {
 		}
 		do goto target: target on: roadNetwork;
 	}
+	
 	state delivered {
 		enter{
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
