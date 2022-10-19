@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2021-10-12 08:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-10-17 10:30:00");
+	date logDate <- date("2022-10-19 09:50:00");
 	
 	date nowDate <- #now;
 	
@@ -25,12 +25,12 @@ global {
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
-	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
+	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
 	bool conventionalBikesEventLog <-false parameter: "Conventional Bike Event/Trip Log" category: "Logs";
-	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
+	bool carEventLog <-true parameter: "Car Event/Trip Log" category: "Logs";
 	
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
@@ -38,18 +38,18 @@ global {
 	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
 		
-	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
-	bool gasstationFuelLogs <- false parameter: "Gas Station Charge Log" category: "Logs";
+	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
+	bool gasstationFuelLogs <- true parameter: "Gas Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
+	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
 	int numVehiclesPackageTraditional <- 60 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 200 				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
+	int numAutonomousBikes <- 80 				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 30000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
@@ -84,7 +84,7 @@ global {
 	// Data extracted from: https://www.thecoldwire.com/how-many-miles-does-a-full-tank-of-gas-last/
 	float maxFuelCar <- 500000.0 #m	min: 320000.0#m max: 645000.0#m parameter: "Car Battery Capacity (m):" category: "Car";
 	// Data extracted from: https://movotiv.com/statistics
-	float RidingSpeedCar<-  20/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
+	float RidingSpeedCar<-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
 	// Data extracted from: https://www.autoinsuresavings.org/far-drive-vehicle-empty/
 	float minSafeFuelCar <- 1*maxFuelCar/16 #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
