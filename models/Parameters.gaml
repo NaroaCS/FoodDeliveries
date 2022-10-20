@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2021-10-12 07:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -22,10 +22,10 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
-	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
+	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
 	bool docklessBikeEventLog <-false parameter: "Dockless Bike Event/Trip Log" category: "Logs";
 	bool scooterEventLog <- false parameter: "Scooter Event/Trip Log" category: "Logs";
 	bool eBikeEventLog <- false parameter: "EBike Event/Trip Log" category: "Logs";
@@ -35,21 +35,21 @@ global {
 	bool peopleTripLog <-false parameter: "People Trip Log" category: "Logs";
 	bool peopleEventLog <-false parameter: "People Event Log" category: "Logs";
 	
-	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
-	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
+	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
+	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 		
-	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
+	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
 	bool gasstationFuelLogs <- false parameter: "Gas Station Charge Log" category: "Logs";
 	
-	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
+	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
-	int numVehiclesPackageTraditional <- 60 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
+	int numVehiclesPackageTraditional <- 20 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 80 				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
+	int numAutonomousBikes <- 50 				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 30000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
@@ -148,7 +148,8 @@ global {
 	string education <- "E";
 	string usage <- "usage";
 	
-	map<string, rgb> color_map <- [residence::#white, office::#gray, park::#lightgreen, health::#lightpink, education::#lightblue, "Other"::#black];
+	map<string, rgb> color_map <- [residence::#papayawhip-10, office::#gray, park::#lightgreen, education::#lightblue, "Other"::#black];
+    map<string, rgb> color_map_2 <-  [residence::#dimgray, office::#darkcyan, park::#darkolivegreen+15, education::#steelblue-50, "Other"::#black];
     
 	//GIS FILES To Upload - Cambridge
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;
@@ -167,5 +168,19 @@ global {
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');
+	
+	bool show_building <- true;
+	bool show_road <- true;
+	bool show_people <- true;
+	bool show_restaurant <- true;
+	bool show_gasStation <- true;
+	bool show_chargingStation <- true;
+	bool show_package <- true;
+	bool show_car <- true;
+	bool show_autonomousBike <- true;
+	bool show_conventionalBike <- true;
+	bool show_eBike <- true;
+	bool show_scooter <- true;
+	bool show_docklessBike <- true;
 			
 }	

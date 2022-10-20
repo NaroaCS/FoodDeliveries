@@ -18,7 +18,7 @@ global {
     	// ---------------------------------------Buildings-----------------------------i----------------
 		do logSetUp;
 	    create building from: buildings_shapefile with: [type:string(read (usage))] {
-		 	if(type!=office and type!=residence and type!=park and type!=health and type!=education){ type <- "Other"; }
+		 	if(type!=office and type!=residence and type!=park and type!=education){ type <- "Other"; }
 		}
 	    
 		// ---------------------------------------The Road Network----------------------------------------------
@@ -215,23 +215,30 @@ experiment traditionalScenario {
 	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
 	output {
 		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type ;
-			species road aspect: base ;
-			species people aspect: base ;
-			species restaurant aspect:base;
-			species gasstation aspect:base;
-			species package aspect:base;
-			species docklessBike aspect: realistic trace: 10 ;
-			species scooter aspect: realistic trace:10; 
-			species eBike aspect: realistic trace:10; 
-			species conventionalBike aspect: realistic trace:10;
-			species car aspect: realistic trace:10;  
+			species building aspect: type visible:show_building;
+			species road aspect: base visible:show_road;
+			species people aspect: base visible:show_people;
+			species restaurant aspect:base visible:show_restaurant;
+			species gasstation aspect:base visible:show_gasStation;
+			//species docklessBike aspect: realistic visible:show_docklessBike;
+			//species scooter aspect: realistic visible:show_scooter; 
+			//species eBike aspect: realistic visible:show_eBike; 
+			//species conventionalBike aspect: realistic visible:show_conventionalBike;
+			species car aspect: realistic visible:show_car trace:20 fading: true;  
+			species package aspect:base visible:show_package;
 			//species gridHeatmaps aspect:pollution;
-			graphics "text" {
+			/*graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
 				{world.shape.width * 0.8, world.shape.height * 0.975};
 				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}
+			}*/
+		event["b"] {show_building<-!show_building;}
+		event["r"] {show_road<-!show_road;}
+		event["p"] {show_people<-!show_people;}
+		event["s"] {show_gasStation<-!show_gasStation;}
+		event["f"] {show_restaurant<-!show_restaurant;}
+		event["d"] {show_package<-!show_package;}
+		event["c"] {show_car<-!show_car;}
 		}
 		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
 	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
@@ -253,20 +260,28 @@ experiment traditionalScenario {
 
 experiment autonomousScenario type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
+	float minimum_cycle_duration<-0.01;
     output {
 		display autonomousScenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type ;
-			species road aspect: base ;
-			species people aspect: base ;
-			species chargingStation aspect: base ;
-			species restaurant aspect:base;
-			species package aspect:base;
-			species autonomousBike aspect: realistic trace: 10 ;
-			graphics "text" {
+			species building aspect: type visible:show_building;
+			species road aspect: base visible:show_road;
+			species people aspect: base visible:show_people;
+			species chargingStation aspect: base visible:show_chargingStation;
+			species restaurant aspect:base visible:show_restaurant;
+			species autonomousBike aspect: realistic visible:show_autonomousBike trace:40 fading: true ;
+			species package aspect:base visible:show_package;
+			/*graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
 				{world.shape.width * 0.8, world.shape.height * 0.975};
 				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}
+			}*/
+		event["b"] {show_building<-!show_building;}
+		event["r"] {show_road<-!show_road;}
+		event["p"] {show_people<-!show_people;}
+		event["s"] {show_chargingStation<-!show_chargingStation;}
+		event["f"] {show_restaurant<-!show_restaurant;}
+		event["d"] {show_package<-!show_package;}
+		event["a"] {show_autonomousBike<-!show_autonomousBike;}
 		}
 		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
 	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{

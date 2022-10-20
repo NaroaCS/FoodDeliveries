@@ -410,7 +410,8 @@ species road {
 
 species building {
     aspect type {
-		draw shape color: color_map[type];
+		//draw shape color: color_map[type] border:color_map[type];
+		draw shape color: color_map_2[type]-75 ;
 	}
 	string type; 
 }
@@ -436,7 +437,7 @@ species chargingStation{
 	
 	list<autonomousBike> autonomousBikesToCharge;
 	
-	rgb color <- #violet;
+	rgb color <- #deeppink;
 	
 	float lat;
 	float lon;
@@ -462,7 +463,7 @@ species restaurant{
 	point rest;
 	
 	aspect base{
-		draw circle(20) color:color border:#black;
+		draw circle(10) color:color;
 	}
 }
 
@@ -472,7 +473,7 @@ species intersection {
 
 species gasstation{
 	
-	rgb color <- #purple;
+	rgb color <- #hotpink;
 	
 	list<car> carsToRefill;
 	float lat;
@@ -480,7 +481,7 @@ species gasstation{
 	int capacity;
 	
 	aspect base{
-		draw circle(50) color:color border:#black;
+		draw circle(30) color:color border:#black;
 	}
 	reflex refillCars {
 		ask gasStationCapacity first carsToRefill {
@@ -497,12 +498,12 @@ species package control: fsm skills: [moving] {
     	
     	"generated":: #transparent,
     	"firstmile":: #lightsteelblue,
-		"requesting_autonomousBike_Package":: #lime,
+		"requesting_autonomousBike_Package":: #mediumorchid,
 		"requesting_scooter":: #turquoise,
 		"requesting_eBike":: #green,
 		"requesting_conventionalBike":: #brown,
 		"requesting_car":: #palevioletred,
-		"awaiting_autonomousBike_Package":: #lime,
+		"awaiting_autonomousBike_Package":: #mediumorchid,
 		"awaiting_scooter":: #turquoise,
 		"awaiting_eBike":: #green,
 		"awaiting_conventionalBike":: #brown,
@@ -511,11 +512,11 @@ species package control: fsm skills: [moving] {
 		"delivering_scooter"::#turquoise,
 		"delivering_eBike"::#green,
 		"delivering_conventionalBike"::#brown,
-		"delivering_car"::#gray,
+		"delivering_car"::#mediumpurple,
 		"lastmile"::#lightsteelblue,
 		"choosingDeliveryMode":: #red,
 		"retry":: #red,
-		"delivered":: #darkolivegreen
+		"delivered":: #transparent
 	];
 	
 	packageLogger logger;
@@ -547,7 +548,7 @@ species package control: fsm skills: [moving] {
         
 	aspect base {
     	color <- color_map[state];
-    	draw square(20) color: color border: #black;
+    	draw square(15) color: color border: #black;
     }
     
 	action deliver_ab(autonomousBike ab){
@@ -1082,12 +1083,12 @@ species autonomousBike control: fsm skills: [moving] {
 		"wandering"::#slategray,
 		
 		"low_battery":: #red,
-		"getting_charge":: #pink,
+		"getting_charge":: #tomato,
 		
 		"picking_up_people"::#springgreen,
-		"picking_up_packages"::#lime,
+		"picking_up_packages"::#mediumorchid,
 		"in_use_people"::#gamagreen,
-		"in_use_packages"::#orange
+		"in_use_packages"::#gold
 	];
 	
 	aspect realistic {
@@ -1807,12 +1808,12 @@ species car control: fsm skills: [moving] {
 		"getting_fuel"::#pink,
 		
 		"picking_up_packages"::#indianred,
-		"in_use_packages"::#lightslategray
+		"in_use_packages"::#mediumpurple
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw hexagon(25,25) color:color border:color rotate: heading + 90 ;
+		draw triangle(35) color:color border:color rotate: heading + 90 ;
 	} 
 
 	//loggers
