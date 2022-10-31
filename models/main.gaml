@@ -215,16 +215,16 @@ experiment traditionalScenario {
 	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
 	output {
 		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type visible:show_building;
+			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road;
 			species people aspect: base visible:show_people;
-			species restaurant aspect:base visible:show_restaurant;
+			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species gasstation aspect:base visible:show_gasStation;
 			//species docklessBike aspect: realistic visible:show_docklessBike;
 			//species scooter aspect: realistic visible:show_scooter; 
 			//species eBike aspect: realistic visible:show_eBike; 
 			//species conventionalBike aspect: realistic visible:show_conventionalBike;
-			species car aspect: realistic visible:show_car trace:20 fading: true;  
+			species car aspect: realistic visible:show_car trace:15 fading: true;  
 			species package aspect:base visible:show_package;
 			//species gridHeatmaps aspect:pollution;
 			/*graphics "text" {
@@ -263,12 +263,12 @@ experiment autonomousScenario type: gui {
 	float minimum_cycle_duration<-0.01;
     output {
 		display autonomousScenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type visible:show_building;
-			species road aspect: base visible:show_road;
+			species building aspect: type visible:show_building position:{0,0,-0.001};
+			species road aspect: base visible:show_road ;
 			species people aspect: base visible:show_people;
-			species chargingStation aspect: base visible:show_chargingStation;
-			species restaurant aspect:base visible:show_restaurant;
-			species autonomousBike aspect: realistic visible:show_autonomousBike trace:40 fading: true ;
+			species chargingStation aspect: base visible:show_chargingStation ;
+			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
+			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
 			/*graphics "text" {
 				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
@@ -346,7 +346,7 @@ experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfD
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240];
+	parameter var: numAutonomousBikes among: [250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400];
 	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
 	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
 }

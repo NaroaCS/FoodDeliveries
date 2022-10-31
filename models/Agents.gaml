@@ -512,7 +512,7 @@ species package control: fsm skills: [moving] {
 		"delivering_scooter"::#turquoise,
 		"delivering_eBike"::#green,
 		"delivering_conventionalBike"::#brown,
-		"delivering_car"::#mediumpurple,
+		"delivering_car"::#cyan,
 		"lastmile"::#lightsteelblue,
 		"choosingDeliveryMode":: #red,
 		"retry":: #red,
@@ -1080,7 +1080,7 @@ species autonomousBike control: fsm skills: [moving] {
 	rgb color;
 	
 	map<string, rgb> color_map <- [
-		"wandering"::#slategray,
+		"wandering"::#transparent,
 		
 		"low_battery":: #red,
 		"getting_charge":: #tomato,
@@ -1802,13 +1802,13 @@ species car control: fsm skills: [moving] {
 	rgb color;
 	
 	map<string, rgb> color_map <- [
-		"wandering"::#gray,
+		"wandering"::#transparent,
 		
 		"low_fuel"::#red,
 		"getting_fuel"::#pink,
 		
 		"picking_up_packages"::#indianred,
-		"in_use_packages"::#mediumpurple
+		"in_use_packages"::#cyan
 	];
 	
 	aspect realistic {
