@@ -618,26 +618,31 @@ species package control: fsm skills: [moving] {
     	}
     	transition to: requesting_autonomousBike_Package when: choice=1 {
     		final_destination <- target_point;
+    		target <- (road closest_to(self)).location;
     		mode <- 1;
     		//do updatePollutionMap(autonomousBikeToDeliver,nil,nil,nil,nil);
     	}
     	transition to: requesting_scooter when: choice=2 {
     		final_destination <- target_point;
+    		target <- (road closest_to(self)).location;
     		mode <- 2;
     		//do updatePollutionMap(nil,scooterToDeliver,nil,nil,nil);
     	}
     	transition to: requesting_eBike when: choice=3 {
     		final_destination <- target_point;
+    		target <- (road closest_to(self)).location;
     		mode <- 3;
     		//do updatePollutionMap(nil,nil,eBikeToDeliver,nil,nil);
     	}
     	transition to: requesting_conventionalBike when: choice=4 {
     		final_destination <- target_point;
+    		target <- (road closest_to(self)).location;
     		mode <- 4;
     		//do updatePollutionMap(nil,nil,nil,conventionalBikeToDeliver,nil);
     	}
     	transition to: requesting_car when: choice=5 {
     		final_destination <- target_point;
+    		target <- (road closest_to(self)).location;
     		mode <- 5;
     		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
     	}
@@ -1083,7 +1088,10 @@ species autonomousBike control: fsm skills: [moving] {
 		"wandering"::#transparent,
 		
 		"low_battery":: #red,
-		"getting_charge":: #tomato,
+		"night_recharging":: #orangered,
+		"getting_charge":: #red,
+		"getting_night_charge":: #orangered,
+		"night_relocating":: #springgreen,
 		
 		"picking_up_people"::#springgreen,
 		"picking_up_packages"::#mediumorchid,
@@ -1133,6 +1141,12 @@ species autonomousBike control: fsm skills: [moving] {
 			return false;
 		}
 	}
+	bool setNightChargingTime { 
+		if (batteryLife < nightSafeBatteryAutonomousBike) and (current_date.hour>=2) and (current_date.hour<5){ return true; } 
+		else {
+			return false;
+		}
+	}
 	float energyCost(float distance) {
 		return distance;
 	}
@@ -1141,6 +1155,7 @@ species autonomousBike control: fsm skills: [moving] {
 	}
 	//----------------MOVEMENT-----------------
 	point target;
+	point nightorigin;
 	
 	float batteryLife min: 0.0 max: maxBatteryLifeAutonomousBike; 
 	float distancePerCycle;
@@ -1178,6 +1193,7 @@ species autonomousBike control: fsm skills: [moving] {
 		transition to: picking_up_people when: rider != nil {}
 		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_battery when: setLowBattery() {}
+		transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -1195,6 +1211,22 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 		}
 		transition to: getting_charge when: self.location = target {}
+		exit {
+			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	state night_recharging {
+		enter{
+			target <- (chargingStation closest_to(self)).location; 
+			autonomousBike_distance_C <- target distance_to location;
+			// autonomousBike_total_emissions_C <- autonomousBike_total_emissions_C+autonomousBike_distance_C*autonomousBikeCO2Emissions;
+			// autonomousBike_total_emissions <- autonomousBike_total_emissions + autonomousBike_total_emissions_C;
+			if autonomousBikeEventLog {
+				ask eventLogger { do logEnterState(myself.state); }
+				ask travelLogger { do logRoads(autonomousBike_distance_C);}
+			}
+		}
+		transition to: getting_night_charge when: self.location = target {}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -1219,6 +1251,42 @@ species autonomousBike control: fsm skills: [moving] {
 			}
 		}
 	}
+	
+	state getting_night_charge {
+		enter {
+			if stationChargeLogs{
+				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
+				ask travelLogger { do logRoads(0.0);}
+			}		
+			target <- nil;
+			ask chargingStation closest_to(self) {
+				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
+			}
+		}
+		transition to: night_relocating when: batteryLife >= maxBatteryLifeAutonomousBike {}
+		exit {
+			if stationChargeLogs{ask eventLogger { do logExitState("Charged at " + (chargingStation closest_to myself)); }}
+			ask chargingStation closest_to(self) {
+				autonomousBikesToCharge <- autonomousBikesToCharge - myself;
+			}
+		}
+	}
+	
+	state night_relocating {
+		enter{
+			target <- nightorigin;
+			autonomousBike_distance_C <- target distance_to location;
+			if autonomousBikeEventLog {
+				ask eventLogger { do logEnterState(myself.state); }
+				ask travelLogger { do logRoads(autonomousBike_distance_C);}
+			}
+		}
+		transition to: wandering when: self.location = target {}
+		exit {
+			if carEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	
 			
 	state picking_up_people {
 			enter {
@@ -1233,7 +1301,7 @@ species autonomousBike control: fsm skills: [moving] {
 					ask travelLogger { do logRoads(autonomousBike_distance_PUP_people);}
 				}
 			}
-			transition to: in_use_people when: location=target {}
+			transition to: in_use_people when: (location=target and delivery.location=target) {}
 			exit{
 				if autonomousBikeEventLog {ask eventLogger { do logExitState("Picked up " + myself.rider); }}
 			}
@@ -1805,7 +1873,10 @@ species car control: fsm skills: [moving] {
 		"wandering"::#transparent,
 		
 		"low_fuel"::#red,
+		"night_refilling"::#orangered,
 		"getting_fuel"::#pink,
+		"getting_night_fuel"::#orangered,
+		"night_relocating"::#orangered,
 		
 		"picking_up_packages"::#indianred,
 		"in_use_packages"::#cyan
@@ -1848,6 +1919,12 @@ species car control: fsm skills: [moving] {
 			return false;
 		}
 	}
+	bool setNightRefillingTime { //Determines when to move into the low_fuel state
+		if (fuel < nightSafeFuelCar) and (current_date.hour>=2) and (current_date.hour<5){ return true; } 
+		else {
+			return false;
+		}
+	}
 	float energyCost(float distance) {
 		return distance;
 	}
@@ -1856,6 +1933,7 @@ species car control: fsm skills: [moving] {
 	}
 	//----------------MOVEMENT-----------------
 	point target;
+	point nightorigin;
 	
 	float fuel min: 0.0 max: maxFuelCar; //Number of meters we can travel on current fuel
 	float distancePerCycle;
@@ -1891,6 +1969,7 @@ species car control: fsm skills: [moving] {
 		}
 		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_fuel when: setLowFuel() {}
+		transition to: night_refilling when: setNightRefillingTime() {nightorigin <- self.location;}
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -1906,6 +1985,21 @@ species car control: fsm skills: [moving] {
 			}
 		}
 		transition to: getting_fuel when: self.location = target {}
+		exit {
+			if carEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	
+	state night_refilling {
+		enter{
+			target <- (gasstation closest_to(self)).location;
+			car_distance_C <- target distance_to location;
+			if carEventLog {
+				ask eventLogger { do logEnterState(myself.state); }
+				ask travelLogger { do logRoads(car_distance_C);}
+			}
+		}
+		transition to: getting_night_fuel when: self.location = target {}
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -1931,9 +2025,44 @@ species car control: fsm skills: [moving] {
 		}
 	}
 	
+	state getting_night_fuel {
+		enter {
+			if gasstationFuelLogs{
+				ask eventLogger { do logEnterState("Refilling at " + (gasstation closest_to myself)); }
+				ask travelLogger { do logRoads(0.0);}
+			}		
+			target <- nil;
+			ask gasstation closest_to(self) {
+				carsToRefill <- carsToRefill + myself;
+			}
+		}
+		transition to: night_relocating when: fuel >= maxFuelCar {}
+		exit {
+			if gasstationFuelLogs{ask eventLogger { do logExitState("Refilled at " + (gasstation closest_to myself)); }}
+			ask gasstation closest_to(self) {
+				carsToRefill <- carsToRefill - myself;
+			}
+		}
+	}
+	
+	state night_relocating {
+		enter{
+			target <- nightorigin;
+			car_distance_C <- target distance_to location;
+			if carEventLog {
+				ask eventLogger { do logEnterState(myself.state); }
+				ask travelLogger { do logRoads(car_distance_C);}
+			}
+		}
+		transition to: wandering when: self.location = target {}
+		exit {
+			if carEventLog {ask eventLogger { do logExitState; }}
+		}
+	}
+	
 	state picking_up_packages {
 		enter {
-			target <- delivery.location; 
+			target <- delivery.target; 
 			car_trips_count_PUP <- car_trips_count_PUP + 1;
 			car_distance_PUP <- target distance_to location;
 			if carEventLog {
@@ -1941,7 +2070,7 @@ species car control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(car_distance_PUP);}
 			}
 		}
-		transition to: in_use_packages when: location=target {}
+		transition to: in_use_packages when: (location=target and delivery.location=target) {}
 		exit{
 			if carEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 		}

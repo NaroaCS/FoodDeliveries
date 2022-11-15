@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-11-07 10:35:00");
+	date logDate <- date("2022-11-15 12:00:00");
 	
 	date nowDate <- #now;
 	
@@ -45,7 +45,7 @@ global {
 	
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
-	int numVehiclesPackageTraditional <- 20 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
+	int numVehiclesPackageTraditional <- 100 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
@@ -54,6 +54,7 @@ global {
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
+	float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
 	float autonomousBikeCO2Emissions <- 0.035 #kg/#km parameter: "Autonomous Bike CO2 Emissions: " category: "Initial";
 	
 	//----------------------numChargingStationsion Parameters------------------------
@@ -87,6 +88,7 @@ global {
 	float RidingSpeedCar<-  30/3.6 #m/#s min: 1/3.6 #m/#s max: 50/3.6 #m/#s parameter: "Car Riding Speed (m/s):" category:  "Car";
 	// Data extracted from: https://www.autoinsuresavings.org/far-drive-vehicle-empty/
 	float minSafeFuelCar <- 1*maxFuelCar/16 #m; 
+	float nightSafeFuelCar <- 0.9*maxFuelCar #m; 
 	// Data extracted from: Good to Go - Assessing the Environmental Performance of New Mobility || Can Autonomy Make Bicycle-Sharing Systems More Sustainable - Environmental Impact Analysis of an Emerging Mobility Technology
 	// float carCO2Emissions <- 0.162 #kg/#km parameter: "Car CO2 Emissions: " category: "Initial";
 	float refillingRate <- maxFuelCar/(180) #m/#s;  // average time to fill a tank is 2 minutes: https://www.api.org/oil-and-natural-gas/consumer-information/consumer-resources/staying-safe-pump#:~:text=It%20may%20be%20a%20temptation,be%20discharged%20at%20the%20nozzle.
