@@ -116,7 +116,7 @@ global {
 	float car_distance_D <- 0.0;
 	float car_distance_C <- 0.0;
 		
-	int chooseDeliveryMode(package delivery) {
+	int requestDeliveryMode(package delivery, people person) {
     	
     	float dab; 
 		float ds;
@@ -178,14 +178,28 @@ global {
 		
 		if !traditionalScenario {
 			if empty(availableAB) {
-				dab <- 0.0;
 				choice <- 0;
 			} else {
-				autonomousBike ab <- availableAB closest_to(delivery);
-				dab <- distanceInGraph(ab.location,delivery.location);
-				if dab < maxDistancePackage_AutonomousBike{
-					mindistance <- dab;
-					choice <- 1;
+				if person != nil{
+					autonomousBike b <- availableAB closest_to(person);
+					if autonomousBikeClose(person,nil,b){
+						choice <- 6;
+						ask b {
+							do pickUp(person, nil);
+						}
+						ask person {
+							do ride(b,nil);
+						}
+					}
+				} else if delivery != nil{		
+					autonomousBike b <- availableAB closest_to(delivery.target);
+					if autonomousBikeClose(nil,delivery,b){
+						b.delivery <- delivery;
+						ask delivery {
+							do deliver_ab(b);
+						}
+						choice <- 1;
+					}
 				} else {
 					choice <- 0;
 				}
@@ -197,15 +211,35 @@ global {
 				if ds<dc and ds<=deb and ds<=dcb {
 					mindistance <- ds;
 					choice <- 2;
+					scooter s <- availableS closest_to(delivery.target);
+					s.delivery <- delivery;
+					ask delivery {
+						do deliver_s(s);
+					}		
 				} else if deb<dc and deb<ds and deb<=dcb {
 					mindistance <- deb;
 					choice <- 3;
+					eBike eb <- availableEB closest_to(delivery.target);
+					eb.delivery <- delivery;
+					ask delivery {
+						do deliver_eb(eb);
+					}
 				} else if dcb<dc and dcb<ds and dcb<deb {
 					mindistance <- dcb;
 					choice <- 4;
+					conventionalBike cb <- availableCB closest_to(delivery.target);
+					cb.delivery <- delivery;
+					ask delivery {
+						do deliver_cb(cb);
+					}
 				} else if dc<=ds and dc<=deb and dc<=dcb {
 					mindistance <- dc;
 					choice <- 5;
+					car c <- availableC closest_to(delivery.target);
+					c.delivery <- delivery;
+					ask delivery {
+						do deliver_c(c);
+					}
 				} 
 				else {
 					choice <- 0;
@@ -286,7 +320,7 @@ global {
 		return true;
 	}
 
-	bool requestScooter(package delivery, point destination) { 
+	/*bool requestScooter(package delivery, point destination) { 
 
 		list<scooter> available <- availableScooters(delivery);
 		
@@ -308,7 +342,7 @@ global {
 			do deliver_eb(eb);
 		}
 		return true;		
-	}	
+	}
 	
 	bool requestConventionalBike(package delivery, point destination) {
 		
@@ -335,7 +369,7 @@ global {
 			return false;
 		}
 		
-	}
+	}*/
 		
 	bool autonomousBikeClose(people person, package delivery, autonomousBike ab){
 		if person !=nil {
@@ -498,12 +532,13 @@ species package control: fsm skills: [moving] {
     	
     	"generated":: #transparent,
     	"firstmile":: #lightsteelblue,
-		"requesting_autonomousBike_Package":: #mediumorchid,
+    	"requestingDeliveryMode"::#red,
+		/*"requesting_autonomousBike_Package":: #orange,
 		"requesting_scooter":: #turquoise,
 		"requesting_eBike":: #green,
 		"requesting_conventionalBike":: #brown,
-		"requesting_car":: #palevioletred,
-		"awaiting_autonomousBike_Package":: #mediumorchid,
+		"requesting_car":: #palevioletred,*/
+		"awaiting_autonomousBike_Package":: #yellow,
 		"awaiting_scooter":: #turquoise,
 		"awaiting_eBike":: #green,
 		"awaiting_conventionalBike":: #brown,
@@ -514,7 +549,7 @@ species package control: fsm skills: [moving] {
 		"delivering_conventionalBike"::#brown,
 		"delivering_car"::#cyan,
 		"lastmile"::#lightsteelblue,
-		"choosingDeliveryMode":: #red,
+		/*"choosingDeliveryMode":: #red,*/
 		"retry":: #red,
 		"delivered":: #transparent
 	];
@@ -539,6 +574,8 @@ species package control: fsm skills: [moving] {
 	eBike eBikeToDeliver;
 	conventionalBike conventionalBikeToDeliver;
 	car carToDeliver;
+	
+	people person;
 	
 	point final_destination; 
     point target; 
@@ -597,7 +634,7 @@ species package control: fsm skills: [moving] {
     		if register=1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
-    	transition to: choosingDeliveryMode when: timeToTravel() {
+    	transition to: requestingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
     	}
     	exit {
@@ -605,131 +642,46 @@ species package control: fsm skills: [moving] {
 		}
     }
     
-    state choosingDeliveryMode {
+    state requestingDeliveryMode {
     	
     	enter {
-    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }} 
-    		choice <- host.chooseDeliveryMode(self);
+    		target <- (road closest_to(self)).location;
+    		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState; }}    		
+    		choice <- host.requestDeliveryMode(self,person);
     		if choice = 0 {
     			register <- 0;
     		} else {
     			register <- 1;
     		}
     	}
-    	transition to: requesting_autonomousBike_Package when: choice=1 {
+    	transition to: firstmile when: (choice!=0 and choice!=6){
     		final_destination <- target_point;
-    		target <- (road closest_to(self)).location;
-    		mode <- 1;
-    		//do updatePollutionMap(autonomousBikeToDeliver,nil,nil,nil,nil);
+
     	}
-    	transition to: requesting_scooter when: choice=2 {
-    		final_destination <- target_point;
-    		target <- (road closest_to(self)).location;
-    		mode <- 2;
-    		//do updatePollutionMap(nil,scooterToDeliver,nil,nil,nil);
-    	}
-    	transition to: requesting_eBike when: choice=3 {
-    		final_destination <- target_point;
-    		target <- (road closest_to(self)).location;
-    		mode <- 3;
-    		//do updatePollutionMap(nil,nil,eBikeToDeliver,nil,nil);
-    	}
-    	transition to: requesting_conventionalBike when: choice=4 {
-    		final_destination <- target_point;
-    		target <- (road closest_to(self)).location;
-    		mode <- 4;
-    		//do updatePollutionMap(nil,nil,nil,conventionalBikeToDeliver,nil);
-    	}
-    	transition to: requesting_car when: choice=5 {
-    		final_destination <- target_point;
-    		target <- (road closest_to(self)).location;
-    		mode <- 5;
-    		//do updatePollutionMap(nil,nil,nil,nil,carToDeliver);
-    	}
-    	transition to: retry when: choice=0 {
+    	transition to: retry when: choice = 0 {
     		target <- final_destination;
     	}
     	exit {
-    		if register=1 and packageEventLog {ask logger { do logExitState; }}
+    		if register = 1 and packageEventLog {ask logger { do logExitState; }}
 		}
     }
     
     state retry {
     	
-    	transition to: choosingDeliveryMode when: timeToTravel() {
+    	transition to: requestingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
     	}
     }
-    
-	state requesting_autonomousBike_Package{
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
-		}
-		transition to: firstmile when: host.requestAutonomousBike(nil, self, final_destination) {
-			target <- (road closest_to(self)).location;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested Bike "+myself.autonomousBikeToDeliver);}}
-		}
-	}
-	
-	state requesting_scooter{
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-		}
-		transition to: firstmile when: host.requestScooter(self, final_destination) {
-			target <- (road closest_to(self)).location;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested Scooter "+myself.scooterToDeliver);}}
-		}
-	}
-	
-	state requesting_eBike{
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }}
-		}
-		transition to: firstmile when: host.requestEBike(self, final_destination) {
-			target <- (road closest_to(self)).location;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested EBike "+myself.eBikeToDeliver);}}
-		}
-	}
-	
-	state requesting_conventionalBike {
-		enter {
-			if packageEventLog {ask logger { do logEnterState; }}
-		}
-		transition to: firstmile when: host.requestConventionalBike (self, final_destination) {
-			target <- (road closest_to(self)).location;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested Conventional Bike "+myself.conventionalBikeToDeliver);}}
-		}
-	}
-	
-	state requesting_car {
-		enter {
-			if packageEventLog or packageTripLog {ask logger { do logEnterState; }} 
-		}
-		transition to: firstmile when: host.requestCar(self, final_destination) {
-			target <- (road closest_to(self)).location;
-		}
-		exit {
-			if packageEventLog {ask logger{do logExitState("Requested Car "+myself.carToDeliver);}}
-		}
-	}
 	
 	state firstmile {
 		enter{
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
 		}
-		transition to: awaiting_autonomousBike_Package when: choice=1 and location=target{}
-		transition to: awaiting_scooter when: choice=2 and location=target{}
-		transition to: awaiting_eBike when: choice=3 and location=target{}
-		transition to: awaiting_conventionalBike when: choice=4 and location=target{}
-		transition to: awaiting_car when: choice=5 and location=target{}
+		transition to: awaiting_autonomousBike_Package when: choice = 1 and location=target{}
+		transition to: awaiting_scooter when: choice = 2 and location=target{}
+		transition to: awaiting_eBike when: choice = 3 and location=target{}
+		transition to: awaiting_conventionalBike when: choice = 4 and location=target{}
+		transition to: awaiting_car when: choice = 5 and location=target{}
 		exit {
 			if packageEventLog {ask logger{do logExitState;}}
 		}
