@@ -373,12 +373,7 @@ species packageLogger parent: Logger mirrors: package {
 	
 	date departureTime;
 	int departureCycle;
-	int cycleChoosingDeliveryMode;
-    int cycleAutonomousBikeRequested;
-    int cycleScooterRequested;
-    int cycleEBikeRequested;
-    int cycleConventionalBikeRequested;
-    int cycleCarRequested;
+	int cycleRequestingDeliveryMode;
     float waitTime;
     int cycleStartActivity;
     date timeStartActivity;
@@ -400,39 +395,14 @@ species packageLogger parent: Logger mirrors: package {
 		
 		if packageTripLog{ //because trips are logged by the eventLogger
 			switch currentState {
-				match "choosingDeliveryMode" {
+				match "requestingDeliveryMode" {
 					//time starts counting
-					cycleChoosingDeliveryMode <- cycle;
-					served <- false;
-				}
-				match "requesting_autonomousBike_Package" {
-					//trip starts
-					cycleAutonomousBikeRequested <- cycle;
-					served <- false;
-				}
-				match "requesting_scooter" {
-					//trip starts
-					cycleScooterRequested <- cycle;
-					served <- false;
-				}
-				match "requesting_eBike" {
-					//trip starts
-					cycleEBikeRequested <- cycle;
-					served <- false;
-				}
-				match "requesting_conventionalBike" {
-					//trip starts
-					cycleConventionalBikeRequested <- cycle;
-					served <- false;
-				}
-				match "requesting_car" {
-					//trip starts
-					cycleCarRequested <- cycle;
+					cycleRequestingDeliveryMode <- cycle;
 					served <- false;
 				}
 				match "delivering_autonomousBike" {
 					//trip is served
-					waitTime <- (cycle*step- cycleAutonomousBikeRequested*step)/60;
+					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -440,7 +410,7 @@ species packageLogger parent: Logger mirrors: package {
 				}
 				match "delivering_scooter" {
 					//trip is served
-					waitTime <- (cycle*step- cycleScooterRequested*step)/60;
+					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -448,7 +418,7 @@ species packageLogger parent: Logger mirrors: package {
 				}
 				match "delivering_eBike" {
 					//trip is served
-					waitTime <- (cycle*step- cycleEBikeRequested*step)/60;
+					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -456,7 +426,7 @@ species packageLogger parent: Logger mirrors: package {
 				}
 				match "delivering_conventionalBike" {
 					//trip is served
-					waitTime <- (cycle*step- cycleConventionalBikeRequested*step)/60;
+					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
@@ -464,7 +434,7 @@ species packageLogger parent: Logger mirrors: package {
 				}
 				match "delivering_car" {
 					//trip is served
-					waitTime <- (cycle*step- cycleCarRequested*step)/60;
+					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
 					served <- true;
