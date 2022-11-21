@@ -1235,7 +1235,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 		transition to: wandering when: self.location = target {}
 		exit {
-			if carEventLog {ask eventLogger { do logExitState; }}
+			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
 	
