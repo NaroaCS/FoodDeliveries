@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-11-21 16:45:00");
+	date logDate <- date("2022-11-25 12:50:00");
 	
 	date nowDate <- #now;
 	

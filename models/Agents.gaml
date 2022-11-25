@@ -1145,7 +1145,7 @@ species autonomousBike control: fsm skills: [moving] {
 		transition to: picking_up_people when: rider != nil {}
 		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_battery when: setLowBattery() {}
-		transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
+		/*transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}*/
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -1167,7 +1167,7 @@ species autonomousBike control: fsm skills: [moving] {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
-	state night_recharging {
+	/*state night_recharging {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
 			autonomousBike_distance_C <- target distance_to location;
@@ -1182,7 +1182,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}
+	}*/
 	
 	state getting_charge {
 		enter {
@@ -1204,7 +1204,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
-	state getting_night_charge {
+	/*state getting_night_charge {
 		enter {
 			if stationChargeLogs{
 				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
@@ -1237,7 +1237,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}
+	}*/
 	
 			
 	state picking_up_people {
