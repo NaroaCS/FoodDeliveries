@@ -691,9 +691,8 @@ species package control: fsm skills: [moving] {
 	state awaiting_autonomousBike_Package {
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState( "awaiting " + string(myself.autonomousBikeToDeliver) ); }}
-			target <- nil;
 		}
-		transition to: delivering_autonomousBike when: autonomousBikeToDeliver.state = "in_use_packages" {}
+		transition to: delivering_autonomousBike when: autonomousBikeToDeliver.state = "in_use_packages" {target <- nil;}
 		exit {
 			if packageEventLog {ask logger { do logExitState; }}
 		}
@@ -724,9 +723,8 @@ species package control: fsm skills: [moving] {
 	state awaiting_conventionalBike {
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState( "awaiting " + string(myself.conventionalBikeToDeliver) ); }}
-			target <- nil;
 		}
-		transition to: delivering_conventionalBike when: conventionalBikeToDeliver.state = "in_use_packages" {}
+		transition to: delivering_conventionalBike when: conventionalBikeToDeliver.state = "in_use_packages" {target <- nil;}
 		exit {
 			if packageEventLog {ask logger { do logExitState; }}
 		}
@@ -735,9 +733,8 @@ species package control: fsm skills: [moving] {
 	state awaiting_car {
 		enter {
 			if packageEventLog or packageTripLog {ask logger { do logEnterState( "awaiting " + string(myself.carToDeliver) ); }}
-			target <- nil;
 		}
-		transition to: delivering_car when: carToDeliver.state = "in_use_packages" {}
+		transition to: delivering_car when: carToDeliver.state = "in_use_packages" {target <- nil;}
 		exit {
 			if packageEventLog {ask logger { do logExitState; }}
 		}
@@ -1253,7 +1250,7 @@ species autonomousBike control: fsm skills: [moving] {
 					ask travelLogger { do logRoads(autonomousBike_distance_PUP_people);}
 				}
 			}
-			transition to: in_use_people when: (location=target and delivery.location=target) {}
+			transition to: in_use_people when: (location=target and rider.location=target) {}
 			exit{
 				if autonomousBikeEventLog {ask eventLogger { do logExitState("Picked up " + myself.rider); }}
 			}
@@ -1261,7 +1258,7 @@ species autonomousBike control: fsm skills: [moving] {
 	
 	state picking_up_packages {
 			enter {
-				target <- delivery.location; 
+				target <- delivery.target;
 				autonomousBike_trips_count_package <- autonomousBike_trips_count_people + 1;
 				autonomousBike_trips_count_total <- autonomousBike_trips_count_total + 1;
 				autonomousBike_distance_PUP_package <- target distance_to location;
@@ -1272,7 +1269,7 @@ species autonomousBike control: fsm skills: [moving] {
 					ask travelLogger { do logRoads(autonomousBike_distance_PUP_package);}
 				}
 			}
-			transition to: in_use_packages when: location=target {}
+			transition to: in_use_packages when: (location=target and delivery.location=target) {}
 			exit{
 				if autonomousBikeEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 			}
