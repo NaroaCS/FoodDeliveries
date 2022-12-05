@@ -21,7 +21,6 @@ global {
 	bool conventionalBikesInUse;
 	bool carsInUse;
 	
-	int chargingStationCapacity;
 	int numGasStations;
 	int gasStationCapacity;
 
@@ -482,7 +481,7 @@ species chargingStation{
 	}
 	
 	reflex chargeBikes {
-		ask chargingStationCapacity first autonomousBikesToCharge {
+		ask capacity first autonomousBikesToCharge {
 			batteryLife <- batteryLife + step*V2IChargingRate;
 		}
 	}

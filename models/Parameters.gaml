@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-04 20:45:00");
+	date logDate <- date("2022-12-05 14:55:00");
 	
 	date nowDate <- #now;
 	
@@ -22,7 +22,7 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
