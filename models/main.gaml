@@ -41,59 +41,7 @@ global {
 				// DATA: https://faqautotips.com/how-many-fuel-pumps-does-a-typical-gas-station-have
 				gasStationCapacity <- rnd(8,16);
 			}
-					   
-		// -------------------------------------Location of the charging stations----------------------------------------   
-		//-----------------------------------------------Before----------------------------------------------------------
-		
-		/*list<int> tmpDist;
-	    		
-		loop vertex over: roadNetwork.vertices {
-			create intersection {
-				id <- roadNetwork.vertices index_of vertex;
-				location <- point(vertex);
-			}
-		}
-
-		//K-Means		
-		//Create a list of x,y coordinate for each intersection
-		list<list> instances <- intersection collect ([each.location.x, each.location.y]);
-
-		//from the vertices list, create k groups  with the Kmeans algorithm (https://en.wikipedia.org/wiki/K-means_clustering)
-		list<list<int>> kmeansClusters <- list<list<int>>(kmeans(instances, numChargingStations));
-
-		//from clustered vertices to centroids locations
-		int groupIndex <- 0;
-		list<point> coordinatesCentroids <- [];
-		loop cluster over: kmeansClusters {
-			groupIndex <- groupIndex + 1;
-			list<point> coordinatesVertices <- [];
-			loop i over: cluster {
-				add point (roadNetwork.vertices[i]) to: coordinatesVertices; 
-			}
-			add mean(coordinatesVertices) to: coordinatesCentroids;
-		}    
-	    
-		loop centroid from:0 to:length(coordinatesCentroids)-1 {
-			tmpDist <- [];
-			loop vertices from:0 to:length(roadNetwork.vertices)-1{
-				add (point(roadNetwork.vertices[vertices]) distance_to coordinatesCentroids[centroid]) to: tmpDist;
-			}	
-			loop vertices from:0 to: length(tmpDist)-1{
-				if(min(tmpDist)=tmpDist[vertices]){
-					add vertices to: chargingStationLocation;
-					break;
-				}
-			}	
-		}
-	    
-	    loop i from: 0 to: length(chargingStationLocation) - 1 {
-			create chargingStation{
-				location <- point(roadNetwork.vertices[chargingStationLocation[i]]);
-			}
-		}*/
-		
-		//--------------------------------------After--------------------------------------------------
-		
+					   		
 		create chargingStation from: chargingStations_csv with:
 			[lat::float(get("Latitude")),
 			lon::float(get("Longitude")),
@@ -102,63 +50,23 @@ global {
 			{
 				location <- to_GAMA_CRS({lon,lat},"EPSG:4326").location;
 			}
-		
-		//-----------------------Scenarios-------------------------------------------------------------
-			
+					
 		if traditionalScenario{
-			numAutonomousBikes <- 0;			
-			numScooters <- round(0.0*numVehiclesPackageTraditional);
-			numEBikes <- round(0.0*numVehiclesPackageTraditional);
-			numConventionalBikes <- round(0.0*numVehiclesPackageTraditional);
 			numCars <- round(1*numVehiclesPackageTraditional);
-			
 		} else if !traditionalScenario {
-			numDocklessBikes <- 0;			
-			numScooters <- 0;
-			numEBikes <- 0;
-			numConventionalBikes <- 0;
 			numCars <- 0;
 		}
 			
-		// -------------------------------------------The Bikes -----------------------------------------
 		create autonomousBike number:numAutonomousBikes{					
 			location <- point(one_of(roadNetwork.vertices));
 			batteryLife <- rnd(minSafeBatteryAutonomousBike,maxBatteryLifeAutonomousBike); 	//Battery life random bewteen max and min
 		}
-		
-		// -------------------------------------------The Dockless Bikes -----------------------------------------
-		create docklessBike number:numDocklessBikes{					
-			location <- point(one_of(road));
-		}
-	    
-	    //------------------------------------------The Scooters------------------------
-	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create scooter number:numScooters{					
-			location <- point(one_of(road));
-			batteryLife <- rnd(minSafeBatteryScooter,maxBatteryLifeScooter); 	//Battery life random bewteen max and min
-		}
-	
-		//------------------------------------------The EBikes------------------------
-		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create eBike number:numEBikes{						
-			location <- point(one_of(road));
-			batteryLife <- rnd(minSafeBatteryEBike,maxBatteryLifeEBike); 	//Battery life random bewteen max and min
-		}
-		
-		//------------------------------------------The Conventional Bikes------------------------
-		// Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
-	    create conventionalBike number:numConventionalBikes{					
-			location <- point(one_of(road));
-		}
-		
-		//------------------------------------------The Cars------------------------
-	    // Data extracted from: Contribution to the Sustainability Challenges of the Food-Delivery Sector: Finding from the Deliveroo Italy Case Study
+
 	    create car number:numCars{					
 			location <- point(one_of(road));
 			fuel <- rnd(minSafeFuelCar,maxFuelCar); 	//Battery life random bewteen max and min
 		}
 	    	    
-		// -------------------------------------------The Packages -----------------------------------------
 		create package from: pdemand_csv with:
 		[start_hour::date(get("start_time")),
 				start_lat::float(get("start_latitude")),
@@ -179,31 +87,8 @@ global {
 			string start_min_str <- string(start_hour,'mm');
 			start_min <- int(start_min_str);
 		}
-		
-		// -------------------------------------------The People -----------------------------------------
-	    create people from: demand_csv with:
-		[start_hour::date(get("starttime")), //'yyyy-MM-dd hh:mm:s'
-				start_lat::float(get("start_lat")),
-				start_lon::float(get("start_lon")),
-				target_lat::float(get("target_lat")),
-				target_lon::float(get("target_lon"))
-			]{
-
-	        speed <- peopleSpeed;
-	        start_point  <- to_GAMA_CRS({start_lon,start_lat},"EPSG:4326").location; // (lon, lat) var0 equals a geometry corresponding to the agent geometry transformed into the GAMA CRS
-			target_point <- to_GAMA_CRS({target_lon,target_lat},"EPSG:4326").location;
-			location <- start_point;
-			
-			string start_h_str <- string(start_hour,'kk');
-			start_h <- int(start_h_str);
-			string start_min_str <- string(start_hour,'mm');
-			start_min <- int(start_min_str);
-			
-			}
-						
-			write "FINISH INITIALIZATION";
+		write "FINISH INITIALIZATION";
     }
-    
 	reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step {
 		do pause ;
 	}
@@ -215,44 +100,17 @@ experiment traditionalScenario {
 		display Traditional_Scenario type:opengl background: #black draw_env: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road;
-			species people aspect: base visible:show_people;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species gasstation aspect:base visible:show_gasStation;
-			//species docklessBike aspect: realistic visible:show_docklessBike;
-			//species scooter aspect: realistic visible:show_scooter; 
-			//species eBike aspect: realistic visible:show_eBike; 
-			//species conventionalBike aspect: realistic visible:show_conventionalBike;
 			species car aspect: realistic visible:show_car trace:15 fading: true;  
 			species package aspect:base visible:show_package;
-			//species gridHeatmaps aspect:pollution;
-			/*graphics "text" {
-				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
-				{world.shape.width * 0.8, world.shape.height * 0.975};
-				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}*/
 		event["b"] {show_building<-!show_building;}
 		event["r"] {show_road<-!show_road;}
-		event["p"] {show_people<-!show_people;}
 		event["s"] {show_gasStation<-!show_gasStation;}
 		event["f"] {show_restaurant<-!show_restaurant;}
 		event["d"] {show_package<-!show_package;}
 		event["c"] {show_car<-!show_car;}
 		}
-		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
-		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
-		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
-		        data "E Bike Emissions" value: eBike_total_emissions color: #yellow marker: false;
-		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
-		        data "Car Emissions" value: car_total_emissions color: #black marker: false;
-        	}
-        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
-		        data "Scooter" value: scooter_trips_count_PUP color: #green;
-		        data "E Bike" value: eBike_trips_count_PUP color: #yellow;
-		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
-		        data "Car" value: car_trips_count_PUP color: #black;
-        	}	
-        }*/    
 	}
 }
 
@@ -263,88 +121,26 @@ experiment autonomousScenario type: gui {
 		display autonomousScenario type:opengl background: #black draw_env: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road ;
-			species people aspect: base visible:show_people;
 			species chargingStation aspect: base visible:show_chargingStation ;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
-			/*graphics "text" {
-				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
-				{world.shape.width * 0.8, world.shape.height * 0.975};
-				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}*/
 		event["b"] {show_building<-!show_building;}
 		event["r"] {show_road<-!show_road;}
-		event["p"] {show_people<-!show_people;}
 		event["s"] {show_chargingStation<-!show_chargingStation;}
 		event["f"] {show_restaurant<-!show_restaurant;}
 		event["d"] {show_package<-!show_package;}
 		event["a"] {show_autonomousBike<-!show_autonomousBike;}
 		}
-		/*display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
-		        data "Autonomous Bike Emissions in People Delivery" value: autonomousBike_total_emissions_people color: #purple marker: false;
-		        data "Autonomous Bike Emissions in Package Delivery" value: autonomousBike_total_emissions_package color: #green marker: false;
-		        data "Autonomous Bike Emissions Going to Charge" value: autonomousBike_total_emissions_C color: #red marker: false;
-        	}
-        	chart "Autonomous Bike Usage per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
-		        data "People" value: autonomousBike_trips_count_people color: #green;
-		        data "package" value: autonomousBike_trips_count_package color: #red;
-        	}
-        	chart "CO2 Emissions Total" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0.5}{
-		        data "Autonomous Bike Emissions Total" value: autonomousBike_total_emissions color: #black marker: false;
-        	}
-        }*/
     }
 }
 
-/*experiment main_headless {
-	parameter var: numAutonomousBikes init: numAutonomousBikes;
-}*/
-
-/*experiment batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [25, 50, 75, 100, 125];
-}*/
-
-/*experiment main_with_gui type: gui {
-	parameter var: numAutonomousBikes init: numAutonomousBikes;
-    output {
-		display city_display type:opengl background: #black draw_env: false{	 
-			species building aspect: type ;
-			species road aspect: base ;
-			species people aspect: base ;
-			species chargingStation aspect: base ;
-			species supermarket aspect:base;
-			species package aspect:base;
-			species autonomousBike aspect: realistic trace: 10 ;
-			species docklessBike aspect: realistic trace: 10 ;
-			species scooter aspect: realistic trace:10; 
-			species conventionalBike aspect: realistic trace:10; 
-			graphics "text" {
-				draw "day" + string(current_date.day) + " - " + string(current_date.hour) + "h" color: #white font: font("Helvetica", 25, #italic) at:
-				{world.shape.width * 0.8, world.shape.height * 0.975};
-				draw imageRaster size: 40 #px at: {world.shape.width * 0.98, world.shape.height * 0.95};
-			}
-		}
-		display Dashboard type:opengl  background: #black refresh: every(2 #cycles) {
-	        chart "CO2 Emissions" type: series style: spline size:{0.5,0.5} position: {world.shape.width*0,world.shape.height*0}{
-		        data "Dockless Bike Emissions" value: docklessBike_total_emissions color: #purple marker: false;
-		        data "Scooter Emissions" value: scooter_total_emissions color: #green marker: false;
-		        data "Conventional Bike Emissions" value: conventionalBike_total_emissions color: #red marker: false;
-        	}.
-        	chart "Package Delivery per MoCho" type: pie size: {0.5,0.5} position: {world.shape.width*0.5,world.shape.height*0}{
-		        data "Scooter" value: scooter_trips_count_PUP color: #green;
-		        data "Conventional Bike" value: conventionalBike_trips_count_PUP color: #red;
-        	}
-        }
-    }
-}*/
 experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numVehiclesPackageTraditional among: [10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,125,130,135,140];
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [80,90,100,110,120,130,140,150,160,170];
+	parameter var: numAutonomousBikes among: [150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350];
 	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
 	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
 }
