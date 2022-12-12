@@ -15,7 +15,7 @@ global {
 	action log(string filename, list data, list<string> columns) {
 		if not(filename in filenames.keys) {
 			do registerLogFile(filename);
-			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes","Autonomous Bikes Battery Life","AB PickUp Speed", "Num Cars"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
+			save ["Cycle", "Time", "Traditional Scenario", "Num Autonomous Bikes","Autonomous Bikes Battery Life","AB PickUp Speed","Num Cars","Agent"] + columns to: filenames[filename] type: "csv" rewrite: false header: false;
 		}		
 		if loggingEnabled {
 			save [cycle, string(current_date, "HH:mm:ss"), traditionalScenario, numAutonomousBikes, maxBatteryLifeAutonomousBike, PickUpSpeedAutonomousBike, numCars] + data to: filenames[filename] type: "csv" rewrite: false header: false;
@@ -216,9 +216,6 @@ species packageLogger parent: Logger mirrors: package {
 					mode <- 2;
 				}
 				match "delivered"{
-					if tripdistance = 0 {
-						tripdistance <- packagetarget.start_point distance_to packagetarget.target_point using topology(roadNetwork);
-					}
 				
 					if cycle != 0 {
 						served <- true;
@@ -232,7 +229,7 @@ species packageLogger parent: Logger mirrors: package {
 								(cycle*step - myself.departureCycle*step)/60,
 								packagetarget.start_point.location,
 								packagetarget.target_point.location,
-								myself.tripdistance
+								packagetarget.tripdistance
 							);						
 						}
 					} 
@@ -395,7 +392,6 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 	point locationStartActivity;
 	float batteryStartActivity;
 	string currentState;
-	int activity;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
@@ -405,7 +401,7 @@ species autonomousBikeLogger_event parent: Logger mirrors: autonomousBike {
 		
 		currentState <- autonomousBiketarget.state;
 		
-		do log( ['START: ' + autonomousBiketarget.state] + [activity] + [logmessage]);
+		do log( ['START: ' + autonomousBiketarget.state] + [logmessage]);
 	}
 	action logExitState(string logmessage) {
 		float d <- autonomousBiketarget.travelLogger.totalDistance;
@@ -475,7 +471,6 @@ species carLogger_event parent: Logger mirrors: car {
 	point locationStartActivity;
 	float fuelStartActivity;
 	string currentState;
-	int activity <- 0;
 	
 	action logEnterState(string logmessage) {
 		cycleStartActivity <- cycle;
@@ -484,7 +479,7 @@ species carLogger_event parent: Logger mirrors: car {
 		locationStartActivity <- cartarget.location;
 		
 		currentState <- cartarget.state;
-		do log( ['START: ' + cartarget.state] + [activity] + [logmessage]);
+		do log( ['START: ' + cartarget.state] + [logmessage]);
 	}
 	//action logExitState { do logExitState(""); }
 	action logExitState(string logmessage) {

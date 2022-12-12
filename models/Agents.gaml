@@ -256,6 +256,7 @@ species package control: fsm skills: [moving] {
     point target; 
     point closestIntersection;
     float waitTime;
+    float tripdistance;
     int choice;
         
 	aspect base {
@@ -392,6 +393,7 @@ species package control: fsm skills: [moving] {
 	
 	state delivered {
 		enter{
+			tripdistance <- host.distanceInGraph(self.start_point,self.target_point);
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
 		}
 	}
