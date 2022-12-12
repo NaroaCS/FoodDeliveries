@@ -9,6 +9,7 @@ global {
 	}
 	
 	int numCars;
+	int coefficient;
 	
 	bool autonomousBikesInUse;
 	bool carsInUse;
@@ -40,10 +41,18 @@ global {
 		
 	int requestDeliveryMode(package delivery) {
     	
-    	float dab; 
+    	float dab_0; 
+    	float dab_1; 
+    	float dab_difference;
+    	float bab_0; 
+    	float bab_1;
+    	float bab_difference;
+    	float ratio_0 <- 1.0;
+    	float ratio;
 		float dc;
 		float mindistance;
 		int choice <- 0;
+		int lengthlist <- 0;
     	
 		list<autonomousBike> availableAB <- availableAutonomousBikes(delivery);		
 		list<car> availableC <- availableCars (delivery);
@@ -52,7 +61,55 @@ global {
 			if empty(availableAB) {
 				choice <- 0;
 			} else if !empty(availableAB) and delivery != nil{		
-				autonomousBike b <- availableAB closest_to(delivery.target);
+				
+				// With battery life in decision
+				list<autonomousBike> closestAB <- availableAB closest_to(delivery.closestIntersection,5) using topology(roadNetwork);
+				autonomousBike ab <- closestAB[0];
+				lengthlist <- length(closestAB);
+				
+				dab_0 <- closestAB[0] distance_to delivery.closestIntersection using topology(roadNetwork);
+				bab_0 <- closestAB[0].batteryLife;
+				/*write("New");
+				write("Opcion 1: " + ab);*/
+				if lengthlist >= 2{
+					loop i from: 1 to: (length(closestAB)-1) {
+						if ((closestAB[i].batteryLife > ab.batteryLife)){
+							dab_1 <- (closestAB[i] distance_to delivery.closestIntersection using topology(roadNetwork));
+							dab_difference <- dab_1 - dab_0;
+							bab_1 <- closestAB[i].batteryLife;
+							bab_difference <- bab_1 - bab_0;
+							if dab_difference != 0{
+								ratio <- bab_difference/dab_difference;
+								if ((bab_difference > coefficient*dab_difference) and (dab_difference<1000) and (ratio>ratio_0)){
+									/*write("Diferencia de baterias: " + bab_difference);
+									write("Diferencia de distancias: " + dab_difference);
+									write("Ratio anterior: " + ratio_0);
+									write("Nuevo ratio: " + ratio);*/
+									ab <- closestAB[i];
+									ratio_0 <- ratio;
+									/*write("Nueva candidata: " + ab);*/
+								}
+							} else {
+								/*write("Diferencia de baterias: " + bab_difference);
+								write("Diferencia de distancias: " + dab_difference);*/
+								bab_0 <- closestAB[i].batteryLife;
+								ab <- closestAB[i];
+								/*write("Nueva candidata: " + ab);*/
+							}
+						}
+					}
+				}
+				ab.delivery <- delivery;
+				ask ab {			
+					do pickUp(delivery);
+				}
+				ask delivery {
+					do deliver_ab(ab);
+				}
+				choice <- 1;
+				
+				// Without battery life in decision
+				/*autonomousBike b <- availableAB closest_to(delivery.closestIntersection) using topology(roadNetwork);
 				b.delivery <- delivery;
 				ask b {			
 					do pickUp(delivery);
@@ -60,7 +117,7 @@ global {
 				ask delivery {
 					do deliver_ab(b);
 				}
-				choice <- 1;
+				choice <- 1;*/
 			} else {
 				choice <- 0;
 			}
@@ -68,8 +125,8 @@ global {
 			if empty(availableC) {
 				choice <- 0;
 			} else if !empty(availableC) and delivery != nil{
-				choice <- 2;
-				car c <- availableC closest_to(delivery.target);
+				
+				car c <- availableC closest_to(delivery.closestIntersection) using topology(roadNetwork);
 				c.delivery <- delivery;
 				ask c {			
 					do pickUpPackage(delivery);
@@ -77,6 +134,7 @@ global {
 				ask delivery {
 					do deliver_c(c);
 				}
+				choice <- 2;
 			} else {
 				choice <- 0;
 			}
@@ -407,7 +465,7 @@ species autonomousBike control: fsm skills: [moving] {
 	//----------------MOVEMENT-----------------
 	point target;
 	point nightorigin;
-	
+		
 	float batteryLife min: 0.0 max: maxBatteryLifeAutonomousBike; 
 	float distancePerCycle;
 	
@@ -443,7 +501,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 		transition to: picking_up_packages when: delivery != nil{}
 		transition to: low_battery when: setLowBattery() {}
-		/*transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}*/
+		transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -465,7 +523,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
-	/*state night_recharging {
+	state night_recharging {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
 			point target_intersection <- roadNetwork.vertices closest_to(target);
@@ -479,7 +537,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}*/
+	}
 	
 	state getting_charge {
 		enter {
@@ -501,7 +559,7 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
-	/*state getting_night_charge {
+	state getting_night_charge {
 		enter {
 			if stationChargeLogs{
 				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
@@ -534,7 +592,7 @@ species autonomousBike control: fsm skills: [moving] {
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
-	}*/
+	}
 	
 	state picking_up_packages {
 			enter {

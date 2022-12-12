@@ -55,11 +55,18 @@ global {
 			numCars <- round(1*numVehiclesPackageTraditional);
 		} else if !traditionalScenario {
 			numCars <- 0;
+			if maxBatteryLifeAutonomousBike = 35000.0{
+				coefficient <- 21;
+			} else if maxBatteryLifeAutonomousBike = 50000.0{
+				coefficient <- 30;
+			} else if maxBatteryLifeAutonomousBike = 65000.0{
+				coefficient <- 39;
+			}
 		}
 			
 		create autonomousBike number:numAutonomousBikes{					
 			location <- point(one_of(roadNetwork.vertices));
-			batteryLife <- rnd(minSafeBatteryAutonomousBike,maxBatteryLifeAutonomousBike); 	//Battery life random bewteen max and min
+			batteryLife <- rnd(minSafeBatteryAutonomousBike,maxBatteryLifeAutonomousBike); 	
 		}
 
 	    create car number:numCars{					
@@ -140,7 +147,7 @@ experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfD
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350];
-	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
-	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
+	parameter var: numAutonomousBikes among: [200];
+	parameter var: PickUpSpeedAutonomousBike among: [11/3.6];
+	parameter var: maxBatteryLifeAutonomousBike among: [50000.0];
 }
