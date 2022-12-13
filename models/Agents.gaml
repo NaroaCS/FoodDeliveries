@@ -282,8 +282,14 @@ species package control: fsm skills: [moving] {
 	state generated initial: true {
     	
     	enter {
-    		initial_closestIntersection <- (roadNetwork.vertices closest_to(self.start_point));
-    		final_closestIntersection <- (roadNetwork.vertices closest_to(self.target_point));
+    		initial_closestIntersection <- (roadNetwork.vertices closest_to(self.start_point) using topology(roadNetwork));
+    		if self = package[436]{
+    			list<point> closest2 <- (roadNetwork.vertices closest_to(self.target_point,2) using topology(roadNetwork));
+    			final_closestIntersection <- closest2[1];
+    		} else{
+    			final_closestIntersection <- (roadNetwork.vertices closest_to(self.target_point) using topology(roadNetwork));
+    		}
+    		  	    		
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
     	}
