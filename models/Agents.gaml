@@ -391,7 +391,7 @@ species package control: fsm skills: [moving] {
 	
 	state delivered {
 		enter{
-			tripdistance <- host.distanceInGraph(self.initial_closestIntersection,self.final_closestIntersection);
+			tripdistance <- (start_point distance_to initial_closestIntersection) + host.distanceInGraph(self.initial_closestIntersection,self.final_closestIntersection) + (final_closestIntersection distance_to target_point);
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
 		}
 	}
@@ -614,7 +614,6 @@ species autonomousBike control: fsm skills: [moving] {
 		enter {
 			target <- delivery.final_closestIntersection;  
 			autonomousBike_distance <- host.distanceInGraph(target,self.location);
-			
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState("In Use " + myself.delivery); }
 				ask travelLogger { do logRoads(autonomousBike_distance);}

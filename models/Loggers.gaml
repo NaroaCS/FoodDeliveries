@@ -142,7 +142,7 @@ species packageLogger_trip parent: Logger mirrors: package {
 		string dep;
 		string des;
 		
-		if departure= nil {dep <- nil;}else{dep <- string(departure,"HH:mm:ss");}
+		if departure = nil {dep <- nil;}else{dep <- string(departure,"HH:mm:ss");}
 		
 		if arrival = nil {des <- nil;} else {des <- string(arrival,"HH:mm:ss");}
 		
@@ -172,6 +172,7 @@ species packageLogger parent: Logger mirrors: package {
 	}
 	
 	float tripdistance <- 0.0;
+	float statedistance <- 0.0;
 	
 	date departureTime;
 	int departureCycle;
@@ -192,6 +193,7 @@ species packageLogger parent: Logger mirrors: package {
 		timeStartActivity <- current_date;
 		locationStartActivity <- packagetarget.location;
 		currentState <- packagetarget.state;
+		
 		if packageEventLog {do log(['START: ' + currentState] + [logmessage]);}
 		
 		if packageTripLog{ //because trips are logged by the eventLogger
@@ -208,7 +210,6 @@ species packageLogger parent: Logger mirrors: package {
 					mode <- 1;
 				}
 				match "delivering_car" {
-					//trip is served
 					waitTime <- (cycle*step- cycleRequestingDeliveryMode*step)/60;
 					departureTime <- current_date;
 					departureCycle <- cycle;
@@ -240,10 +241,21 @@ species packageLogger parent: Logger mirrors: package {
 	
 	action logExitState(string logmessage) {
 		
-		if timeStartActivity= nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
+		if timeStartActivity = nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
 		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
+		if currentState = "firstmile"{
+			statedistance <- packagetarget.start_point distance_to packagetarget.initial_closestIntersection;
+		} else if currentState = "lastmile" {
+			statedistance <- packagetarget.final_closestIntersection distance_to packagetarget.target_point;
+		} else if currentState = "delivering_autonomousBike" {
+			statedistance <-  packagetarget.initial_closestIntersection distance_to packagetarget.final_closestIntersection using topology(roadNetwork);
+		} else if currentState = "delivering_car" {
+			statedistance <-  packagetarget.initial_closestIntersection distance_to packagetarget.final_closestIntersection using topology(roadNetwork);
+		} else {
+			statedistance <- 0.0;
+		}
 		
-		do log(['END: ' + currentState, mode, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, locationStartActivity distance_to packagetarget.location]);
+		do log(['END: ' + currentState, mode, logmessage, timeStartstr, currentstr, (cycle*step - cycleStartActivity*step)/60, statedistance]);
 	}
 	action logEvent(string event) {
 		do log([event]);
