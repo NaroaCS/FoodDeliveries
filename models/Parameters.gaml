@@ -9,11 +9,11 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2021-10-12 00:00:00"); 
+	date starting_date <- date("2022-10-11 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-13 14:40:00");
+	date logDate <- date("2022-12-13 18:10:00");
 	
 	date nowDate <- #now;
 	
@@ -42,7 +42,7 @@ global {
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 250				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
+	int numAutonomousBikes <- 200				min: 0 max: 500 parameter: "Num Autonomous Bikes:" category: "Bike";
 	float maxBatteryLifeAutonomousBike <- 50000.0 #m	min: 10000#m max: 70000#m parameter: "Autonomous Bike Battery Capacity (m):" category: "Bike"; //battery capacity in m
 	float PickUpSpeedAutonomousBike <-  8/3.6 #m/#s min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Pick-up Speed (m/s):" category:  "Bike";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike min: 1/3.6 #m/#s max: 15/3.6 #m/#s parameter: "Autonomous Bike Riding Speed (m/s):" category:  "Bike";
@@ -107,7 +107,7 @@ global {
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');
 	
-	bool show_building <- true;
+	bool show_building <- false;
 	bool show_road <- true;
 	bool show_restaurant <- true;
 	bool show_gasStation <- true;

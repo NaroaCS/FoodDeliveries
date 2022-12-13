@@ -112,6 +112,9 @@ global {
 				// Without battery life in decision
 				autonomousBike b <- availableAB closest_to(delivery.initial_closestIntersection) using topology(roadNetwork);
 				tripDistance <- distanceInGraph(b.location,delivery.initial_closestIntersection) + distanceInGraph(delivery.initial_closestIntersection,delivery.final_closestIntersection);
+				write("new");
+				write(tripDistance);
+				write(b.batteryLife);
 				if tripDistance < b.batteryLife {
 					b.delivery <- delivery;
 					ask b {			
@@ -122,6 +125,7 @@ global {
 					}
 					choice <- 1;
 				} else {
+					write("here");
 					choice <- 0;
 				}
 				
@@ -221,6 +225,13 @@ species gasstation{
 	}	
 }
 
+species intersection{
+	int id;
+	aspect base{
+		draw circle(10) color:#purple border:#black;
+	}
+}
+
 species package control: fsm skills: [moving] {
 
 	rgb color;
@@ -292,8 +303,8 @@ species package control: fsm skills: [moving] {
 	state generated initial: true {
     	
     	enter {
-    		initial_closestIntersection <- (roadNetwork.vertices closest_to(self.start_point));    		
-    		final_closestIntersection <- (roadNetwork.vertices closest_to(self.target_point));
+    		//initial_closestIntersection <- (intersection closest_to(self.start_point) using topology(roadNetwork));    		
+    		//final_closestIntersection <- (intersection closest_to(self.target_point)using topology(roadNetwork));
     		
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
@@ -522,7 +533,7 @@ species autonomousBike control: fsm skills: [moving] {
 	state low_battery {
 		enter{
 			target <- (chargingStation closest_to(self)).location; 
-			point target_intersection <- roadNetwork.vertices closest_to(target);
+			point target_intersection <- intersection closest_to(target);
 			autonomousBike_distance <- host.distanceInGraph(target_intersection,self.location);
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState(myself.state); }
