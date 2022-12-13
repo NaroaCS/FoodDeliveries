@@ -55,6 +55,7 @@ global {
 		float mindistance;
 		int choice <- 0;
 		int lengthlist <- 0;
+		float tripDistance;
     	
 		list<autonomousBike> availableAB <- availableAutonomousBikes(delivery);		
 		list<car> availableC <- availableCars (delivery);
@@ -92,25 +93,38 @@ global {
 						}
 					}
 				}
-				ab.delivery <- delivery;
-				ask ab {			
-					do pickUp(delivery);
+				
+				tripDistance <- distanceInGraph(ab.location,delivery.initial_closestIntersection) + distanceInGraph(delivery.initial_closestIntersection,delivery.final_closestIntersection);
+				if tripDistance < ab.batteryLife {
+					ab.delivery <- delivery;
+					ask ab {			
+						do pickUp(delivery);
+					}
+					ask delivery {
+						do deliver_ab(ab);
+					}
+					choice <- 1;
+				} else {
+					choice <- 0;
 				}
-				ask delivery {
-					do deliver_ab(ab);
-				}
-				choice <- 1;*/
+				*/
 				
 				// Without battery life in decision
 				autonomousBike b <- availableAB closest_to(delivery.initial_closestIntersection) using topology(roadNetwork);
-				b.delivery <- delivery;
-				ask b {			
-					do pickUp(delivery);
+				tripDistance <- distanceInGraph(b.location,delivery.initial_closestIntersection) + distanceInGraph(delivery.initial_closestIntersection,delivery.final_closestIntersection);
+				if tripDistance < b.batteryLife {
+					b.delivery <- delivery;
+					ask b {			
+						do pickUp(delivery);
+					}
+					ask delivery {
+						do deliver_ab(b);
+					}
+					choice <- 1;
+				} else {
+					choice <- 0;
 				}
-				ask delivery {
-					do deliver_ab(b);
-				}
-				choice <- 1;
+				
 			} else {
 				choice <- 0;
 			}
@@ -120,14 +134,19 @@ global {
 			} else if !empty(availableC) and delivery != nil{
 				
 				car c <- availableC closest_to(delivery.initial_closestIntersection) using topology(roadNetwork);
-				c.delivery <- delivery;
-				ask c {			
-					do pickUpPackage(delivery);
+				tripDistance <- distanceInGraph(c.location,delivery.initial_closestIntersection) + distanceInGraph(delivery.initial_closestIntersection,delivery.final_closestIntersection);
+				if tripDistance < c.fuel{
+					c.delivery <- delivery;
+					ask c {			
+						do pickUpPackage(delivery);
+					}
+					ask delivery {
+						do deliver_c(c);
+					}
+					choice <- 2;
+				} else {
+					choice <- 0;
 				}
-				ask delivery {
-					do deliver_c(c);
-				}
-				choice <- 2;
 			} else {
 				choice <- 0;
 			}
@@ -463,6 +482,7 @@ species autonomousBike control: fsm skills: [moving] {
 	
 	path travelledPath; 
 	path Path;
+	
 	
 	bool canMove {
 		return ((target != nil and target != location)) and batteryLife > 0;
