@@ -111,6 +111,7 @@ experiment traditionalScenario {
 			species gasstation aspect:base visible:show_gasStation;
 			species car aspect: realistic visible:show_car trace:15 fading: true;  
 			species package aspect:base visible:show_package;
+			
 		event["b"] {show_building<-!show_building;}
 		event["r"] {show_road<-!show_road;}
 		event["s"] {show_gasStation<-!show_gasStation;}

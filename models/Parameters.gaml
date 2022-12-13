@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2022-12-13 12:20:00");
+	date logDate <- date("2022-12-13 14:00:00");
 	
 	date nowDate <- #now;
 	
@@ -75,7 +75,7 @@ global {
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
-       
+    
     //----------------------Map Parameters------------------------
 	//Case - Cambridge
 	string cityScopeCity <- "Cambridge";
