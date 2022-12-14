@@ -244,13 +244,13 @@ species packageLogger parent: Logger mirrors: package {
 		if timeStartActivity = nil {timeStartstr <- nil;}else{timeStartstr <- string(timeStartActivity,"HH:mm:ss");}
 		if current_date = nil {currentstr <- nil;} else {currentstr <- string(current_date,"HH:mm:ss");}
 		if currentState = "firstmile"{
-			statedistance <- packagetarget.start_point distance_to packagetarget.initial_closestIntersection;
+			statedistance <- packagetarget.start_point distance_to packagetarget.initial_closestPoint;
 		} else if currentState = "lastmile" {
-			statedistance <- packagetarget.final_closestIntersection distance_to packagetarget.target_point;
+			statedistance <- packagetarget.final_closestPoint distance_to packagetarget.target_point;
 		} else if currentState = "delivering_autonomousBike" {
-			statedistance <-  packagetarget.initial_closestIntersection distance_to packagetarget.final_closestIntersection using topology(roadNetwork);
+			statedistance <-  packagetarget.initial_closestPoint distance_to packagetarget.final_closestPoint using topology(road);
 		} else if currentState = "delivering_car" {
-			statedistance <-  packagetarget.initial_closestIntersection distance_to packagetarget.final_closestIntersection using topology(roadNetwork);
+			statedistance <-  packagetarget.initial_closestPoint distance_to packagetarget.final_closestPoint using topology(road);
 		} else {
 			statedistance <- 0.0;
 		}

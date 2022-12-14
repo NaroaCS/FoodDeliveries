@@ -26,12 +26,19 @@ global {
 		
 		roadNetwork <- as_edge_graph(road) ;
 		
-		loop vertex over: roadNetwork.vertices {
+		/*loop vertex over: roadNetwork.edges {
 			create intersection {
-				id <- roadNetwork.vertices index_of vertex using topology(roadNetwork);
+				//id <- roadNetwork.edges index_of vertex using topology(roadNetwork);
 				location <- point(vertex);
 			}
 		}
+		
+		loop vertex over: roadNetwork.vertices {
+			create intersection {
+				//id <- roadNetwork.edges index_of vertex using topology(roadNetwork);
+				location <- point(vertex);
+			}
+		}*/
 				
 		create restaurant from: restaurants_csv with:
 			[lat::float(get("latitude")),
@@ -92,8 +99,8 @@ global {
 			start_point  <- to_GAMA_CRS({start_lon,start_lat},"EPSG:4326").location;
 			target_point  <- to_GAMA_CRS({target_lon,target_lat},"EPSG:4326").location;
 			location <- start_point;
-			initial_closestIntersection <- (intersection closest_to start_point).location;
-			final_closestIntersection <- (intersection closest_to target_point).location;
+			initial_closestPoint <- (road closest_to start_point using topology(road));
+			final_closestPoint <- (road closest_to target_point using topology(road));
 			
 			string start_h_str <- string(start_hour,'kk');
 			start_h <-  int(start_h_str);
@@ -142,7 +149,7 @@ experiment autonomousScenario type: gui {
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
-			species intersection aspect:base;
+			//species intersection aspect:base;
 		event["b"] {show_building<-!show_building;}
 		event["r"] {show_road<-!show_road;}
 		event["s"] {show_chargingStation<-!show_chargingStation;}
@@ -158,7 +165,7 @@ experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfD
 }
 
 experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numAutonomousBikes among: [230];
+	parameter var: numAutonomousBikes among: [200];
 	//parameter var: numAutonomousBikes among: [140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300];
 	parameter var: PickUpSpeedAutonomousBike among: [11/3.6];
 	//parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
