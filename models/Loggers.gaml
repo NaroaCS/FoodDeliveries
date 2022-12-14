@@ -171,7 +171,7 @@ species packageLogger parent: Logger mirrors: package {
 		loggingAgent <- packagetarget;
 	}
 	
-	float tripdistance <- 0.0;
+	//float tripdistance <- 0.0;
 	float statedistance <- 0.0;
 	
 	date departureTime;
