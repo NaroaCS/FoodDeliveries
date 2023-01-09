@@ -125,7 +125,9 @@ experiment traditionalScenario {
 			species road aspect: base visible:show_road;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species gasstation aspect:base visible:show_gasStation;
-			species car aspect: realistic visible:show_car trace:15 fading: true;  
+			species chargingStation aspect: base visible:show_chargingStation ;
+			species car aspect: realistic visible:show_car trace:15 fading: true; 
+			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species package aspect:base visible:show_package;
 			
 		event["b"] {show_building<-!show_building;}
@@ -145,9 +147,11 @@ experiment autonomousScenario type: gui {
 		display autonomousScenario type:opengl background: #black draw_env: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road ;
+			species gasstation aspect:base visible:show_gasStation;
 			species chargingStation aspect: base visible:show_chargingStation ;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
+			species car aspect: realistic visible:show_car trace:15 fading: true; 
 			species package aspect:base visible:show_package;
 			//species intersection aspect:base;
 		event["b"] {show_building<-!show_building;}

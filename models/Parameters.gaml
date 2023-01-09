@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2022-10-11 00:00:00"); 
+	date starting_date <- date("2022-10-11 08:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -22,19 +22,19 @@ global {
 	int numberOfHours <- 24; //WARNING: If one day, we can also specify the number of hours, otherwise set 24h
 	
 	//----------------------Logging Parameters------------------------
-	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
+	bool loggingEnabled <- false parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
 	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
-	bool carEventLog <-true parameter: "Car Event/Trip Log" category: "Logs";
+	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
 	
-	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
-	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
+	bool packageTripLog <-false parameter: "Package Trip Log" category: "Logs";
+	bool packageEventLog <-false parameter: "Package Event Log" category: "Logs";
 		
 	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
-	bool gasstationFuelLogs <- true parameter: "Gas Station Charge Log" category: "Logs";
+	bool gasstationFuelLogs <- false parameter: "Gas Station Charge Log" category: "Logs";
 	
-	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
+	bool roadsTraveledLog <- false parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
 	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
