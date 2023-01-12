@@ -164,15 +164,15 @@ experiment autonomousScenario type: gui {
     }
 }
 
-experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	parameter var: numVehiclesPackageTraditional among: [5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80];
+experiment car_batch_experiment type: batch repeat: 3 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numVehiclesPackageTraditional among: [45];
 }
 
-experiment autonomousbike_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
-	//parameter var: numAutonomousBikes among: [200];
-	parameter var: numAutonomousBikes among: [140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300];
-	//parameter var: PickUpSpeedAutonomousBike among: [11/3.6];
-	parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
-	//parameter var: maxBatteryLifeAutonomousBike among: [50000.0];
-	parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
+experiment autonomousbike_batch_experiment type: batch repeat: 5 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
+	parameter var: numAutonomousBikes among: [230];
+	//parameter var: numAutonomousBikes among: [140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300];
+	parameter var: PickUpSpeedAutonomousBike among: [11/3.6];
+	//parameter var: PickUpSpeedAutonomousBike among: [8/3.6,11/3.6,14/3.6];
+	parameter var: maxBatteryLifeAutonomousBike among: [50000.0];
+	//parameter var: maxBatteryLifeAutonomousBike among: [35000.0,50000.0,65000.0];
 }
