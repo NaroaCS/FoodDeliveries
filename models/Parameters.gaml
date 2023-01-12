@@ -13,7 +13,7 @@ global {
 	
 	//Date for log files
 	//date logDate <- #now;
-	date logDate <- date("2023-01-12 10:15:00");
+	date logDate <- date("2023-01-12 14:35:00");
 	
 	date nowDate <- #now;
 	
@@ -25,19 +25,19 @@ global {
 	bool loggingEnabled <- true parameter: "Logging" category: "Logs";
 	bool printsEnabled <- false parameter: "Printing" category: "Logs";
 	
-	bool autonomousBikeEventLog <-true parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
-	bool carEventLog <-false parameter: "Car Event/Trip Log" category: "Logs";
+	bool autonomousBikeEventLog <-false parameter: "Autonomous Bike Event/Trip Log" category: "Logs";
+	bool carEventLog <-true parameter: "Car Event/Trip Log" category: "Logs";
 	
 	bool packageTripLog <-true parameter: "Package Trip Log" category: "Logs";
 	bool packageEventLog <-true parameter: "Package Event Log" category: "Logs";
 		
-	bool stationChargeLogs <- true parameter: "Station Charge Log" category: "Logs";
-	bool gasstationFuelLogs <- false parameter: "Gas Station Charge Log" category: "Logs";
+	bool stationChargeLogs <- false parameter: "Station Charge Log" category: "Logs";
+	bool gasstationFuelLogs <- true parameter: "Gas Station Charge Log" category: "Logs";
 	
 	bool roadsTraveledLog <- true parameter: "Roads Traveled Log" category: "Logs";
 	
 	//----------------------------------Scenarios-----------------------------
-	bool traditionalScenario <- false parameter: "Traditional Scenario" category: "Scenarios";
+	bool traditionalScenario <- true parameter: "Traditional Scenario" category: "Scenarios";
 	int numVehiclesPackageTraditional <- 100 min:1 max:1000 parameter: "Number or Vehicles for Package Delivery in Traditional Scenario" category:"Initial";
 	
 	//----------------------Autonomous Scenario-------------------------
