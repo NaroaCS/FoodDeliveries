@@ -64,7 +64,7 @@ global {
 			} else if !empty(availableAB) and delivery != nil{		
 				
 				// With battery life in decision
-				list<autonomousBike> closestAB <- availableAB closest_to(delivery.initial_closestPoint,5) using topology(road);
+				/*list<autonomousBike> closestAB <- availableAB closest_to(delivery.initial_closestPoint,5) using topology(road);
 				autonomousBike ab <- closestAB[0];
 				lengthlist <- length(closestAB);
 				
@@ -104,11 +104,11 @@ global {
 					choice <- 1;
 				} else {
 					choice <- 0;
-				}
+				}*/
 				
 				
 				// Without battery life in decision
-				/*autonomousBike b <- availableAB closest_to(delivery.initial_closestPoint) using topology(road);
+				autonomousBike b <- availableAB closest_to(delivery.initial_closestPoint) using topology(road);
 				tripDistance <- distanceInGraph(b.location,delivery.initial_closestPoint) + distanceInGraph(delivery.initial_closestPoint,delivery.final_closestPoint);
 				
 				if tripDistance < b.batteryLife {
@@ -122,7 +122,7 @@ global {
 					choice <- 1;
 				} else {
 					choice <- 0;
-				}*/
+				}
 				
 			} else {
 				choice <- 0;
