@@ -90,6 +90,7 @@ global {
 		];
 		do logForSetUp(parameters);
 		}
+	
 }
 
 species Logger {
@@ -217,7 +218,6 @@ species packageLogger parent: Logger mirrors: package {
 					mode <- 2;
 				}
 				match "delivered"{
-				
 					if cycle != 0 {
 						served <- true;
 						ask packagetarget.tripLogger {

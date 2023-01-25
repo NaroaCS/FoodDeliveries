@@ -16,6 +16,35 @@ global {
 	
 	int numGasStations;
 	int gasStationCapacity;
+	
+	//autonomous bike count variables, used to create series graph in autonomous scenarios
+	int wanderCount <- 0;
+	int lowBattCount <- 0; //lowbattery 
+	int getChargeCount <- 0; //getcharge 
+	int pickUpCount <- 0;
+	int inUseCount <- 0;
+	int nightRelCount <- 0;
+	int fleetsizeCount <- numAutonomousBikes;
+	
+	//car count variables, used to create series graph in traditional scenarios
+	int wanderCountCar <- 0;
+	int lowFuelCount <- 0; //lowbattery, lowfuel for electric, combustion
+	int getFuelCount <- 0; //getcharge, getfuel for electric, combustion
+	int pickUpCountCar <- 0;
+	int inUseCountCar <- 0;
+	int fleetsizeCountCar <- numCars;
+	
+	
+	// wait time variables, used to create series graph in seeing package wait time progression
+	//int lessThanWait <- 0;
+	int moreThanWait <- nil;
+	float timeWaiting <- 0.0;
+	float avgWait <- nil;
+	list<float> timeList <- []; //list of wait times
+	
+	int initial_hour;
+	int initial_minute;
+	
 
 	list<autonomousBike> availableAutonomousBikes(package delivery) {
 		if traditionalScenario{
@@ -57,56 +86,56 @@ global {
     	
 		list<autonomousBike> availableAB <- availableAutonomousBikes(delivery);		
 		list<car> availableC <- availableCars (delivery);
-	
+		
+		
 		if !traditionalScenario {
 			if empty(availableAB) {
 				choice <- 0;
 			} else if !empty(availableAB) and delivery != nil{		
-				
 				// With battery life in decision
-				/*list<autonomousBike> closestAB <- availableAB closest_to(delivery.initial_closestPoint,5) using topology(road);
-				autonomousBike ab <- closestAB[0];
-				lengthlist <- length(closestAB);
-				
-				dab_0 <- closestAB[0] distance_to delivery.initial_closestPoint using topology(road);
-				bab_0 <- closestAB[0].batteryLife;
-				
-				if lengthlist >= 2{
-					loop i from: 1 to: (length(closestAB)-1) {
-						if ((closestAB[i].batteryLife > ab.batteryLife)){
-							dab_1 <- (closestAB[i] distance_to delivery.initial_closestPoint using topology(road));
-							dab_difference <- dab_1 - dab_0;
-							bab_1 <- closestAB[i].batteryLife;
-							bab_difference <- bab_1 - bab_0;
-							if dab_difference != 0{
-								ratio <- bab_difference/dab_difference;
-								if ((bab_difference > coefficient*dab_difference) and (dab_difference<1000) and (ratio>ratio_0)){
+				if rechargeCond{
+					list<autonomousBike> closestAB <- availableAB closest_to(delivery.initial_closestPoint,5) using topology(road);
+					autonomousBike ab <- closestAB[0];
+					lengthlist <- length(closestAB);
+					
+					dab_0 <- closestAB[0] distance_to delivery.initial_closestPoint using topology(road);
+					bab_0 <- closestAB[0].batteryLife;
+					
+					if lengthlist >= 2{
+						loop i from: 1 to: (length(closestAB)-1) {
+							if ((closestAB[i].batteryLife > ab.batteryLife)){
+								dab_1 <- (closestAB[i] distance_to delivery.initial_closestPoint using topology(road));
+								dab_difference <- dab_1 - dab_0;
+								bab_1 <- closestAB[i].batteryLife;
+								bab_difference <- bab_1 - bab_0;
+								if dab_difference != 0{
+									ratio <- bab_difference/dab_difference;
+									if ((bab_difference > coefficient*dab_difference) and (dab_difference<1000) and (ratio>ratio_0)){
+										ab <- closestAB[i];
+										ratio_0 <- ratio;
+									}
+								} else {
+									bab_0 <- closestAB[i].batteryLife;
 									ab <- closestAB[i];
-									ratio_0 <- ratio;
 								}
-							} else {
-								bab_0 <- closestAB[i].batteryLife;
-								ab <- closestAB[i];
 							}
 						}
 					}
-				}
-				
-				tripDistance <- distanceInGraph(ab.location,delivery.initial_closestPoint) + distanceInGraph(delivery.initial_closestPoint,delivery.final_closestPoint);
-				if tripDistance < ab.batteryLife {
-					ab.delivery <- delivery;
-					ask ab {			
-						do pickUp(delivery);
+					
+					tripDistance <- distanceInGraph(ab.location,delivery.initial_closestPoint) + distanceInGraph(delivery.initial_closestPoint,delivery.final_closestPoint);
+					if tripDistance < ab.batteryLife {
+						ab.delivery <- delivery;
+						ask ab {			
+							do pickUp(delivery);
+						}
+						ask delivery {
+							do deliver_ab(ab);
+						}
+						choice <- 1;
+					} else {
+						choice <- 0;
 					}
-					ask delivery {
-						do deliver_ab(ab);
-					}
-					choice <- 1;
-				} else {
-					choice <- 0;
-				}*/
-				
-				
+				} else if !rechargeCond{
 				// Without battery life in decision
 				autonomousBike b <- availableAB closest_to(delivery.initial_closestPoint) using topology(road);
 				tripDistance <- distanceInGraph(b.location,delivery.initial_closestPoint) + distanceInGraph(delivery.initial_closestPoint,delivery.final_closestPoint);
@@ -126,6 +155,7 @@ global {
 				
 			} else {
 				choice <- 0;
+			}
 			}
 		} else if traditionalScenario {
 			if empty(availableC) {
@@ -151,7 +181,10 @@ global {
 			}
 		}
 		return choice;	
-    }
+    }	
+    
+    
+	
 }
 	
 species road {
@@ -291,6 +324,7 @@ species package control: fsm skills: [moving] {
 	action deliver_c(car c){
 		carToDeliver <- c;
 	}
+	
 		
 	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= start_min) or (current_date.hour > start_h)) and !(self overlaps target_point); }
 	
@@ -408,6 +442,34 @@ species package control: fsm skills: [moving] {
 		enter{
 			tripdistance <- (self.start_point distance_to self.initial_closestPoint) + host.distanceInGraph(self.initial_closestPoint,self.final_closestPoint) + (self.final_closestPoint distance_to target_point);
 			if packageEventLog or packageTripLog {ask logger{ do logEnterState;}}
+			
+			/* conditions to keep track of wait time for packages */
+			if start_h < initial_hour {
+				timeWaiting <- (current_date.hour*60 + current_date.minute) - (initial_hour*60 + initial_minute);
+			} else if (start_h = initial_hour) and (start_min < initial_minute){
+				timeWaiting <- (current_date.hour*60 + current_date.minute) - (initial_hour*60 + initial_minute);
+			} else {
+				timeWaiting <- (current_date.hour*60 + current_date.minute) - (start_h*60 + start_min);
+			}
+			
+			/* loop(s) to find moving average of last 10 wait times */
+			if length(timeList) = 10{
+				remove from:timeList index:0;
+			} timeList <- timeList + timeWaiting;
+			loop while: length(timeList) = 10{
+				moreThanWait <- 0;
+				avgWait <- 0;
+				/* the loop below is to count the number of packages delivered under/over 40 minutes, represented in a pie chart (inactive) */
+				loop i over: timeList{
+					if i > 40{
+						moreThanWait <- moreThanWait+1;
+					} 
+					avgWait <- avgWait + i;
+				} avgWait <- avgWait/10; //average
+				return moreThanWait;
+				
+			}
+			
 		}
 	}
 }
@@ -508,17 +570,54 @@ species autonomousBike control: fsm skills: [moving] {
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
-	state wandering initial: true {
+		/* 
+	 new state created called fleetsize so we are able to adjust the number of vehicles. if the adjusted number of vehicles (by the user) 
+	 is less than the number of vehicles that are active on the map, we kill those excess agents. on the other hand, new agnets are created 
+	 if we need more (called in main.gaml)
+	 	*/
+	state fleetsize initial: true {
+		enter {
+			if fleetsizeCount+wanderCount+lowBattCount+getChargeCount+nightRelCount+pickUpCount+inUseCount > numAutonomousBikes{
+				fleetsizeCount <- fleetsizeCount - 1;
+				do die;
+			}
+		}
+		transition to: wandering {fleetsizeCount <- fleetsizeCount - 1; wanderCount <- wanderCount + 1;} //transition to wandering state, keeping track of the count
+	}
+	
+	state wandering {
 		enter {
 			if autonomousBikeEventLog {
 				ask eventLogger { do logEnterState; }
 				ask travelLogger { do logRoads(0.0);}
 			}
+			
 			target <- nil;
 		}
-		transition to: picking_up_packages when: delivery != nil{}
-		transition to: low_battery when: setLowBattery() {}
-		transition to: night_recharging when: setNightChargingTime() {nightorigin <- self.location;}
+		
+		/* adjust max battery life */
+		if maxBatteryLifeAutonomousBike = 35000.0{
+			coefficient <- 21;
+			} else if maxBatteryLifeAutonomousBike = 50000.0{
+			coefficient <- 30;
+			} else if maxBatteryLifeAutonomousBike = 65000.0{
+			coefficient <- 39;
+		}
+		
+		/* adjust charging rate */
+		if rechargeRate = "111s"{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(111);
+			nightRechargeCond <- false;
+			rechargeCond <- false;
+		} else{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60);
+
+		}
+		/*transitions to different states, keeping track of the count*/
+		transition to: picking_up_packages when: delivery != nil{wanderCount <- wanderCount - 1; pickUpCount <- pickUpCount + 1;}
+		transition to: low_battery when: setLowBattery() {wanderCount <- wanderCount - 1; lowBattCount <- lowBattCount + 1;}
+		transition to: night_recharging when: nightRechargeCond = true and setNightChargingTime() {nightorigin <- self.location; wanderCount <- wanderCount - 1; lowBattCount <- lowBattCount + 1;} // set condition for night charging
+		
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -534,12 +633,37 @@ species autonomousBike control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(autonomousBike_distance);}
 			}
 		}
-		transition to: getting_charge when: self.location = target {}
+		/*transitions to different state, keeping track of the count*/
+		transition to: getting_charge when: self.location = target {lowBattCount <- lowBattCount - 1; getChargeCount <- getChargeCount + 1;}
 		exit {
+			
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
 	
+	state getting_charge {
+		enter {
+			
+			if stationChargeLogs{
+				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
+				ask travelLogger { do logRoads(0.0);}
+			}		
+			target <- nil;
+			ask chargingStation closest_to(self) {
+				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
+			}
+		}
+		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
+		transition to: fleetsize when: batteryLife >= maxBatteryLifeAutonomousBike {getChargeCount <- getChargeCount - 1; fleetsizeCount <- fleetsizeCount + 1;}
+		exit {
+			if stationChargeLogs{ask eventLogger { do logExitState("Charged at " + (chargingStation closest_to myself)); }}
+			ask chargingStation closest_to(self) {
+				autonomousBikesToCharge <- autonomousBikesToCharge - myself;
+			}
+		}
+	}
+	
+	//Night recharge condition state, line 522 set to activate when true 
 	state night_recharging {
 		enter{
 			target <- (chargingStation closest_to(self) using topology(road)).location; 
@@ -550,32 +674,14 @@ species autonomousBike control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(autonomousBike_distance);}
 			}
 		}
-		transition to: getting_night_charge when: self.location = target {}
+		/*transitions to different state, keeping track of the count*/
+		transition to: getting_night_charge when: self.location = target {lowBattCount <- lowBattCount - 1; getChargeCount <- getChargeCount + 1;}
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
 	
-	state getting_charge {
-		enter {
-			if stationChargeLogs{
-				ask eventLogger { do logEnterState("Charging at " + (chargingStation closest_to myself)); }
-				ask travelLogger { do logRoads(0.0);}
-			}		
-			target <- nil;
-			ask chargingStation closest_to(self) {
-				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
-			}
-		}
-		transition to: wandering when: batteryLife >= maxBatteryLifeAutonomousBike {}
-		exit {
-			if stationChargeLogs{ask eventLogger { do logExitState("Charged at " + (chargingStation closest_to myself)); }}
-			ask chargingStation closest_to(self) {
-				autonomousBikesToCharge <- autonomousBikesToCharge - myself;
-			}
-		}
-	}
-	
+	//Night recharge condition state
 	state getting_night_charge {
 		enter {
 			if stationChargeLogs{
@@ -587,7 +693,8 @@ species autonomousBike control: fsm skills: [moving] {
 				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
 			}
 		}
-		transition to: night_relocating when: batteryLife >= maxBatteryLifeAutonomousBike {}
+		/*transitions to different state, keeping track of the count*/
+		transition to: night_relocating when: batteryLife >= maxBatteryLifeAutonomousBike {getChargeCount <- getChargeCount - 1; nightRelCount <- nightRelCount + 1;}
 		exit {
 			if stationChargeLogs{ask eventLogger { do logExitState("Charged at " + (chargingStation closest_to myself)); }}
 			ask chargingStation closest_to(self) {
@@ -596,8 +703,9 @@ species autonomousBike control: fsm skills: [moving] {
 		}
 	}
 	
+	//Night recharge condition state
 	state night_relocating {
-		enter {
+		enter{
 			target <- nightorigin;
 			origin_closestPoint <- (road closest_to(self.location) using topology(road)).location;
 			autonomousBike_distance <- host.distanceInGraph(target,origin_closestPoint);
@@ -606,8 +714,10 @@ species autonomousBike control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(autonomousBike_distance);}
 			}
 		}
-		transition to: wandering when: self.location = target {}
+		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
+		transition to: fleetsize when: self.location = target {nightRelCount <- nightRelCount - 1; fleetsizeCount <- fleetsizeCount + 1;}
 		exit {
+			
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
 		}
 	}
@@ -621,8 +731,10 @@ species autonomousBike control: fsm skills: [moving] {
 					ask travelLogger { do logRoads(autonomousBike_distance);}
 				}
 			}
-			transition to: in_use_packages when: (location = target and delivery.location = target) {}
+			/*transitions to different state, keeping track of the count*/
+			transition to: in_use_packages when: (location = target and delivery.location = target) {pickUpCount <- pickUpCount - 1; inUseCount <- inUseCount + 1;}
 			exit{
+				
 				if autonomousBikeEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 			}
 	}
@@ -636,14 +748,15 @@ species autonomousBike control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(autonomousBike_distance);}
 			}
 		}
-		transition to: wandering when: location=target {
-			delivery <- nil;
-		}
+		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
+		transition to: fleetsize when: location=target {delivery <- nil; inUseCount <- inUseCount - 1; fleetsizeCount <- fleetsizeCount + 1;}
 		exit {
+			
 			if autonomousBikeEventLog {ask eventLogger { do logExitState("Used" + myself.delivery); }}
 		}
 	}
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 species car control: fsm skills: [moving] {
 	
@@ -737,17 +850,41 @@ species car control: fsm skills: [moving] {
 	}
 				
 	/* ========================================== STATE MACHINE ========================================= */
-	state wandering initial: true {
+			/* 
+	 new state created called fleetsize so we are able to adjust the number of vehicles. if the adjusted number of vehicles (by the user) 
+	 is less than the number of vehicles that are active on the map, we kill those excess agents. on the other hand, new agnets are created 
+	 if we need more (called in main.gaml)
+	 	*/
+	state fleetsize initial: true {
 		enter {
+			if fleetsizeCountCar+wanderCountCar+lowFuelCount+getFuelCount+pickUpCountCar+inUseCountCar > numCars{
+				fleetsizeCountCar <- fleetsizeCountCar - 1;
+				do die;
+			}
+		}
+		transition to: wandering {fleetsizeCountCar <- fleetsizeCountCar - 1; wanderCountCar <- wanderCountCar + 1;} //transition to wandering state, keeping track of the count
+	}
+
+	state wandering {
+		enter {
+			//write(wanderCountCar);
 			if carEventLog {
 				ask eventLogger { do logEnterState; }
 				ask travelLogger { do logRoads(0.0);}
 			}
 			target <- nil;
 		}
-		transition to: picking_up_packages when: delivery != nil{}
-		transition to: low_fuel when: setLowFuel() {}
-		/*transition to: night_refilling when: setNightRefillingTime() {nightorigin <- self.location;}*/
+		if carType = "Electric"{
+			maxFuelCar <- 342000.0 #m;
+			refillingRate <- maxFuelCar/30*60 #m/#s;
+		} else{
+			maxFuelCar <- 500000.0 #m;
+			refillingRate <- maxFuelCar/3*60 #m/#s;
+		}
+		/*transitions to different states, keeping track of the count*/
+		transition to: picking_up_packages when: delivery != nil{wanderCountCar <- wanderCountCar - 1; pickUpCountCar <- pickUpCountCar + 1;}
+		transition to: low_fuel when: setLowFuel() {wanderCountCar <- wanderCountCar - 1; lowFuelCount <- lowFuelCount + 1;}
+		/*transition to: night_refilling when: setNightRefillingTime() {nightorigin <- self.location;}*/	
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -763,7 +900,8 @@ species car control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(car_distance);}
 			}
 		}
-		transition to: getting_fuel when: self.location = target {}
+		/*transitions to different state, keeping track of the count*/
+		transition to: getting_fuel when: self.location = target {lowFuelCount <- lowFuelCount - 1; getFuelCount <- getFuelCount + 1;}
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -796,7 +934,8 @@ species car control: fsm skills: [moving] {
 				carsToRefill <- carsToRefill + myself;
 			}
 		}
-		transition to: wandering when: fuel >= maxFuelCar {}
+		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
+		transition to: fleetsize when: fuel >= maxFuelCar {getFuelCount <- getFuelCount - 1; fleetsizeCountCar <- fleetsizeCountCar + 1;}
 		exit {
 			if gasstationFuelLogs{ask eventLogger { do logExitState("Refilled at " + (gasstation closest_to myself)); }}
 			ask gasstation closest_to(self) {
@@ -843,6 +982,7 @@ species car control: fsm skills: [moving] {
 	
 	state picking_up_packages {
 		enter {
+			pickUpCount <- pickUpCount + 1;
 			target <- delivery.initial_closestPoint; 
 			car_distance <- host.distanceInGraph(target,self.location);
 			if carEventLog {
@@ -850,14 +990,18 @@ species car control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(car_distance);}
 			}
 		}
-		transition to: in_use_packages when: (location = target and delivery.location = target) {}
+		/*transitions to different state, keeping track of the count*/
+		transition to: in_use_packages when: (location = target and delivery.location = target) {pickUpCountCar <- pickUpCountCar - 1; inUseCountCar <- inUseCountCar + 1;}
+		
 		exit{
+			pickUpCount <- pickUpCount - 1;
 			if carEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 		}
 	}
 	
 	state in_use_packages {
 		enter {
+			inUseCount <- inUseCount + 1;
 			target <- delivery.final_closestPoint; 
 			car_distance <- host.distanceInGraph(target,self.location);
 			
@@ -866,10 +1010,13 @@ species car control: fsm skills: [moving] {
 				ask travelLogger { do logRoads(car_distance);}
 			}
 		}
-		transition to: wandering when: location=target {
+		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
+		transition to: fleetsize when: location=target {
 			delivery <- nil;
-		}
+			inUseCountCar <- inUseCountCar - 1; fleetsizeCountCar <- fleetsizeCountCar + 1;
+		}	
 		exit {
+			inUseCount <- inUseCount - 1;
 			if carEventLog {ask eventLogger { do logExitState("Used " + myself.delivery); }}
 		}
 	}
