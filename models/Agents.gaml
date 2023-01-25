@@ -16,7 +16,7 @@ global {
 	
 	int numGasStations;
 	int gasStationCapacity;
-	
+		
 	//autonomous bike count variables, used to create series graph in autonomous scenarios
 	int wanderCount <- 0;
 	int lowBattCount <- 0; //lowbattery 
@@ -24,7 +24,7 @@ global {
 	int pickUpCount <- 0;
 	int inUseCount <- 0;
 	int nightRelCount <- 0;
-	int fleetsizeCount <- numAutonomousBikes;
+	int fleetsizeCount <- 0;
 	
 	//car count variables, used to create series graph in traditional scenarios
 	int wanderCountCar <- 0;
@@ -32,7 +32,7 @@ global {
 	int getFuelCount <- 0; //getcharge, getfuel for electric, combustion
 	int pickUpCountCar <- 0;
 	int inUseCountCar <- 0;
-	int fleetsizeCountCar <- numCars;
+	int fleetsizeCountCar <- 0;
 	
 	
 	// wait time variables, used to create series graph in seeing package wait time progression
@@ -326,7 +326,7 @@ species package control: fsm skills: [moving] {
 	}
 	
 		
-	bool timeToTravel { return ((current_date.hour = start_h and current_date.minute >= start_min) or (current_date.hour > start_h)) and !(self overlaps target_point); }
+	bool timeToTravel { return ((current_date.hour = self.start_h and current_date.minute >= self.start_min) or (current_date.hour > self.start_h)) and !(self overlaps target_point); }
 	
 	int register <- 1;
 	
@@ -453,10 +453,10 @@ species package control: fsm skills: [moving] {
 			}
 			
 			/* loop(s) to find moving average of last 10 wait times */
-			if length(timeList) = 10{
+			if length(timeList) = 20{
 				remove from:timeList index:0;
 			} timeList <- timeList + timeWaiting;
-			loop while: length(timeList) = 10{
+			loop while: length(timeList) = 20{
 				moreThanWait <- 0;
 				avgWait <- 0;
 				/* the loop below is to count the number of packages delivered under/over 40 minutes, represented in a pie chart (inactive) */
@@ -465,7 +465,7 @@ species package control: fsm skills: [moving] {
 						moreThanWait <- moreThanWait+1;
 					} 
 					avgWait <- avgWait + i;
-				} avgWait <- avgWait/10; //average
+				} avgWait <- avgWait/20; //average
 				return moreThanWait;
 				
 			}
@@ -581,6 +581,10 @@ species autonomousBike control: fsm skills: [moving] {
 				fleetsizeCount <- fleetsizeCount - 1;
 				do die;
 			}
+			if traditionalScenario {
+				fleetsizeCount <- fleetsizeCount - 1;
+				do die;
+			}
 		}
 		transition to: wandering {fleetsizeCount <- fleetsizeCount - 1; wanderCount <- wanderCount + 1;} //transition to wandering state, keeping track of the count
 	}
@@ -604,19 +608,18 @@ species autonomousBike control: fsm skills: [moving] {
 			coefficient <- 39;
 		}
 		
-		/* adjust charging rate */
-		if rechargeRate = "111s"{
-			V2IChargingRate <- maxBatteryLifeAutonomousBike/(111);
-			nightRechargeCond <- false;
-			rechargeCond <- false;
-		} else{
-			V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60);
-
-		}
+		
+		
+		
 		/*transitions to different states, keeping track of the count*/
 		transition to: picking_up_packages when: delivery != nil{wanderCount <- wanderCount - 1; pickUpCount <- pickUpCount + 1;}
 		transition to: low_battery when: setLowBattery() {wanderCount <- wanderCount - 1; lowBattCount <- lowBattCount + 1;}
 		transition to: night_recharging when: nightRechargeCond = true and setNightChargingTime() {nightorigin <- self.location; wanderCount <- wanderCount - 1; lowBattCount <- lowBattCount + 1;} // set condition for night charging
+		
+		if traditionalScenario and delivery = nil{
+			wanderCount <- wanderCount - 1;
+			do die;
+		}
 		
 		exit {
 			if autonomousBikeEventLog {ask eventLogger { do logExitState; }}
@@ -652,6 +655,19 @@ species autonomousBike control: fsm skills: [moving] {
 			ask chargingStation closest_to(self) {
 				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
 			}
+		}
+		/* adjust charging rate */
+		if rechargeRate = "111s"{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(111);
+			nightRechargeCond <- false;
+			rechargeCond <- false;
+		} else if rechargeRate = "4.5hours"{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60);
+
+		}
+		if traditionalScenario{
+			getChargeCount <- getChargeCount - 1;
+			do die;
 		}
 		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
 		transition to: fleetsize when: batteryLife >= maxBatteryLifeAutonomousBike {getChargeCount <- getChargeCount - 1; fleetsizeCount <- fleetsizeCount + 1;}
@@ -692,6 +708,19 @@ species autonomousBike control: fsm skills: [moving] {
 			ask chargingStation closest_to(self) {
 				autonomousBikesToCharge <- autonomousBikesToCharge + myself;
 			}
+		}
+		/* adjust charging rate */
+		if rechargeRate = "111s"{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(111);
+			nightRechargeCond <- false;
+			rechargeCond <- false;
+		} else if rechargeRate = "4.5hours"{
+			V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60);
+
+		}
+		if traditionalScenario{
+			getChargeCount <- getChargeCount - 1;
+			do die;
 		}
 		/*transitions to different state, keeping track of the count*/
 		transition to: night_relocating when: batteryLife >= maxBatteryLifeAutonomousBike {getChargeCount <- getChargeCount - 1; nightRelCount <- nightRelCount + 1;}
@@ -861,6 +890,10 @@ species car control: fsm skills: [moving] {
 				fleetsizeCountCar <- fleetsizeCountCar - 1;
 				do die;
 			}
+			if !traditionalScenario {
+				fleetsizeCountCar <- fleetsizeCountCar - 1;
+				do die;
+			}
 		}
 		transition to: wandering {fleetsizeCountCar <- fleetsizeCountCar - 1; wanderCountCar <- wanderCountCar + 1;} //transition to wandering state, keeping track of the count
 	}
@@ -874,17 +907,23 @@ species car control: fsm skills: [moving] {
 			}
 			target <- nil;
 		}
+		
 		if carType = "Electric"{
 			maxFuelCar <- 342000.0 #m;
-			refillingRate <- maxFuelCar/30*60 #m/#s;
 		} else{
 			maxFuelCar <- 500000.0 #m;
-			refillingRate <- maxFuelCar/3*60 #m/#s;
 		}
+		
 		/*transitions to different states, keeping track of the count*/
 		transition to: picking_up_packages when: delivery != nil{wanderCountCar <- wanderCountCar - 1; pickUpCountCar <- pickUpCountCar + 1;}
 		transition to: low_fuel when: setLowFuel() {wanderCountCar <- wanderCountCar - 1; lowFuelCount <- lowFuelCount + 1;}
-		/*transition to: night_refilling when: setNightRefillingTime() {nightorigin <- self.location;}*/	
+		/*transition to: night_refilling when: setNightRefillingTime() {nightorigin <- self.location;}*/
+		
+		if !traditionalScenario and delivery = nil{
+			wanderCountCar <- wanderCountCar - 1;
+			do die;
+		}
+			
 		exit {
 			if carEventLog {ask eventLogger { do logExitState; }}
 		}
@@ -934,6 +973,15 @@ species car control: fsm skills: [moving] {
 				carsToRefill <- carsToRefill + myself;
 			}
 		}
+		if carType = "Electric"{
+			refillingRate <- maxFuelCar/30*60 #m/#s;
+		} else{
+			refillingRate <- maxFuelCar/3*60 #m/#s;
+		}
+		if !traditionalScenario {
+			getFuelCount <- getFuelCount - 1;
+			do die;
+		}
 		/*transitions to fleetsize state because the vehicle is done with its trip, keeping track of the count*/
 		transition to: fleetsize when: fuel >= maxFuelCar {getFuelCount <- getFuelCount - 1; fleetsizeCountCar <- fleetsizeCountCar + 1;}
 		exit {
@@ -982,7 +1030,6 @@ species car control: fsm skills: [moving] {
 	
 	state picking_up_packages {
 		enter {
-			pickUpCount <- pickUpCount + 1;
 			target <- delivery.initial_closestPoint; 
 			car_distance <- host.distanceInGraph(target,self.location);
 			if carEventLog {
@@ -994,14 +1041,12 @@ species car control: fsm skills: [moving] {
 		transition to: in_use_packages when: (location = target and delivery.location = target) {pickUpCountCar <- pickUpCountCar - 1; inUseCountCar <- inUseCountCar + 1;}
 		
 		exit{
-			pickUpCount <- pickUpCount - 1;
 			if carEventLog {ask eventLogger { do logExitState("Picked up " + myself.delivery); }}
 		}
 	}
 	
 	state in_use_packages {
 		enter {
-			inUseCount <- inUseCount + 1;
 			target <- delivery.final_closestPoint; 
 			car_distance <- host.distanceInGraph(target,self.location);
 			
@@ -1016,7 +1061,6 @@ species car control: fsm skills: [moving] {
 			inUseCountCar <- inUseCountCar - 1; fleetsizeCountCar <- fleetsizeCountCar + 1;
 		}	
 		exit {
-			inUseCount <- inUseCount - 1;
 			if carEventLog {ask eventLogger { do logExitState("Used " + myself.delivery); }}
 		}
 	}

@@ -9,7 +9,7 @@ global {
 	float step <- 2 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2022-10-11 07:00:00"); 
+	date starting_date <- date("2022-10-11 11:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
