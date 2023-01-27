@@ -16,6 +16,9 @@ global {
 	
 	int numGasStations;
 	int gasStationCapacity;
+	
+	// Initial Scenario
+	bool initial_scenario <- traditionalScenario;
 		
 	//autonomous bike count variables, used to create series graph in autonomous scenarios
 	int wanderCount <- 0;
@@ -25,6 +28,13 @@ global {
 	int inUseCount <- 0;
 	int nightRelCount <- 0;
 	int fleetsizeCount <- 0;
+	int unservedCount <- 0;
+	
+	// Initial values storage of the simulation
+	int initial_ab_number <- numAutonomousBikes;
+	float initial_ab_battery <- maxBatteryLifeAutonomousBike;
+	float initial_ab_speed <- PickUpSpeedAutonomousBike;
+	string initial_ab_recharge_rate <- rechargeRate;
 	
 	//car count variables, used to create series graph in traditional scenarios
 	int wanderCountCar <- 0;
@@ -34,6 +44,10 @@ global {
 	int inUseCountCar <- 0;
 	int fleetsizeCountCar <- 0;
 	
+	// Initial car values storaged of the simulation
+	int initial_c_number <- numCars;
+	float initial_c_battery <- maxFuelCar;
+	string initial_c_type <- carType;
 	
 	// wait time variables, used to create series graph in seeing package wait time progression
 	//int lessThanWait <- 0;
@@ -282,7 +296,9 @@ species package control: fsm skills: [moving] {
 		
 		"retry":: #red,
 		
-		"delivered":: #transparent
+		"delivered":: #transparent,
+		
+		"unserved":: #transparent
 	];
 	
 	packageLogger logger;
@@ -298,6 +314,8 @@ species package control: fsm skills: [moving] {
 	point target_point;
 	int start_h;
 	int start_min;
+	int start_h_considered;
+	int start_min_considered;
 	int mode; // 1 <- Autonomous Bike || 2 <- Car || 0 <- None
 	
 	autonomousBike autonomousBikeToDeliver;
@@ -335,6 +353,16 @@ species package control: fsm skills: [moving] {
     	enter {    		
     		if register = 1 and (packageEventLog or packageTripLog) {ask logger { do logEnterState;}}
     		target <- nil;
+    		if start_h < initial_hour {
+				start_h_considered <- initial_hour;
+				start_min_considered <- initial_minute;
+			} else if (start_h = initial_hour) and (start_min < initial_minute){
+				start_h_considered <- initial_hour;
+				start_min_considered <- initial_minute;
+			} else {
+				start_h_considered <- start_h;
+				start_min_considered <- start_min;			
+			}
     	}
     	transition to: requestingDeliveryMode when: timeToTravel() {
     		final_destination <- target_point;
@@ -356,8 +384,11 @@ species package control: fsm skills: [moving] {
     			register <- 1;
     		}
     	}
+    	
     	transition to: firstmile when: (choice != 0){}
-    	transition to: retry when: choice = 0 {target <- nil;}
+    	transition to: retry when: choice = 0  and ((current_date.hour*60 + current_date.minute) - (start_h_considered*60 + start_min_considered)) <= (maxWaitTimePackage/60) {target <- nil;}
+    	//transition to: retry when: choice = 0 {target <- nil;}
+    	transition to: unserved when:((current_date.hour*60 + current_date.minute) - (start_h_considered*60 + start_min_considered)) > (maxWaitTimePackage/60) {target <- nil;}
     	exit {
     		if register = 1 and packageEventLog {ask logger { do logExitState; }}
 		}
@@ -467,9 +498,13 @@ species package control: fsm skills: [moving] {
 					avgWait <- avgWait + i;
 				} avgWait <- avgWait/20; //average
 				return moreThanWait;
-				
 			}
-			
+		}
+	}
+	
+	state unserved {
+		enter {
+			unservedCount <- unservedCount + 1;
 		}
 	}
 }
@@ -607,9 +642,6 @@ species autonomousBike control: fsm skills: [moving] {
 			} else if maxBatteryLifeAutonomousBike = 65000.0{
 			coefficient <- 39;
 		}
-		
-		
-		
 		
 		/*transitions to different states, keeping track of the count*/
 		transition to: picking_up_packages when: delivery != nil{wanderCount <- wanderCount - 1; pickUpCount <- pickUpCount + 1;}
@@ -900,7 +932,6 @@ species car control: fsm skills: [moving] {
 
 	state wandering {
 		enter {
-			//write(wanderCountCar);
 			if carEventLog {
 				ask eventLogger { do logEnterState; }
 				ask travelLogger { do logRoads(0.0);}
@@ -974,9 +1005,9 @@ species car control: fsm skills: [moving] {
 			}
 		}
 		if carType = "Electric"{
-			refillingRate <- maxFuelCar/30*60 #m/#s;
+			refillingRate <- maxFuelCar/(30*60) #m/#s;
 		} else{
-			refillingRate <- maxFuelCar/3*60 #m/#s;
+			refillingRate <- maxFuelCar/(3*60) #m/#s;
 		}
 		if !traditionalScenario {
 			getFuelCount <- getFuelCount - 1;

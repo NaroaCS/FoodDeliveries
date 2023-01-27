@@ -142,14 +142,11 @@ global {
 		write "FINISH INITIALIZATION";
 		initial_hour <- current_date.hour;
 		initial_minute <- current_date.minute;
-		
-		write(initial_hour);
-		write(initial_minute);
     }
     
-	reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step {
+	/*reflex stop_simulation when: cycle >= numberOfDays * numberOfHours * 3600 / step {
 		do pause ;
-	}
+	}*/
 	
 	/* corresponds with fleetsize state, new vehicles are created when the number of vehicles is increased. adds the amount needed to fulfill total amount of vehicles */
 	reflex create_autonomousBikes when: !traditionalScenario and fleetsizeCount+wanderCount+lowBattCount+getChargeCount+nightRelCount+pickUpCount+inUseCount < numAutonomousBikes{ 
@@ -167,7 +164,19 @@ global {
 			fleetsizeCountCar <- fleetsizeCountCar +1;
 		}
 	}
-				
+	
+	// Reset the number of unserved trips
+	reflex reset_unserved_counter when: ((initial_ab_number != numAutonomousBikes) or (initial_ab_battery != maxBatteryLifeAutonomousBike) or (initial_ab_speed != PickUpSpeedAutonomousBike) or (initial_ab_recharge_rate != rechargeRate) or (initial_c_number != numCars) or (initial_c_battery != maxFuelCar) or (initial_c_type != carType) or (initial_scenario != traditionalScenario)) { 
+		initial_ab_number <- numAutonomousBikes;
+		initial_ab_battery <- maxBatteryLifeAutonomousBike;
+		initial_ab_speed <- PickUpSpeedAutonomousBike;
+		initial_ab_recharge_rate <- rechargeRate;
+		initial_c_number <- numCars;
+		initial_c_battery <- maxFuelCar;
+		initial_c_type <- carType;
+		initial_scenario <- traditionalScenario;
+		unservedCount <- 0;
+	}		
 }
 
 experiment traditionalScenario {
@@ -210,7 +219,6 @@ experiment traditionalScenario {
 				data "Wait Time" value: avgWait color: #pink marker: false style: line;
 			}
 		}
-	
 	}
 }
 
@@ -269,16 +277,14 @@ experiment autonomousScenario type: gui {
 }
 
 experiment generalScenario type: gui {
-	parameter var: numAutonomousBikes init: numAutonomousBikes;
-	float minimum_cycle_duration<- 1 #sec;
-	
+
     output {
-		display autonomousScenario type:opengl background: #black draw_env: false{	 
-			species building aspect: type visible:show_building position:{0,0,-0.001};
+		display autonomousScenario type:java2D background: #black draw_env: false{	 
+			species building aspect: type visible:show_building ;
 			species road aspect: base visible:show_road ;
 			species gasstation aspect:base visible:show_gasStation;
 			species chargingStation aspect: base visible:show_chargingStation ;
-			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
+			species restaurant aspect:base visible:show_restaurant;
 			species autonomousBike aspect: realistic visible:show_autonomousBike trace:30 fading: true;
 			species car aspect: realistic visible:show_car trace:15 fading: true; 
 			species package aspect:base visible:show_package;
@@ -292,46 +298,21 @@ experiment generalScenario type: gui {
 		event["c"] {show_car<-!show_car;}
 		}
 		
-		
-		
 		/* series graph for bike and car variables */
-		display vehicleTasks antialias: true{
+		display vehicleTasks antialias: false draw_env: false{
 			
-    		chart "Vehicle Tasks" type: series background: #black color: #white axes: #white tick_line_color:#white x_label: "Time (sec)" y_label: "Number of Vehicles"{
+    		chart "Vehicle Tasks" type: series background: #black color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Number of Vehicles" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
     			
-    			/*if traditionalScenario{
-    				data "wandering cars" value: wanderCountCar color: #blue marker: false style: line;
-    				data "cars low battery/fuel" value: lowFuelCount color: #orange marker: false style: line;
-    				data "car getting charge/fuel" value: getFuelCount color: #red marker: false style: line;
-    				data "cars in use" value: inUseCountCar+pickUpCountCar color: #yellow marker: false style: line;
-  
-      				data "wandering bikes" value: wanderCount color: #transparent marker: false style: line;	
-    				data "bikes with low battery" value: lowBattCount color: #transparent marker: false style: line;
-    				data "bikes getting charge" value: getChargeCount color: #transparent marker: false style: line;
-    				data "bikes in use" value: inUseCount+pickUpCount color: #transparent marker: false style: line;
-    				data "bikes night relocating" value: nightRelCount color: #transparent marker: false style: line;
-    			} else {
-    				data "wandering bikes" value: wanderCount color: #lightblue marker: false style: line;	
-    				data "bikes with low battery" value: lowBattCount color: #coral marker: false style: line;
-    				data "bikes getting charge" value: getChargeCount color: #tomato marker: false style: line;
-    				data "bikes in use" value: inUseCount+pickUpCount color: #lightgreen marker: false style: line;
-    				data "bikes night relocating" value: nightRelCount color: #plum marker: false style: line;
-    				
-    				data "wandering cars" value: wanderCountCar color: #transparent marker: false style: line;
-    				data "cars low battery/fuel" value: lowFuelCount color: #transparent marker: false style: line;
-    				data "car getting charge/fuel" value: getFuelCount color: #transparent marker: false style: line;
-    				data "cars in use" value: inUseCountCar+pickUpCountCar color: #transparent marker: false style: line;
-    			}*/
     			data "wandering cars" value: wanderCountCar color: #blue marker: false style: line;
-				data "cars low battery/fuel" value: lowFuelCount color: #orange marker: false style: line;
+				//data "cars low battery/fuel" value: lowFuelCount color: #orange marker: false style: line;
 				data "car getting charge/fuel" value: getFuelCount color: #red marker: false style: line;
 				data "cars in use" value: inUseCountCar+pickUpCountCar color: #yellow marker: false style: line;
 				
 				data "wandering bikes" value: wanderCount color: #lightblue marker: false style: line;	
-				data "bikes with low battery" value: lowBattCount color: #coral marker: false style: line;
-				data "bikes getting charge" value: getChargeCount color: #tomato marker: false style: line;
+				//data "bikes with low battery" value: lowBattCount color: #coral marker: false style: line;
+				data "bikes getting charge" value: getChargeCount color: #red marker: false style: line;
 				data "bikes in use" value: inUseCount+pickUpCount color: #lightgreen marker: false style: line;
-				data "bikes night relocating" value: nightRelCount color: #plum marker: false style: line;
+				//data "bikes night relocating" value: nightRelCount color: #plum marker: false style: line;
    			}
     	}
 		//display percentServed {
@@ -344,18 +325,22 @@ experiment generalScenario type: gui {
 		//}
 		
     	/* series graph for last 10 (moving) average wait time */
-		display avgWaitTime antialias: true{
-			chart "Average Wait Time" type: series background: #black color: #white axes: #white tick_line_color:#white x_label: "Time (sec)" y_label: "Average Last 10 Wait Times (min)"{
+		display avgWaitTime antialias: false draw_env: false{
+			chart "Average Wait Time" type: series background: #black color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Average Last 10 Wait Times (min)" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
 				data "Wait Time" value: avgWait color: #pink marker: false style: line;
 				data "40min" value: 40 color: #red marker: false style: line;
 			}
 		}
+		
+		display unservedTrips antialias: true draw_env: false{
+    		chart "Unserved Trips" type: histogram background: #black color: #white axes: #white tick_line_color:#transparent y_label: "Number of Unserved Trips [-]"{
+				data "Unserved Trips" value: unservedCount;
+			}
+    	}
+    	
     }
 		
 }
-
-
-
 
 experiment car_batch_experiment type: batch repeat: 1 until: (cycle >= numberOfDays * numberOfHours * 3600 / step) {
 	parameter var: numVehiclesPackageTraditional among: [5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80];
