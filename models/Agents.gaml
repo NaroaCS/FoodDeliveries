@@ -56,6 +56,11 @@ global {
 	float avgWait <- nil;
 	list<float> timeList <- []; //list of wait times
 	
+	//env factor vars
+	float gramsCO2;
+	float reductionICE;
+	float reductionBEV;
+	
 	int initial_hour;
 	int initial_minute;
 	
@@ -505,6 +510,7 @@ species package control: fsm skills: [moving] {
 	state unserved {
 		enter {
 			unservedCount <- unservedCount + 1;
+			write (unservedCount);
 		}
 	}
 }
@@ -642,6 +648,53 @@ species autonomousBike control: fsm skills: [moving] {
 			} else if maxBatteryLifeAutonomousBike = 65000.0{
 			coefficient <- 39;
 		}
+		
+		// CO2, reduction variables for chart, pie graph
+		if maxBatteryLifeAutonomousBike = 35000{
+			if PickUpSpeedAutonomousBike = 8/3.6{
+				if rechargeRate = "4.5hours"{
+					gramsCO2 <- 0.0853*numAutonomousBikes+19.673; //y=0.0853x+19.673	
+					reductionICE <- (-0.052033)*numAutonomousBikes+97.8317; //y=−0.052033x+97.8317
+					reductionBEV <- (-0.0871)*numAutonomousBikes+96.365; //y=-0​.0871x+96.​365
+				} else if rechargeRate = "111s"{
+					gramsCO2 <- 0.1097*numAutonomousBikes+14.2167; //y=0.1097x+14.2167
+					reductionICE <- (-0.0507)*numAutonomousBikes+96.585; //y=−​0.0507x+96.​585
+					reductionBEV <- (-0.0793)*numAutonomousBikes+92.325; //y=-0.0​793x+92.3​25
+					}
+		} else if PickUpSpeedAutonomousBike = 14/3.6{
+			if rechargeRate = "4.5hours"{
+				gramsCO2 <- 0.08773*numAutonomousBikes+18.313; //y=0.08773x+18.313	
+				reductionICE <- (-0.0503)*numAutonomousBikes+97.397; //y=−0.0503x+97.397
+				reductionBEV <- (-0.0843)*numAutonomousBikes+95.655; //y=-0.​0843x+9​5.655
+			} else if rechargeRate = "111s"{
+				gramsCO2 <- 0.11493*numAutonomousBikes+12.373; //y=0.1​1493x+12.373
+				reductionICE <- (-0.0843)*numAutonomousBikes+95.655; //y=-0.​0843x+9​5.655
+				reductionBEV <- (-0.071367)*numAutonomousBikes+89.32833; //y=-0.071367x+89.32833
+				}}
+		}
+		if maxBatteryLifeAutonomousBike = 65000{
+			if PickUpSpeedAutonomousBike = 8/3.6{
+				if rechargeRate = "4.5hours"{
+					gramsCO2 <- 0.10213*numAutonomousBikes+16.493; //y=0.10213x+16.493
+					reductionICE <- (-0.05087)*numAutonomousBikes+96.703; //y=−0.05​087x+96.703​
+					reductionBEV <- (-0.085167)*numAutonomousBikes+94.4883; //y=-0.085167x+94.4​883
+				} else if rechargeRate = "111s"{
+					gramsCO2 <- 0.1218*numAutonomousBikes+14.3; //y=0.1218x+14.3
+					reductionICE <- (-0.05193)*numAutonomousBikes+95.3867; //y=−0.05193​x+95.3867
+					reductionBEV <- (-0.086967)*numAutonomousBikes+92.27833; //y=-0.08696​7x+92.27​833
+					}
+			} else if PickUpSpeedAutonomousBike = 14/3.6{
+				if rechargeRate = "4.5hours"{
+					gramsCO2 <- 0.1029*numAutonomousBikes+16.225; //y=0.1029x+16.225
+					reductionICE <- (-0.05073)*numAutonomousBikes+96.6067; //y=−0.​05073x+96.6067
+					reductionBEV <- (-0.084933)*numAutonomousBikes+94.31667; //y=-0.084933x+94.31667
+			} else if rechargeRate = "111s"{
+				gramsCO2 <- 0.12793*numAutonomousBikes+12.153; //y=0.12793x+12.153
+				reductionICE <- (-0.0464)*numAutonomousBikes+93.45; //y=-0.04​64x+93.​45
+				reductionBEV <- (-0.078433)*numAutonomousBikes+89.07167; //y=-0.078​433x+89.071​67
+				}}	
+		} 
+		
 		
 		/*transitions to different states, keeping track of the count*/
 		transition to: picking_up_packages when: delivery != nil{wanderCount <- wanderCount - 1; pickUpCount <- pickUpCount + 1;}

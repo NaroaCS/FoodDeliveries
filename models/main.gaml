@@ -176,7 +176,7 @@ global {
 		initial_c_type <- carType;
 		initial_scenario <- traditionalScenario;
 		unservedCount <- 0;
-	}		
+	}
 }
 
 experiment traditionalScenario {
@@ -277,9 +277,9 @@ experiment autonomousScenario type: gui {
 }
 
 experiment generalScenario type: gui {
-
     output {
-		display autonomousScenario type:java2D background: #black draw_env: false{	 
+    layout #split parameters: true navigator: false editors: false consoles: false toolbars: false tray: false tabs: false;
+		display autonomousScenario type:java2D background: #black draw_env: false {	 
 			species building aspect: type visible:show_building ;
 			species road aspect: base visible:show_road ;
 			species gasstation aspect:base visible:show_gasStation;
@@ -315,16 +315,9 @@ experiment generalScenario type: gui {
 				//data "bikes night relocating" value: nightRelCount color: #plum marker: false style: line;
    			}
     	}
-		//display percentServed {
-			//chart "Delivery Speed" type: pie{
-//			loop while: length(timeList) < 10{
-//				datalist["Served in less than 40min", "Served in more than 40min"] value: [] color: [];
-//			}
-			//datalist["Served in less than 40min", "Served in more than 40min"] value: [10-moreThanWait, moreThanWait] color: [#blue, #red];
-			//}
-		//}
 		
     	/* series graph for last 10 (moving) average wait time */
+		
 		display avgWaitTime antialias: false draw_env: false{
 			chart "Average Wait Time" type: series background: #black color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Average Last 10 Wait Times (min)" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
 				data "Wait Time" value: avgWait color: #pink marker: false style: line;
@@ -332,11 +325,50 @@ experiment generalScenario type: gui {
 			}
 		}
 		
-		display unservedTrips antialias: true draw_env: false{
-    		chart "Unserved Trips" type: histogram background: #black color: #white axes: #white tick_line_color:#transparent y_label: "Number of Unserved Trips [-]"{
-				data "Unserved Trips" value: unservedCount;
+		display CO2 antialias: false draw_env: false {
+			chart "CO2" type:histogram background: #black color: #white axes: #transparent tick_line_color:#transparent y_range: [0.0, 60.0] x_serie_labels: "gCO2/km:" x_label: round(gramsCO2) with_precision 2
+			series_label_position: xaxis
+			{
+				data " "
+					style: bar
+					value: round(gramsCO2) with_precision 2
+					color: #red;
 			}
-    	}
+		}
+		display "Strings" type: opengl  axes: false {
+			graphics Strings {
+				draw "Unserved Trips: " at: {0, 600} color: #white font: font("Courier", 40, #plain);
+				draw " " + unservedCount at: {4600, 700} color: #indianred font: font("Courier", 60, #bold);
+				draw " " + unservedCount at: {4600, 700} wireframe: true color: #white font: font("Courier", 60, #bold);
+				draw "Reduction vs. ICE: " at: {0, 2600} color: #white font: font("Courier", 40, #plain);
+				draw " " + round(reductionICE) with_precision 2 + "%" at: {5600, 2700} color: #lightgreen font: font("Courier", 60, #bold);
+				draw " " + round(reductionICE) with_precision 2 + "%" at: {5600, 2700} wireframe: true color: #white font: font("Courier", 60, #bold);
+				draw "Reduction vs. BEV: " at: {0, 4600} color: #white font: font("Courier", 40, #plain);
+				draw " " + round(reductionBEV) with_precision 2 + "%" at: {5600, 4700} color: #green font: font("Courier", 60, #bold);
+				draw " " + round(reductionBEV) with_precision 2 + "%" at: {5600, 4700} wireframe: true color: #white font: font("Courier", 60, #bold);
+				}
+			}
+			
+		display reductionICE type: java2D{ 
+			chart "% Reduction vs. ICE" type: pie style: ring background: #black color: #white series_label_position: none{
+				data "reduction %" value: round(reductionICE) with_precision 2 color: #lightgreen;
+				data " " value: 100-round(reductionICE) with_precision 2 color: #darkgray;
+				}
+			}
+			
+		display reductionBEV type: java2D{
+			chart "% Reduction vs. BEV" type: pie style: ring background: #black color: #white series_label_position: none{ 
+				data "reduction %" value: round(reductionBEV) with_precision 2 color: #darkgreen;
+				data " " value: 100-round(reductionBEV) with_precision 2 color: #darkgray;
+				}
+			}
+		
+		
+//		display unservedTrips antialias: true draw_env: false{
+//    		chart "Unserved Trips" type: histogram background: #black color: #white axes: #white tick_line_color:#transparent y_label: "Number of Unserved Trips [-]"{
+//				data "Unserved Trips" value: unservedCount;
+//			}
+//    	}
     	
     }
 		
