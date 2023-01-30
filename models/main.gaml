@@ -183,7 +183,7 @@ experiment traditionalScenario {
 	parameter var: numVehiclesPackageTraditional init: numVehiclesPackageTraditional;
 //	float minimum_cycle_duration<- 1 #sec;
 	output {
-		display Traditional_Scenario type:opengl background: #black draw_env: false{	
+		display Traditional_Scenario type:opengl background: #black axes: false{	
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road;
 			species restaurant aspect:base visible:show_restaurant position:{0,0,-0.001};
@@ -226,7 +226,7 @@ experiment autonomousScenario type: gui {
 	parameter var: numAutonomousBikes init: numAutonomousBikes;
 	float minimum_cycle_duration<- 1 #sec;
     output {
-		display autonomousScenario type:opengl background: #black draw_env: false{	 
+		display autonomousScenario type:opengl background: #black axes: false{	 
 			species building aspect: type visible:show_building position:{0,0,-0.001};
 			species road aspect: base visible:show_road ;
 			species gasstation aspect:base visible:show_gasStation;
@@ -278,8 +278,8 @@ experiment autonomousScenario type: gui {
 
 experiment generalScenario type: gui {
     output {
-    layout #split parameters: true navigator: false editors: false consoles: false toolbars: false tray: false tabs: false;
-		display autonomousScenario type:java2D background: #black draw_env: false {	 
+    layout #split  parameters: true navigator: false editors: false consoles: false toolbars: false tray: false tabs: false;
+		display autonomousScenario type:java2D background: #black axes: false {	 
 			species building aspect: type visible:show_building ;
 			species road aspect: base visible:show_road ;
 			species gasstation aspect:base visible:show_gasStation;
@@ -299,9 +299,9 @@ experiment generalScenario type: gui {
 		}
 		
 		/* series graph for bike and car variables */
-		display vehicleTasks antialias: false draw_env: false{
+		display vehicleTasks antialias: false axes: false{
 			
-    		chart "Vehicle Tasks" type: series background: #black color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Number of Vehicles" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
+    		chart "Vehicle Tasks" type: series background: #black color: #white title_font: font("Helvetica", 20, #bold) axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Number of Vehicles" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
     			
     			data "wandering cars" value: wanderCountCar color: #blue marker: false style: line;
 				//data "cars low battery/fuel" value: lowFuelCount color: #orange marker: false style: line;
@@ -318,48 +318,59 @@ experiment generalScenario type: gui {
 		
     	/* series graph for last 10 (moving) average wait time */
 		
-		display avgWaitTime antialias: false draw_env: false{
-			chart "Average Wait Time" type: series background: #black color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Average Last 10 Wait Times (min)" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
+		display avgWaitTime antialias: false axes: false{
+			chart "Average Wait Time" type: series background: #black title_font: font("Helvetica", 20, #bold) color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Average Last 10 Wait Times (min)" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
 				data "Wait Time" value: avgWait color: #pink marker: false style: line;
 				data "40min" value: 40 color: #red marker: false style: line;
 			}
 		}
 		
-		display CO2 antialias: false draw_env: false {
-			chart "CO2" type:histogram background: #black color: #white axes: #transparent tick_line_color:#transparent y_range: [0.0, 60.0] x_serie_labels: "gCO2/km:" x_label: round(gramsCO2) with_precision 2
+		display CO2 antialias: false axes: false {
+			chart "CO2" type:histogram background: #black color: #white axes: #transparent title_font: font("Helvetica", 20, #bold) tick_line_color:#transparent y_range: [0.0, 60.0] x_serie_labels: "gCO2/km:" x_label: string(round(gramsCO2*100)/100)
 			series_label_position: xaxis
 			{
 				data " "
 					style: bar
-					value: round(gramsCO2) with_precision 2
+					value: round(gramsCO2*100)/100
 					color: #red;
 			}
 		}
 		display "Strings" type: opengl  axes: false {
 			graphics Strings {
-				draw "Unserved Trips: " at: {0, 600} color: #white font: font("Courier", 40, #plain);
-				draw " " + unservedCount at: {4600, 700} color: #indianred font: font("Courier", 60, #bold);
-				draw " " + unservedCount at: {4600, 700} wireframe: true color: #white font: font("Courier", 60, #bold);
-				draw "Reduction vs. ICE: " at: {0, 2600} color: #white font: font("Courier", 40, #plain);
-				draw " " + round(reductionICE) with_precision 2 + "%" at: {5600, 2700} color: #lightgreen font: font("Courier", 60, #bold);
-				draw " " + round(reductionICE) with_precision 2 + "%" at: {5600, 2700} wireframe: true color: #white font: font("Courier", 60, #bold);
-				draw "Reduction vs. BEV: " at: {0, 4600} color: #white font: font("Courier", 40, #plain);
-				draw " " + round(reductionBEV) with_precision 2 + "%" at: {5600, 4700} color: #green font: font("Courier", 60, #bold);
-				draw " " + round(reductionBEV) with_precision 2 + "%" at: {5600, 4700} wireframe: true color: #white font: font("Courier", 60, #bold);
+				if traditionalScenario{
+					draw "Traditional Scenario" at: {0, 600} color: #white font: font("Helvetica", 60, #bold);
+					draw "Number of Cars: " + numCars at: {0, 2000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Car Type: " + carType at: {0, 3000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Speed: " + round(RidingSpeedCar*100*3.6)/100 + " km/h" at: {0, 4000} color: #white font: font("Helvetica", 40, #plain);
+				} else{
+					draw "Autonomous Scenario" at: {0, 600} color: #white font: font("Helvetica", 60, #bold);
+					draw "Number of Bikes: " + numAutonomousBikes at: {0, 2000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Full Recharge: " + rechargeRate at: {0, 3000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Speed: " + round(PickUpSpeedAutonomousBike*100*3.6)/100 + " km/h" at: {0, 4000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Battery Capacity: " + maxBatteryLifeAutonomousBike/1000 + "km" at: {0, 5000} color: #white font: font("Helvetica", 40, #plain);
+					draw "Number of Charging Stations: " + numChargingStations at: {0, 6000} color: #white font: font("Helvetica", 40, #plain);
+				}
+				draw "UnservedTrips: " + unservedCount at: {0, 7000} color: #white font: font("Helvetica", 40, #plain);
 				}
 			}
 			
-		display reductionICE type: java2D{ 
-			chart "% Reduction vs. ICE" type: pie style: ring background: #black color: #white series_label_position: none{
-				data "reduction %" value: round(reductionICE) with_precision 2 color: #lightgreen;
-				data " " value: 100-round(reductionICE) with_precision 2 color: #darkgray;
+		display reductionICE antialias: false type: java2D{ 
+			chart "% Reduction vs. ICE" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{
+				data "reduction %" value: round(reductionICE*100)/100 color: #lightgreen;
+				data " " value: 100-round(reductionICE*100)/100 color: #darkgray;
+				}
+			graphics Strings{
+				draw " " + round(reductionICE*100)/100 + "%" at: {2000, 3200} color: #white font: font("Helvetica", 40, #bold);
 				}
 			}
 			
-		display reductionBEV type: java2D{
-			chart "% Reduction vs. BEV" type: pie style: ring background: #black color: #white series_label_position: none{ 
-				data "reduction %" value: round(reductionBEV) with_precision 2 color: #darkgreen;
-				data " " value: 100-round(reductionBEV) with_precision 2 color: #darkgray;
+		display reductionBEV  antialias: false type: java2D{
+			chart "% Reduction vs. BEV" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{ 
+				data "reduction %" value: round(reductionBEV*100)/100 color: #darkgreen;
+				data " " value: 100-round(reductionBEV*100)/100 color: #darkgray;
+				}
+			graphics Strings{
+				draw " " + round(reductionBEV*100)/100 + "%" at: {2000, 3200} color: #white font: font("Helvetica", 40, #bold);
 				}
 			}
 		

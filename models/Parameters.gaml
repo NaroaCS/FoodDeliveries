@@ -43,7 +43,7 @@ global {
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
 	int numAutonomousBikes <- 230 min: 50 max: 300 parameter: "Number of Autonomous Bicycles:" category: "Autonomous Bicycle";
-	float PickUpSpeedAutonomousBike <-  14/3.6 #m/#s min: 8/3.6 #m/#s max: 14/3.6 #m/#s step: 3/3.6 parameter: "Speed (m/s):" category:  "Autonomous Bicycle";
+	float PickUpSpeedAutonomousBike <-  14/3.6 #m/#s min: 8/3.6 #m/#s max: 14/3.6 #m/#s step: 3/3.6 parameter: "Bike Speed (m/s):" category:  "Autonomous Bicycle";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike;
 	float maxBatteryLifeAutonomousBike <- 65000.0 #m	min: 35000#m max: 65000#m step: 15000 parameter: "Battery Capacity (m):" category: "Autonomous Bicycle"; //battery capacity in m
 	
@@ -54,7 +54,7 @@ global {
 	int numChargingStations <- 75 	min: 1 max: 100 parameter: "Num Charging Stations:" category: "Autonomous Bicycle";
 	//float V2IChargingRate <- maxBatteryLife/(4.5*60*60) #m/#s; //4.5 h of charge
 	float V2IChargingRate <- maxBatteryLifeAutonomousBike/(4.5*60*60) #m/#s;  // 111 s battery swapping -> average of the two reported by Fei-Hui Huang 2019 Understanding user acceptancd of battery swapping service of sustainable transport
-	string rechargeRate <- "4.5hours" parameter: "Full Refuel/Recharge" category: "Autonomous Bicycle" among: ["4.5hours", "111s"];
+	string rechargeRate <- "4.5hours" parameter: "Full Recharge" category: "Autonomous Bicycle" among: ["4.5hours", "111s"];
 	bool nightRechargeCond <- false parameter: "Night Recharge Condition" category: "Autonomous Bicycle";
 	bool rechargeCond <- false parameter: "Battery Condition" category: "Autonomous Bicycle";
 	
