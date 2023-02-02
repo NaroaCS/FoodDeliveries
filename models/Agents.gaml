@@ -673,6 +673,8 @@ species autonomousBike control: fsm skills: [moving] {
 				reductionBEV_2 <- (-0.071367)*numAutonomousBikes+89.32833; //y=-0.071367x+89.32833
 			}
 			gramsCO2 <- ((gramsCO2_2-gramsCO2_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(gramsCO2_1-((gramsCO2_2-gramsCO2_1)*5.0/15.0));
+			reductionICE <- ((reductionICE_2-reductionICE_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(reductionICE_1-((reductionICE_2-reductionICE_1)*5.0/15.0));
+			reductionBEV <- ((reductionBEV_2-reductionBEV_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(reductionBEV_1-((reductionBEV_2-reductionBEV_1)*5.0/15.0));
 			
 		}
 		if maxBatteryLifeAutonomousBike = 65000{
@@ -692,6 +694,8 @@ species autonomousBike control: fsm skills: [moving] {
 				reductionBEV_2 <- (-0.078433)*numAutonomousBikes+89.07167; //y=-0.078​433x+89.071​67
 			}
 			gramsCO2 <- ((gramsCO2_2-gramsCO2_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(gramsCO2_1-((gramsCO2_2-gramsCO2_1)*5.0/15.0));
+			reductionICE <- ((reductionICE_2-reductionICE_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(reductionICE_1-((reductionICE_2-reductionICE_1)*5.0/15.0));
+			reductionBEV <- ((reductionBEV_2-reductionBEV_1)/15.0*PickUpSpeedAutonomousBike*3.6)+(reductionBEV_1-((reductionBEV_2-reductionBEV_1)*5.0/15.0));
 		}
 		
 		/* not using this battery level
