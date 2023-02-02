@@ -42,10 +42,10 @@ global {
 	
 	//----------------------Autonomous Scenario-------------------------
 	//-----------------Autonomous Bike Parameters-----------------------
-	int numAutonomousBikes <- 230 min: 50 max: 300 parameter: "Number of Autonomous Bicycles:" category: "Autonomous Bicycle";
-	float PickUpSpeedAutonomousBike <-  14/3.6 #m/#s min: 8/3.6 #m/#s max: 14/3.6 #m/#s step: 3/3.6 parameter: "Bike Speed (m/s):" category:  "Autonomous Bicycle";
+	int numAutonomousBikes <- 100 min: 50 max: 300 parameter: "Number of Autonomous Bicycles:" category: "Autonomous Bicycle";
+	float PickUpSpeedAutonomousBike <-  5/3.6 #m/#s min: 5/3.6 #m/#s max: 20/3.6 #m/#s parameter: "Bike Speed (m/s):" category:  "Autonomous Bicycle";
 	float RidingSpeedAutonomousBike <-  PickUpSpeedAutonomousBike;
-	float maxBatteryLifeAutonomousBike <- 65000.0 #m	min: 35000#m max: 65000#m step: 15000 parameter: "Battery Capacity (m):" category: "Autonomous Bicycle"; //battery capacity in m
+	float maxBatteryLifeAutonomousBike <- 65000.0 #m	min: 35000#m max: 65000#m step: 30000 parameter: "Battery Capacity (m):" category: "Autonomous Bicycle"; //battery capacity in m
 	
 	float minSafeBatteryAutonomousBike <- 0.25*maxBatteryLifeAutonomousBike #m; //Amount of battery at which we seek battery and that is always reserved when charging another bike
 	float nightSafeBatteryAutonomousBike <- 0.9*maxBatteryLifeAutonomousBike #m; 
