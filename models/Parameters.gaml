@@ -82,7 +82,7 @@ global {
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
     csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
-    
+  
     //----------------------Map Parameters------------------------
 	//Case - Cambridge
 	string cityScopeCity <- "Cambridge";
@@ -94,7 +94,7 @@ global {
 	string usage <- "usage";
 	
 	map<string, rgb> color_map <- [residence::#papayawhip-10, office::#gray, park::#lightgreen, education::#lightblue, "Other"::#black];
-    map<string, rgb> color_map_2 <-  [residence::#dimgray, office::#darkcyan, park::#darkolivegreen+15, education::#steelblue-50, "Other"::#black];
+    map<string, rgb> color_map_2 <-  [residence::#lightslategray, office::#aqua, park::#limegreen, education::#steelblue, "Other"::#black];
     
 	//GIS FILES To Upload - Cambridge
 	string cityGISFolder <- "./../includes/City/"+cityScopeCity;

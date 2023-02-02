@@ -214,7 +214,7 @@ global {
 	
 species road {
 	aspect base {
-		draw shape color: rgb(125, 125, 125);
+		draw shape color: #black;
 	}
 }
 
