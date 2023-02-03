@@ -335,8 +335,8 @@ experiment generalScenario type: gui {
 		}
 		
 		/* series graph for bike and car variables */
-		/*display vehicleTasks antialias: false axes: false{
-    		chart "Vehicle Tasks" type: series background: #black color: #white title_font: font("Helvetica", 20, #bold) axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Number of Vehicles" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
+		display vehicleTasks antialias: false axes: false {
+    		chart "Vehicle Tasks" type: series  background: #black color: #white title_font: font("Helvetica", 20, #bold) axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Number of Vehicles" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
     			
     			data "wandering cars" value: wanderCountCar color: #blue marker: false style: line;
 				//data "cars low battery/fuel" value: lowFuelCount color: #orange marker: false style: line;
@@ -349,10 +349,10 @@ experiment generalScenario type: gui {
 				data "bikes in use" value: inUseCount+pickUpCount color: #lightgreen marker: false style: line;
 				//data "bikes night relocating" value: nightRelCount color: #plum marker: false style: line;
    			}
-    	}*/
+    	}
 		
     	/* series graph for last 10 (moving) average wait time */
-		/*
+		
 		display avgWaitTime antialias: false axes: false{
 			chart "Average Wait Time" type: series background: #black title_font: font("Helvetica", 20, #bold) color: #white axes: #white tick_line_color:#transparent x_label: "Time of the Day" y_label: "Average Last 10 Wait Times (min)" x_serie_labels: (string(current_date.hour))  x_tick_unit: 362 {
 				data "Wait Time" value: avgWait color: #pink marker: false style: line;
@@ -361,7 +361,7 @@ experiment generalScenario type: gui {
 		}
 		
 		display CO2 antialias: false axes: false {
-			chart "CO2" type:histogram background: #black color: #white axes: #transparent title_font: font("Helvetica", 20, #bold) tick_line_color:#transparent y_range: [0.0, 60.0] x_serie_labels: "gCO2/km:" x_label: string(round(gramsCO2*100)/100)
+			chart "CO2" type:histogram reverse_axes: true background: #black color: #white axes: #transparent title_font: font("Helvetica", 20, #bold) tick_line_color:#transparent y_range: [0.0, 60.0] x_serie_labels: "gCO2/km:" x_label: string(round(gramsCO2*100)/100)
 			series_label_position: xaxis
 			{
 				data " "
@@ -369,7 +369,7 @@ experiment generalScenario type: gui {
 					value: round(gramsCO2*100)/100
 					color: #red;
 			}
-		}*/ /*
+		}/*
 		display "Strings" type: opengl  axes: false background: #white{
 			
 			graphics Strings {
@@ -401,9 +401,9 @@ experiment generalScenario type: gui {
 				//draw "UnservedTrips: " + unservedCount at: {0, 7000} color: #white font: font("Helvetica", 40, #plain);
 				}
 			} */
-			/*
+			
 		display reductionICE antialias: false type: java2D{ 
-			chart "% Reduction vs. ICE" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{
+			chart "Reduction vs. Combustion Cars" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{
 				data "reduction %" value: round(reductionICE*100)/100 color: #lightgreen;
 				data " " value: 100-round(reductionICE*100)/100 color: #darkgray;
 				}
@@ -413,14 +413,14 @@ experiment generalScenario type: gui {
 			}
 			
 		display reductionBEV  antialias: false type: java2D{
-			chart "% Reduction vs. BEV" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{ 
+			chart "Reduction vs. Electric Cars" type: pie style: ring background: #black color: #white title_font: font("Helvetica", 20, #bold) series_label_position: none{ 
 				data "reduction %" value: round(reductionBEV*100)/100 color: #darkgreen;
 				data " " value: 100-round(reductionBEV*100)/100 color: #darkgray;
 				}
 			graphics Strings{
 				draw " " + round(reductionBEV*100)/100 + "%" at: {2400, 3200} color: #white font: font("Helvetica", 40, #bold);
 				}
-			}*/
+			}
 		
 		
 //		display unservedTrips antialias: true draw_env: false{
