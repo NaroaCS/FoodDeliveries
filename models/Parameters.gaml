@@ -9,7 +9,7 @@ global {
 	float step <- 10 #sec; 
 	
 	//Simulation starting date
-	date starting_date <- date("2022-10-11 12:00:00"); 
+	date starting_date <- date("2022-10-11 00:00:00"); 
 	
 	//Date for log files
 	//date logDate <- #now;
@@ -81,11 +81,11 @@ global {
      
     //--------------------------Demand Parameters-----------------------------
     string cityDemandFolder <- "./../includes/Demand";
-    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_cambridge.csv",true);
+    csv_file pdemand_csv <- csv_file (cityDemandFolder+ "/fooddeliverytrips_tangibletable.csv",true);
   
     //----------------------Map Parameters------------------------
 	//Case - Cambridge
-	string cityScopeCity <- "Cambridge";
+	string cityScopeCity <- "Tangible_Table";
 	string residence <- "R";
 	string office <- "O";
 	string park <- "P";
@@ -103,13 +103,13 @@ global {
 	file roads_shapefile <- file(cityGISFolder + "/Roads.shp")			parameter: "Road Shapefile:" category: "GIS";
 	
 	//Charging Stations - Cambridge
-	csv_file chargingStations_csv <- csv_file(cityGISFolder+ "/bluebikes_stations_cambridge.csv",true);
+	csv_file chargingStations_csv <- csv_file(cityGISFolder+ "/bluebikes_stations_tangibletable.csv",true);
 	
 	//Restaurants - Cambridge
-	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_cambridge.csv",true);
+	csv_file restaurants_csv <- csv_file (cityGISFolder+ "/restaurants_tangibletable.csv",true);
 	
 	//Gas Stations - Cambridge
-	csv_file gasstations_csv <- csv_file (cityGISFolder+ "/gasstations.csv",true);
+	csv_file gasstations_csv <- csv_file (cityGISFolder+ "/gasstations_tangibletable.csv",true);
 	 
 	//Image File
 	file imageRaster <- file('./../images/gama_black.png');

@@ -1,0 +1,48 @@
+Number,Name,Latitude,Longitude,District,Public,Total docks,Deployment Year
+M32026,359 Broadway - Broadway at Fayette Street,42.370803,-71.104412,Cambridge,Yes,23,2013.0
+M32073,955 Mass Ave,42.368952,-71.1099878,Cambridge,Yes,19,2021.0
+M32059,Ames St at Broadway,42.363693,-71.0875672,Cambridge,Yes,19,2018.0
+M32037,Ames St at Main St,42.3625,-71.08821999999999,Cambridge,Yes,19,2012.0
+S32003,Beacon St at Washington / Kirkland,42.378754,-71.10707223,Somerville,Yes,19,2012.0
+M32067,Berkshire Street at Cambridge Street,42.372077,-71.08995434,Cambridge,Yes,19,2019.0
+M32027,Binney St / Sixth St,42.366088,-71.08633604,Cambridge,Yes,19,2013.0
+M32052,Cambridge Dept. of Public Works -147 Hampshire St.,42.371197,-71.09759867,Cambridge,Yes,19,2017.0
+M32013,Cambridge Main Library at Broadway / Trowbridge St,42.373379,-71.111075,Cambridge,Yes,19,2012.0
+M32007,Cambridge St - at Columbia St / Webster Ave,42.372969,-71.094445,Cambridge,Yes,15,2012.0
+M32012,Central Sq Post Office / Cambridge City Hall at Mass Ave / Pleasant St,42.366426,-71.10549499999999,Cambridge,Yes,16,2012.0
+M32011,Central Square at Mass Ave / Essex St,42.36507,-71.1031,Cambridge,Yes,19,2012.0
+M32030,Dana Park,42.36178,-71.10809952,Cambridge,Yes,19,2014.0
+M32078,Galileo Galilei Way at Fulkerson St/Binney St,42.36642,-71.0885418,Cambridge,Yes,19,2022.0
+M32072,Galileo Galilei Way at Main Street,42.363004,-71.08974038,Cambridge,Yes,19,2020.0
+M32016,Harvard Kennedy School at Bennett St / Eliot St,42.372217,-71.12188071,Cambridge,Yes,23,2012.0
+M32020,Harvard Law School at Mass Ave / Jarvis St,42.379011,-71.119945,Cambridge,Yes,19,2012.0
+M32017,Harvard Square at Brattle St / Eliot St,42.373329,-71.12098601,Cambridge,Yes,15,2012.0
+M32018,Harvard Square at Mass Ave/ Dunster,42.373268,-71.118579,Cambridge,Yes,19,2012.0
+M32055,Harvard St at Greene-Rose Heritage Park,42.365994,-71.09522222,Cambridge,Yes,19,2018.0
+M32023,Harvard University / SEAS Cruft-Pierce Halls at 29 Oxford St,42.377945,-71.116865,Cambridge,Yes,17,2012.0
+M32021,Harvard University Gund Hall at Quincy St / Kirkland St,42.376369,-71.114025,Cambridge,Yes,15,2013.0
+M32014,Harvard University Housing - 115 Putnam Ave at Peabody Terrace,42.366621,-71.114214,Cambridge,Yes,15,2012.0
+M32038,Harvard University River Houses at DeWolfe St / Cowperthwaite St,42.369206,-71.11710638,Cambridge,Yes,21,2012.0
+M32062,Inman Square at Springfield St.,42.374267,-71.10026479,Cambridge,Yes,25,2019.0
+M32004,Kendall T,42.362428,-71.08495474,Cambridge,Yes,23,2016.0
+M32065,Kennedy-Longfellow School 158 Spring St,42.369553,-71.08579015,Cambridge,Yes,19,2019.0
+M32009,Lafayette Square at Mass Ave / Main St / Columbia St,42.363465,-71.10057324,Cambridge,Yes,15,2012.0
+M32022,Lower Cambridgeport at Magazine St / Riverside Rd,42.357218,-71.11387163,Cambridge,Yes,19,2012.0
+M32061,Mass Ave at Albany St,42.361358,-71.09670274,Cambridge,Yes,18,2019.0
+M32006,MIT at Mass Ave / Amherst St,42.3581,-71.093198,Cambridge,Yes,27,2012.0
+M32070,MIT Carleton St at Amherst St,42.360542,-71.08669817,Cambridge,Yes,27,2020.0
+M32071,MIT Hayward St at Amherst St,42.360859,-71.08551858,Cambridge,Yes,27,2020.0
+M32041,MIT Pacific St at Purrington St,42.359573,-71.10129476,Cambridge,Yes,19,2015.0
+M32005,MIT Stata Center at Vassar St / Main St,42.362131,-71.09115601,Cambridge,Yes,35,2012.0
+M32042,MIT Vassar St,42.355601,-71.10394478,Cambridge,Yes,25,2015.0
+M32076,Old Morse Park at Putnam Ave,42.357662,-71.10841334,Cambridge,Yes,15,2021.0
+M32003,One Broadway / Kendall Sq at Main St / 3rd St,42.362242,-71.08311072,Cambridge,Yes,23,2012.0
+M32002,One Kendall Square at Hampshire St / Portland St,42.366277,-71.09169,Cambridge,Yes,19,2012.0
+S32034,Perry Park,42.379273,-71.10341903,Somerville,Yes,19,2018.0
+M32063,Sennott Park Broadway at Norfolk Street,42.368605,-71.09930186,Cambridge,Yes,19,2019.0
+M32047,Sidney Research Campus/Erie Street at Waverly,42.357753,-71.10393405,Cambridge,Yes,19,2016.0
+M32048,Third at Binney,42.365445,-71.08277142,Cambridge,Yes,15,2016.0
+S32002,Union Square - Somerville,42.379648,-71.09540476,Somerville,Yes,19,2012.0
+S32041,Union Square East,42.380078,-71.090098,Somerville,Yes,19,2021.0
+M32040,University Park,42.362648,-71.10006094,Cambridge,Yes,18,2015.0
+M32050,Verizon Innovation Hub 10 Ware Street,42.372509,-71.11305356,Cambridge,Yes,19,2017.0

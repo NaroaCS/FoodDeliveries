@@ -298,7 +298,7 @@ species package control: fsm skills: [moving] {
     	"requestingDeliveryMode"::#red,
     	
 		"awaiting_autonomousBike":: #yellow,
-		"awaiting_car":: #palevioletred,
+		"awaiting_car":: #cyan,
 		
 		"delivering_autonomousBike":: #yellow,
 		"delivering_car"::#cyan,
@@ -530,18 +530,18 @@ species autonomousBike control: fsm skills: [moving] {
 		"wandering"::#transparent,
 		
 		"low_battery":: #red,
-		"night_recharging":: #orangered,
+		"night_recharging":: #red,
 		"getting_charge":: #red,
-		"getting_night_charge":: #orangered,
+		"getting_night_charge":: #red,
 		"night_relocating":: #springgreen,
 		
-		"picking_up_packages"::#mediumorchid,
+		"picking_up_packages"::#gold,
 		"in_use_packages"::#gold
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw triangle(35) color:color border:color rotate: heading + 90 ;
+		draw triangle(50) color:color border:color rotate: heading + 90 ;
 	} 
 
 	autonomousBikeLogger_roadsTraveled travelLogger;
@@ -917,18 +917,18 @@ species car control: fsm skills: [moving] {
 		"wandering"::#transparent,
 		
 		"low_fuel"::#red,
-		"night_refilling"::#orangered,
-		"getting_fuel"::#pink,
-		"getting_night_fuel"::#orangered,
+		"night_refilling"::#red,
+		"getting_fuel"::#red,
+		"getting_night_fuel"::#red,
 		"night_relocating"::#orangered,
 		
-		"picking_up_packages"::#indianred,
+		"picking_up_packages"::#cyan,
 		"in_use_packages"::#cyan
 	];
 	
 	aspect realistic {
 		color <- color_map[state];
-		draw triangle(35) color:color border:color rotate: heading + 90 ;
+		draw triangle(50) color:color border:color rotate: heading + 90 ;
 	} 
 
 	carLogger_roadsTraveled travelLogger;
